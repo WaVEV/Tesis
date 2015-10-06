@@ -1,5 +1,5 @@
 # Binary file
-BIN			= pozo-1
+BIN			= pozo-2
 
 # Flags
 # CFLAGS			= -std=gnu99 -Wall -Wextra
