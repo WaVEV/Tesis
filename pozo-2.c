@@ -128,8 +128,8 @@ static const unsigned int nb = L_INTERVALS + KORD - 3; // tamaño de la base //
 double  s[ (L_INTERVALS+2*KORD-3) * (KORD)],
         v0[(L_INTERVALS+2*KORD-3) * (KORD)],
         ke[(L_INTERVALS+2*KORD-3) * (KORD)],
-        f[(L_INTERVALS+2*KORD-3) * (KORD)],
-        g[(L_INTERVALS+2*KORD-3) * (KORD)];
+        f[(L_INTERVALS+2*KORD-3) * 2 * (KORD)],
+        g[(L_INTERVALS+2*KORD-3) * 2 * (KORD)];
 
 double mh[L_INTERVALS+2*KORD-1][L_INTERVALS+2*KORD-1];
 
@@ -167,6 +167,17 @@ int dsygvx_(int *itype, char *jobz, char *range, char * uplo,
 
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
+
+int idx2(const unsigned int y, const unsigned int x, const unsigned int numcolumns){
+    int i=y, j=x;
+    if(i - j >= KORD || j - i >= KORD) {
+      return 0;
+    }
+    i = KORD + ( j - i ) - 1;
+    j += abs(y-x);
+    assert((L_INTERVALS+2*KORD-3) * (2*KORD) > i*numcolumns + j);
+    return i*numcolumns + j;
+}
 
 int idx(const unsigned int y, const unsigned int x, const unsigned int numcolumns){
     int i, j;
@@ -206,7 +217,7 @@ void setxparameters(const int i, double *xm, double *xl){
 double eval_xi(const int i, const int j, const double * x){
     double xm, xl;
     setxparameters(i, &xm, &xl);
-    if(j > (INT_G + 1) / 2){
+    if(j >= (INT_G + 1) / 2){
         return xm + x[j] * xl;
     }else{
       
@@ -302,27 +313,25 @@ int bsplvb(unsigned int jhigh, double rr, int left, double * __restrict__ biatx,
 }
 
 
-double bder(unsigned int indexm, unsigned int left, double * __restrict__ Sp) {
+double bder(double rr, unsigned int indexm, unsigned int left, double * __restrict__ Sp) {
 
     unsigned int i;
     double dm = 0;
     //assert(ti(0)<rr && rr<ti(nk-1));
     
-    //if(ti(0)<rr && rr<ti(nk-1)) {
-        //int cnt = 0;
-        //if(abs(rr-ti(nk-1))<1.e-10) {
-          //  cnt |= 1;
-
-            //dm = ((indexm == nk - KORD)*2-1) * (KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
-            /*if(indexm == nk - KORD) {
+    if(ti(0)<rr && rr<ti(nk-1)) {
+        
+        if(abs(rr-ti(nk-1))<1.e-10) {
+            dm = ((indexm == nk - KORD)*2-1) * (KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
+            if(indexm == nk - KORD) {
                 dm = (KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
             }
             else {
                 dm = -(KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
-            }*/
-        //}
+            }
+        }
 
-        /*else */if(indexm-left+KORD>=1) {
+        else if(indexm-left+KORD>=1) {
             i = indexm-left+KORD;
             if(1==i) {
                 dm = (KORD-1)*(-Sp[i-1]/(ti(indexm+KORD)-ti(indexm+1)));
@@ -337,7 +346,7 @@ double bder(unsigned int indexm, unsigned int left, double * __restrict__ Sp) {
         }
 
         //if(cnt == 2) printf("entre solo al segundo \n");
-    //}
+    }
 
 
     return dm;
@@ -366,7 +375,7 @@ void calculo_matrices(const double * __restrict__ const x, const double * __rest
             bsplvb(KORD, rr, i, Sp, Sp_1);
 
             for(unsigned int m = i-KORD+1; m<=i && m<nb ; ++m) {
-                bders[m - (i-KORD+1)] = bder(m, i, Sp_1);
+                bders[m - (i-KORD+1)] = bder(rr, m, i, Sp_1);
             }
 
             for(int k=0 ; k<KORD ; k++){
@@ -401,7 +410,7 @@ void calculo_matrices(const double * __restrict__ const x, const double * __rest
         bsplvb(KORD, rr, KORD-1, Sp, Sp_1);
 
         for(unsigned int m = 1; m<=KORD-1; ++m) {
-            bders[m] = bder(m, KORD-1, Sp_1);
+            bders[m] = bder(rr, m, KORD-1, Sp_1);
         }
 
         for(unsigned int m = 1; m<=KORD-1; ++m) {
@@ -455,22 +464,25 @@ static void interaccion(const double * __restrict__ const x, const double * __re
           double rr2 = eval_xi(basek2, l, x);
           double w2 = eval_wi(basek2, l, w);
           
-
           bsplvb(KORD, rr2, k-1, Sp, Sp_1);
+          //printf("%.16e\n", rr2);
 
           for(int m=0 ; m<KORD ; m++){
             unsigned int im = k - KORD + m - 1;
             if(im<nb){
-              for(int n=m; n < KORD ; n++){
+              for(int n=0; n < KORD ; n++){
 
                 unsigned int in = k - KORD + n - 1;
 
                 if(in<nb){
-                  assert(idx(im, in, nb) != 0);
+                  if(idx2(im, in, nb) == 0){
+                    printf("%d %d\n", im, in);
+                  }
+                  assert(idx2(im, in, nb) != 0);
                   if(rr2 <= rr1){
-                    f[idx(im, in, nb)] += Sp[m] * Sp[n] * w2/rr1;
+                    f[idx2(im, in, nb)] += Sp[m] * Sp[n] * w2/rr1;
                   }else{
-                    g[idx(im, in, nb)] += Sp[m] * Sp[n] * w2/rr2;
+                    g[idx2(im, in, nb)] += Sp[m] * Sp[n] * w2/rr2;
                   }
                 }
               }
@@ -487,7 +499,7 @@ static void interaccion(const double * __restrict__ const x, const double * __re
           for(size_t mp=0 ; mp < KORD ; mp++) // im y imp son diagonales
           {
             size_t imp = i - KORD + mp - 1;
-            if(imp > 0 && imp < nb + 1){
+            if(imp < nb){
               for(size_t n=0 ; n<nb ; n++){ // n y np van completo, pero justo en los valores fuera de la diagonal g y f son 0s :) => f[i,j] + g[i,j] = 0
                 for(size_t np=0 ; np<nb ; np++){
 
@@ -502,46 +514,37 @@ static void interaccion(const double * __restrict__ const x, const double * __re
       }
     }
   }
-  for(size_t i=0 ; i<nb ; i++){
-    for(size_t j=0 ; j<nb ; j++){
-      for(size_t k=0 ; k<nb ; k++){
-        for(size_t l=0 ; l<nb ; l++){
-          printf("%lf ", Vef[i][j][k][l]);
-        }
-        puts("");
-      }
-    }
-  }
-  assert(0);
 }
 
 //https://github.com/flame/libflame/blob/65cc6f2a1ad6baedeb1d801e19c4e4d80cc854c7/src/map/lapack2flamec/f2c/c/dpftrf.c
 static void ini_e(){
-    for(size_t n=0 ; n<nb ; n++){
-        for(size_t np=0 ; np<nb ; np++){
-            double nor1 = sqrt(s[idx(n,n, nb)] * s[idx(np, np, nb)]);
-            for(size_t m=0 ; m<nb ; m++){
-                for(size_t mp=0 ; mp<nb ; mp++){
-                    Vef[n][m][np][mp] /= nor1;
-                }
-            }
+
+  for(size_t n=0 ; n<nb ; n++){
+     for(size_t np=0 ; np<nb ; np++){
+      double nor1 = sqrt(s[idx(n,n, nb)] * s[idx(np, np, nb)]);
+      for(size_t m=0 ; m<nb ; m++){
+        for(size_t mp=0 ; mp<nb ; mp++){
+          Vef[n][m][np][mp] /= nor1;
         }
+      }
     }
-    for(size_t m=0 ; m<nb ; m++){
-        for(size_t n=m+1 ; n<nb ; n++){
-            double nor = sqrt(s[idx(m, m, nb)] * s[idx(n, n, nb)]);
-            s[idx(m, n, nb)] /= nor;
-            ke[idx(m, n, nb)] /= nor;
-            v0[idx(m, n, nb)] /= nor;
-        }
-        ke[idx(m, m, nb)] /= s[idx(m, m, nb)];
-        v0[idx(m, m, nb)] /= s[idx(m, m, nb)];
-        norma[m] = sqrt(s[idx(m, m, nb)]);
-        s[idx(m, m, nb)] = 1;
+  }
+
+  for(size_t m=0 ; m<nb ; m++){
+    for(size_t n=m+1 ; n<nb ; n++){
+      double nor = sqrt(s[idx(m, m, nb)] * s[idx(n, n, nb)]);
+      s[idx(m, n, nb)] /= nor;
+      ke[idx(m, n, nb)] /= nor;
+      v0[idx(m, n, nb)] /= nor;
     }
+    ke[idx(m, m, nb)] /= s[idx(m, m, nb)];
+    v0[idx(m, m, nb)] /= s[idx(m, m, nb)];
+    norma[m] = sqrt(s[idx(m, m, nb)]);
+    s[idx(m, m, nb)] = 1;
+  }
 }
 
-/*
+
 void eigenvalues(int n, int m, double * __restrict__ a,
          double * __restrict__ b, double * __restrict__ w, 
          double * __restrict__ z) {
@@ -567,7 +570,7 @@ void eigenvalues(int n, int m, double * __restrict__ a,
     free(iwork); 
     free(ifail);
 } 
-*/
+
 
 void sener(){
   memset(mh, 0, sizeof(mh));
@@ -628,8 +631,8 @@ void sener(){
     }
     assert(NN == indp && NN == ind);
 
-    //int info;
-    //eigenvalues(NN, NEV, hsim, ms, AUVAL, AUVEC);
+  //  int info;
+  //  eigenvalues(NN, NEV, hsim, ms, AUVAL, AUVEC);
   }
 }
 

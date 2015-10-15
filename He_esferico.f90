@@ -329,7 +329,7 @@ implicit none
           rr2 = x(k(i2), j2); w2 = w(k(i2),j2);
 
           call bsplvb(t, kord, 1, rr2, i2, Sp)
-          
+          !write(*,*) rr2
 
           do m = 1, kord
             im = i2-kord+m-1
@@ -358,6 +358,7 @@ implicit none
 
       Sp = 0.d0;
       call bsplvb(t, kord, 1, rr1, i1, Sp)
+
       do m = 1, kord
         im = i1-kord+m-1
         if(im>0 .and. im<nb+1) then
@@ -377,8 +378,7 @@ implicit none
       end do
     end do
   end do
-  write(*,*) Vef
-  stop
+  
 
   deallocate(f, g)
 
@@ -393,8 +393,9 @@ use matrices
 use integracion
 use carga
 implicit none
-integer(4) :: m, n, np, mp
+integer(4) :: m, n, np, mp, im
 real(8) :: nor, nor1, nor2
+
 
 do n = 1, nb
   do np = 1, nb
@@ -408,6 +409,14 @@ do n = 1, nb
     end do
   end do
 end do
+!do m=1, nb
+!  do im=1, nb
+!    do n=1, nb
+!      write(*,*) Vef(m,im,n, :)
+!    end do
+!  end do
+!end do
+!stop
 
 do m = 1, nb
    do n = m+1, nb
@@ -426,6 +435,11 @@ do m = 1, nb
    s(m,m) = 1.d0
 end do
 
+
+do m = 1, nb
+  write(*,*) s(m, :)
+end do
+stop
 call sener( )
 
 return
@@ -674,6 +688,7 @@ avec(1:dp,1:nev)=z(1:dp,1:nev)
       real*8 dm,dn,t(np),Sp(kord),rr
 
       dm=0.d0  ; dn=0.d0
+
 !     if rr=t(np) then the routine assumes that
 !     there is kord knotpoints in the last physical point and
 !     returns Bder.ne.zero if index is np-kord, or np-kord-1
