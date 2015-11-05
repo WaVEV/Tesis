@@ -220,7 +220,6 @@ double eval_xi(const int i, const int j, const double * x){
     if(j >= (INT_G + 1) / 2){
         return xm + x[j] * xl;
     }else{
-      
         return xm - x[j] * xl;
     }
 }
@@ -659,15 +658,18 @@ int main(void) {
 
     t_in = omp_get_wtime();
     gaulegm(x, w);
-    /*for(int i=0 ; i<L_INTERVALS ; i++){
-      for(int j=0 ; j<INT_G ; j++){
-        printf("%lf ", eval_wi(i,j,w));
+    
+    calculo_matrices(x, w, s, v0, ke);
+    
+    for(unsigned int i=0 ; i<nb; i++){
+      for(unsigned int j=0 ; j<nb ; j++){
+        printf("%lf ", v0[idx(i,j,nb)]);
+        //printf("%lf ", eval_xi(i,j,x));
       }
       puts("");
     }
-    assert(0);*/
+    assert(0);
     
-    calculo_matrices(x, w, s, v0, ke);
     interaccion(x, w);
     ini_e();
     sener();

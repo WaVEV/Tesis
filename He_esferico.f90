@@ -204,7 +204,7 @@ call  KNOTS_PESOS( kord, tip, gamma, Rmin, Rmax, c, l, lum, intg, t, k, x, w, pl
 
 t2 = omp_get_wtime();
 !do i = 1, nk
-!!  write(*,*)i, t(i), k(i)
+!  write(*,*) i, t(i), k(i)
 !end do
 
 !!write(*,*)"calcula las matrices de una particulas"
@@ -224,6 +224,12 @@ do i = 1,nb
     ke(j,i) = ke(i,j)
   end do
 end do
+
+do i = 1,nb
+	write(*,*) v01(i, :)
+end do
+stop;
+
 
 !!write(*,*)"diagonaliza"
 call init_e( )
