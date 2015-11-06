@@ -226,7 +226,7 @@ do i = 1,nb
 end do
 
 do i = 1,nb
-	write(*,*) v01(i, :)
+	write(*,*) ke(i, :)
 end do
 stop;
 

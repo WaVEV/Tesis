@@ -345,6 +345,8 @@ double bder(double rr, unsigned int indexm, unsigned int left, double * __restri
         }
 
         //if(cnt == 2) printf("entre solo al segundo \n");
+    }else{
+      //puts("no entro");
     }
 
 
@@ -394,9 +396,9 @@ void calculo_matrices(const double * __restrict__ const x, const double * __rest
                     
                     s[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj;
 
-                    ke[idx(im, in, nb)] += ma*Sp[m] * Sp[n] * wikj * _rr2;
+                    ke[idx(im, in, nb)] += ma*Sp[m] * Sp[n] * wikj / rr;
 
-                    if(RADIO_1<rr && rr<RADIO_2) v0[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj;
+                    /*if(RADIO_1<rr && rr<RADIO_2)*/ v0[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj/rr;
                 }
             }
         }
@@ -433,7 +435,7 @@ void calculo_matrices(const double * __restrict__ const x, const double * __rest
 
                 ke[idx(im, in, nb)] += ma*Sp[m] * Sp[n] * wikj * _rr2;
 
-                if(RADIO_1<rr && rr<RADIO_2) v0[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj;
+                /* if(RADIO_1<rr && rr<RADIO_2) */v0[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj/rr;
             }
         }
     }
@@ -660,10 +662,9 @@ int main(void) {
     gaulegm(x, w);
     
     calculo_matrices(x, w, s, v0, ke);
-    
     for(unsigned int i=0 ; i<nb; i++){
       for(unsigned int j=0 ; j<nb ; j++){
-        printf("%lf ", v0[idx(i,j,nb)]);
+        printf("%e ", ke[idx(i,j,nb)]);
         //printf("%lf ", eval_xi(i,j,x));
       }
       puts("");
