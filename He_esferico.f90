@@ -226,9 +226,11 @@ do i = 1,nb
 end do
 
 do i = 1,nb
-	write(*,*) ke(i, :)
+	write(*,*) v01(i, :)
 end do
+
 stop;
+
 
 
 !!write(*,*)"diagonaliza"
@@ -287,20 +289,20 @@ do i = kord, kord+l-1
 end do
 
 do i = kord, kord+l-1
-  do m = i-kord+1, i
-    if(m>1.and.m<nb+2)then
-      do n = m,i
-        if(n<nb+2)then
-          do j = 1, intg
-          
-            call bder(x(k(i),j), t, bm, bn, kord, nk, m, n, i)
+  do j = 1, intg
+    rr = x(k(i),j)
+    do m = i-kord+1, i
+
+      if(m>1.and.m<nb+2)then
+        do n = m,i
+          if(n<nb+2)then
             
+            call bder(rr, t, bm, bn, kord, nk, m, n, i)
             ke(m-1,n-1) = ke(m-1,n-1) + 0.5d0*w(k(i),j)*bm*bn/me
-                    
-          end do
-        endif
-      end do
-    endif
+          endif
+        end do
+      endif
+    end do
   end do
 end do
 
@@ -698,21 +700,27 @@ avec(1:dp,1:nev)=z(1:dp,1:nev)
 !     if rr=t(np) then the routine assumes that
 !     there is kord knotpoints in the last physical point and
 !     returns Bder.ne.zero if index is np-kord, or np-kord-1
-      if(rr.gt.t(np)) return
-      if(rr.lt.t(1)) return
+
+      if(rr.gt.t(np)) then
+        
+       return
+      endif
+      if(rr.lt.t(1)) then
+       return
+      endif
 !      do it=1,np
 !        if(rr.ge.t(it)) left=it
 !      end do
-
       if(abs(rr-t(np)).lt.1.d-10) then
-        !if(index.lt.np-kord-1) return
 
+        !if(index.lt.np-kord-1) return
         if(indexm.eq.np-kord) then
           dm=dble(kord-1)/(t(np)-t(np-kord))
         else if(indexm.eq.np-kord-1) then
           dm=-dble(kord-1)/(t(np)-t(np-kord))
         end if
-
+        
+        
        if(indexn.eq.np-kord) then
           dn=dble(kord-1)/(t(np)-t(np-kord))
         else if(indexn.eq.np-kord-1) then

@@ -295,6 +295,7 @@ int bsplvb(unsigned int jhigh, double rr, int left, double * __restrict__ biatx,
         biatx[j+1] = saved;
 
     }
+
     memcpy(biatx_1, biatx, sizeof(double) * KORD);
 
     deltar[j] = ti(left+j+1) - rr;
@@ -314,40 +315,35 @@ int bsplvb(unsigned int jhigh, double rr, int left, double * __restrict__ biatx,
 
 double bder(double rr, unsigned int indexm, unsigned int left, double * __restrict__ Sp) {
 
-    unsigned int i;
     double dm = 0;
     //assert(ti(0)<rr && rr<ti(nk-1));
     
-    if(ti(0)<rr && rr<ti(nk-1)) {
-        
-        if(abs(rr-ti(nk-1))<1.e-10) {
-            dm = ((indexm == nk - KORD)*2-1) * (KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
-            if(indexm == nk - KORD) {
-                dm = (KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
-            }
-            else {
-                dm = -(KORD-1)/(ti(nk-1)-ti(nk-1-KORD));
-            }
-        }
-
-        else if(indexm-left+KORD>=1) {
-            i = indexm-left+KORD;
-            if(1==i) {
-                dm = (KORD-1)*(-Sp[i-1]/(ti(indexm+KORD)-ti(indexm+1)));
-            }
-            else if(KORD==i) {
-                dm = (KORD-1)*(Sp[i-1-1]/(ti(indexm+KORD-1)-ti(indexm)));
-            }
-            else {
-                dm = (KORD-1)*(Sp[i-1-1]/(ti(indexm+KORD-1)-ti(indexm))
-                    - Sp[i-1]/(ti(indexm+KORD)-ti(indexm+1)));
-            }
-        }
-
-        //if(cnt == 2) printf("entre solo al segundo \n");
-    }else{
-      //puts("no entro");
+    assert(ti(0)<rr && rr<ti(nk-1));
+    if(fabs(rr-ti(nk-1)) < 1.e-10) {
+      if(indexm + 1 == nk - KORD){
+        dm = (KORD-1.0) / (ti(nk-1) - ti(nk - KORD));
+      }else if(indexm + 1 == nk-KORD-1){
+        dm = -(KORD-1) / (ti(nk-1) - ti(nk-KORD));
+      }else{
+      	assert(0);
+      }
     }
+    else if(indexm-left+KORD>=1) {
+        unsigned int i = indexm-left+KORD;
+        if(1==i) {
+            dm = (KORD-1)*(-Sp[i-1]/(ti(indexm+KORD)-ti(indexm+1)));
+        }
+        else if(KORD==i) {
+            dm = (KORD-1)*(Sp[i-1-1]/(ti(indexm+KORD-1)-ti(indexm)));
+        }
+        else {
+            dm = (KORD-1)*(Sp[i-1-1]/(ti(indexm+KORD-1)-ti(indexm))
+                - Sp[i-1]/(ti(indexm+KORD)-ti(indexm+1)));
+        }
+    }
+
+    //if(cnt == 2) printf("entre solo al segundo \n");
+
 
 
     return dm;
@@ -367,75 +363,42 @@ void calculo_matrices(const double * __restrict__ const x, const double * __rest
     
 
     double bders[KORD];
-    for(unsigned int basek=1; basek<L_INTERVALS; ++basek) {
+    for(unsigned int basek=0; basek<L_INTERVALS; ++basek) {
         unsigned int i = basek - 1 + KORD;
+
         for(unsigned int j = 0; j<INT_G; ++j) {
+
             rr = eval_xi(basek, j, x);
             _rr2= 1.0/(rr*rr);
 
             bsplvb(KORD, rr, i, Sp, Sp_1);
 
-            for(unsigned int m = i-KORD+1; m<=i && m<nb ; ++m) {
-                bders[m - (i-KORD+1)] = bder(rr, m, i, Sp_1);
-            }
+            const double wikj = eval_wi(basek, j, w);
 
             for(int k=0 ; k<KORD ; k++){
-                for(unsigned int m = i-KORD+1, n = m + k; n<=i && n<nb ; ++m, ++n) {
-                    double  bm = bders[m - (i-KORD+1)];
-                    double bn = bders[n - (i-KORD+1)];
-                    ke[idx(m-1, n-1, nb)] += 0.5*eval_wi(basek, j, w)*bm*bn/ME;
-                }
-            }
-
-            double wikj = eval_wi(basek, j, w);
-
-            for(int k=0 ; k<KORD ; k++){
-                for(unsigned int m = 0, im = i-KORD, n = k, in = i-KORD + k; 
+                for(unsigned int m = 0+(basek==0), im = i-KORD+(basek==0), n = k+(basek==0), in = i-KORD + k +(basek==0); 
                     in<nb && n < KORD;
                     ++m, ++im, ++n, ++in) {
                     
                     s[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj;
 
-                    ke[idx(im, in, nb)] += ma*Sp[m] * Sp[n] * wikj / rr;
+                    ke[idx(im, in, nb)] += ma*Sp[m] * Sp[n] * wikj / _rr2;
 
                     /*if(RADIO_1<rr && rr<RADIO_2)*/ v0[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj/rr;
                 }
             }
-        }
-    }
 
-    for(unsigned int j = 0; j<INT_G; ++j) {
-        rr = eval_xi(BASE_KORD, j, x);
-        _rr2= 1.0/(rr*rr);
-
-        bsplvb(KORD, rr, KORD-1, Sp, Sp_1);
-
-        for(unsigned int m = 1; m<=KORD-1; ++m) {
-            bders[m] = bder(rr, m, KORD-1, Sp_1);
-        }
-
-        for(unsigned int m = 1; m<=KORD-1; ++m) {
-            for(unsigned int n = m; n<=KORD-1; ++n) {
-
-                double  bm = bders[m],
-                        bn = bders[n];
-
-                ke[idx(m-1, n-1, nb)] += 0.5* eval_wi(BASE_KORD, j, w)*bm*bn/ME;
+            for(unsigned int m = i-KORD+1+(basek==0); m<=i && m<=nb ; ++m) {
+            	assert(m - (i-KORD+1+(basek==0)) < KORD);
+                bders[m - (i-KORD+1+(basek==0))] = bder(rr, m, i, Sp_1);
             }
-        }
 
-        double wikj = eval_wi(0, j, w);
-
-        for(int k=0 ; k<KORD ; k++){
-            for(unsigned int m = 1, im = 0,  n = 1 + k, in = k; 
-                n < KORD && in<nb ;
-                ++m, ++im, ++n, ++in) {
-
-                s[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj;
-
-                ke[idx(im, in, nb)] += ma*Sp[m] * Sp[n] * wikj * _rr2;
-
-                /* if(RADIO_1<rr && rr<RADIO_2) */v0[idx(im, in, nb)] += Sp[m] * Sp[n] * wikj/rr;
+            for(int k=0 ; k<KORD ; k++){
+                for(unsigned int m = i-KORD + 1 + (basek==0), n = m + k; n<=i && n<=nb ; ++m, ++n) {
+                    double  bm = bders[m - (i-KORD+1+(basek==0))],
+                     		bn = bders[n - (i-KORD+1+(basek==0))];
+                    ke[idx(m-1, n-1, nb)] += 0.5*wikj*bm*bn/ME;
+                }
             }
         }
     }
@@ -664,7 +627,7 @@ int main(void) {
     calculo_matrices(x, w, s, v0, ke);
     for(unsigned int i=0 ; i<nb; i++){
       for(unsigned int j=0 ; j<nb ; j++){
-        printf("%e ", ke[idx(i,j,nb)]);
+        printf("%e ", v0[idx(i,j,nb)]);
         //printf("%lf ", eval_xi(i,j,x));
       }
       puts("");
