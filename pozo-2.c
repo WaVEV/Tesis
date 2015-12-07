@@ -105,7 +105,7 @@
 #endif
 
 #ifndef ETAI
-#define ETAI 0.0
+#define ETAI 0.1
 #endif
 
 #ifndef ETAF
@@ -117,7 +117,7 @@
 #endif
 
 
-#define NN ( L_INTERVALS + KORD - 3 )
+#define NN ((( L_INTERVALS + KORD - 3 ) * ( L_INTERVALS + KORD - 2 )) / 2)
 
 
 const unsigned int nk = L_INTERVALS+2*KORD-1;
@@ -494,6 +494,7 @@ static void ini_e(){
     }
   }
 
+  
   for(size_t m=0 ; m<nb ; m++){
     for(size_t n=m+1 ; n<nb ; n++){
       double nor = sqrt(s[idx(m, m, nb)] * s[idx(n, n, nb)]);
@@ -540,23 +541,26 @@ void sener(){
   memset(mh, 0, sizeof(mh));
 
   for(size_t m=0 ; m<nb ; m++){
-      for(size_t n=1 ; n<=m ; n++){
+      for(size_t n=0 ; n<=m ; n++){
           mh[m][n] = ke[idx(m, n, nb)] - v0[idx(m,n,nb)];
           mh[n][m] = mh[m][n];
       }
   }
 
-  const double raiz = 1.0/sqrt(2.0);
+  double raiz = 1.0/sqrt(2.0);
 
-  double delta = ETAF - ETAI/(double)NUM_PUNTOS_ETA;
-  size_t ind = 0, indp=0;
-  for(size_t i = 0; i < NUM_PUNTOS_ETA ; i++){
+  double delta = (ETAF - ETAI)/(double)NUM_PUNTOS_ETA;
+  
+  for(size_t i = 0; i < NUM_PUNTOS_ETA ; i++)
+  {
+  	size_t ind=0;
     double eta = ETAI + i * delta;
     memset(hsim, 0, sizeof(hsim));
     for(size_t n = 0 ; n < nb ; n++){
-      for(size_t m = 0 ; m < nb ; m++){
+      for(size_t m = n ; m < nb ; m++){
+      	int indp = 0;
         for(size_t np=0 ; np<nb ; np++){
-          for(size_t mp=0 ; mp<nb ; mp++){
+          for(size_t mp=np ; mp<nb ; mp++){
             double val1, val2, val3;
             if(m == n && mp  == np){
                 val1 = 2.0 * s[idx(n, np, nb)] * mh[n][np] + eta * Vef[n][n][np][np];
@@ -591,9 +595,10 @@ void sener(){
           }
         }
         ind++;
+        assert(NN == indp);
       }
     }
-    assert(NN == indp && NN == ind);
+    assert(NN == ind);
 
   //  int info;
   //  eigenvalues(NN, NEV, hsim, ms, AUVAL, AUVEC);
@@ -625,14 +630,6 @@ int main(void) {
     gaulegm(x, w);
     
     calculo_matrices(x, w, s, v0, ke);
-    for(unsigned int i=0 ; i<nb; i++){
-      for(unsigned int j=0 ; j<nb ; j++){
-        printf("%e ", v0[idx(i,j,nb)]);
-        //printf("%lf ", eval_xi(i,j,x));
-      }
-      puts("");
-    }
-    assert(0);
     
     interaccion(x, w);
     ini_e();

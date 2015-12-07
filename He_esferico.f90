@@ -225,11 +225,7 @@ do i = 1,nb
   end do
 end do
 
-do i = 1,nb
-	write(*,*) v01(i, :)
-end do
 
-stop;
 
 
 
@@ -426,6 +422,7 @@ end do
 !end do
 !stop
 
+
 do m = 1, nb
    do n = m+1, nb
       nor = dsqrt(s(m,m)*s(n,n))
@@ -443,11 +440,6 @@ do m = 1, nb
    s(m,m) = 1.d0
 end do
 
-
-do m = 1, nb
-  write(*,*) s(m, :)
-end do
-stop
 call sener( )
 
 return
@@ -477,6 +469,7 @@ real(8), allocatable, dimension(:,:) :: mh, ms, mv, hsim
 
 
 raiz = 1.d0/sqrt(2.d0);
+
 
 dp = nb
 NN = nb*(nb+1)/2
@@ -558,30 +551,26 @@ do i = 0, num_puntos_eta-1
 
   if( NN.ne.(ind-1) ) stop
   if( NN.ne.(indp-1) ) stop  
-  !!write(*,*) NN, ind-1, indp-1
-  !do n = 1, NN
-  !do m = 1, NN
-  !!  write(*,*) n,m,hsim(n,m)!-hsim(m,n)
-  !end do
-  !end do
 
-  call eigen_value( NN, nev, info, hsim, ms, e, auvec)
+  
+  !call eigen_value( NN, nev, info, hsim, ms, e, auvec)
 
-  val_exp = MATMUL( TRANSPOSE(auvec), MATMUL(mv, auvec)) 
-  do j = 1, nev
-    v(j) = val_exp(j,j);
-  end do
+  !val_exp = MATMUL( TRANSPOSE(auvec), MATMUL(mv, auvec)) 
+  !do j = 1, nev
+  !  v(j) = val_exp(j,j);
+  !end do
   
   !muestro los valores
-  write(11,6) eta, (e(m), m = 1, 25)
-  write(12,6) eta, (v(m), m = 1, 25)
-  write(*,6) eta, (e(m), m = 1, 2)
+  !write(11,6) eta, (e(m), m = 1, 25)
+  !write(12,6) eta, (v(m), m = 1, 25)
+  !write(*,6) eta, (e(m), m = 1, 2)
   
   
-  e = 0.d0
-  info = 0
+  !e = 0.d0
+  !info = 0
 
 end do
+stop;
 close(11)
 close(12)
 
