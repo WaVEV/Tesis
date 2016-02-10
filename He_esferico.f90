@@ -552,13 +552,19 @@ do i = 0, num_puntos_eta-1
   if( NN.ne.(ind-1) ) stop
   if( NN.ne.(indp-1) ) stop  
 
+  write(*,*) NN, NN
+  do n = 1, NN
+    write(*,*) mv(n, :)!-hsim(m,n)
+  end do
+  stop;
   
-  !call eigen_value( NN, nev, info, hsim, ms, e, auvec)
 
-  !val_exp = MATMUL( TRANSPOSE(auvec), MATMUL(mv, auvec)) 
-  !do j = 1, nev
-  !  v(j) = val_exp(j,j);
-  !end do
+  call eigen_value( NN, nev, info, hsim, ms, e, auvec)
+
+  val_exp = MATMUL( TRANSPOSE(auvec), MATMUL(mv, auvec)) 
+  do j = 1, nev
+    v(j) = val_exp(j,j);
+  end do
   
   !muestro los valores
   !write(11,6) eta, (e(m), m = 1, 25)
@@ -570,7 +576,7 @@ do i = 0, num_puntos_eta-1
   !info = 0
 
 end do
-stop;
+
 close(11)
 close(12)
 
@@ -621,7 +627,7 @@ uplo='U' ! la matriz es storeada superior
 ! B = s  ! NO hay que hacer cholesky !!!
 ! ldb = dp
 ! il, iu  autov entre il y iu SI range='I'
- range='I'
+range='I'
 il=1
 iu=nev 
 abstol=1.d-12  ! por decir algo (?)aconsejan abstol=2*DLAMCH('S') ; ????
@@ -651,9 +657,7 @@ lwork=9*dp
 !                    no eigenvalues or eigenvectors were computed.
 
 
-call DSYGVX( ITYPE, JOBZ, RANGE, UPLO, dp, nh, dp, s, dp,            &
-     &                   VL, VU, IL, IU, ABSTOL, numau, x, Z, dp, WORK,  &
-     &                   LWORK, IWORK, IFAIL, INFO )
+call DSYGVX( ITYPE, JOBZ, RANGE, UPLO, dp, nh, dp, s, dp, VL, VU, IL, IU, ABSTOL, numau, x, Z, dp, WORK, LWORK, IWORK, IFAIL, INFO )
 
 
 !!!!!!!!!!!!!!!!!!

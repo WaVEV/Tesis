@@ -121,9 +121,11 @@
 
 
 const unsigned int nk = L_INTERVALS+2*KORD-1;
+
 double x[INT_G], w[INT_G];
 
 static const unsigned int nb = L_INTERVALS + KORD - 3; // tamaño de la base //
+static const unsigned int nv = (L_INTERVALS+2*KORD-3) * 2 * (KORD);
 
 double  s[ (L_INTERVALS+2*KORD-3) * (KORD)],
         v0[(L_INTERVALS+2*KORD-3) * (KORD)],
@@ -131,9 +133,9 @@ double  s[ (L_INTERVALS+2*KORD-3) * (KORD)],
         f[(L_INTERVALS+2*KORD-3) * 2 * (KORD)],
         g[(L_INTERVALS+2*KORD-3) * 2 * (KORD)];
 
-double mh[L_INTERVALS+2*KORD-1][L_INTERVALS+2*KORD-1];
+double mh[(L_INTERVALS+2*KORD-3) * (KORD)];
+double Vef[(L_INTERVALS+2*KORD-3) * 2 * (KORD) * (L_INTERVALS+2*KORD-3) * 2 * (KORD)];
 
-double Vef[L_INTERVALS + KORD - 3][L_INTERVALS + KORD - 3][L_INTERVALS + KORD - 3][L_INTERVALS + KORD - 3];
 double norma[L_INTERVALS + KORD - 3];
 double hsim[NN][NN], ms[NN][NN], mv[NN][NN];
 double E[NEV], V[NEV], AUVEC[NN][NEV];
@@ -168,26 +170,37 @@ int dsygvx_(int *itype, char *jobz, char *range, char * uplo,
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
 
-int idx2(const unsigned int y, const unsigned int x, const unsigned int numcolumns){
-    int i=y, j=x;
-    if(i - j >= KORD || j - i >= KORD) {
-      return 0;
-    }
-    i = KORD + ( j - i ) - 1;
-    j += abs(y-x);
-    assert((L_INTERVALS+2*KORD-3) * (2*KORD) > i*numcolumns + j);
-    return i*numcolumns + j;
+// cuando no son simetricas
+static int idx2(const unsigned int y, const unsigned int x, const unsigned int numcolumns){
+  int i=y, j=x;
+  if(i - j >= KORD || j - i >= KORD) {
+    return 0;
+  }
+  i = KORD + ( j - i ) - 1;
+  j += abs(y-x);
+  assert((L_INTERVALS+2*KORD-3) * (2*KORD) > i*numcolumns + j);
+  return i*numcolumns + j;
 }
 
-int idx(const unsigned int y, const unsigned int x, const unsigned int numcolumns){
-    int i, j;
-    j = max(x,y);
-    i = min(x,y);
-    if(j - i >= KORD) return 0;
-    i = KORD - (j - i) - 1;
+// cuando son simetricas
+static int idx(const unsigned int y, const unsigned int x, const unsigned int numcolumns){
+  int i, j;
+  j = max(x,y);
+  i = min(x,y);
+  if(j - i >= KORD) return 0;
+  i = KORD - (j - i) - 1;
 
-    assert((L_INTERVALS+2*KORD-3) * (KORD) > i*numcolumns + j);
-    return i*numcolumns + j;
+  assert((L_INTERVALS+2*KORD-3) * (KORD) > i*numcolumns + j);
+  return i*numcolumns + j;
+}
+
+/* partiendo cabezas - 
+ * los primeros kord son siempre 0, 
+ * eso lo hace que este bien definido (o tal vez fue algo de suerte)
+ */
+static int idxVef(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int w)
+{
+  return idx2(x, z, nb) * nv + idx2(y, w, nb);
 }
 
 int cleari(const unsigned int N, int * __restrict__ vec) {
@@ -198,7 +211,7 @@ int cleari(const unsigned int N, int * __restrict__ vec) {
     return 0;
 }
 
-int cleard(const unsigned int N, double * __restrict__ vec) {
+static int cleard(const unsigned int N, double * __restrict__ vec) {
     memset(vec, 0, sizeof(double) * N);
     //for(unsigned int i = 0; i<N; ++i)
     //    vec[i] = 0.f;
@@ -214,7 +227,7 @@ void setxparameters(const int i, double *xm, double *xl){
     *xl = 0.5*(x2 - x1);
 }
 
-double eval_xi(const int i, const int j, const double * x){
+static double eval_xi(const int i, const int j, const double * x){
     double xm, xl;
     setxparameters(i, &xm, &xl);
     if(j >= (INT_G + 1) / 2){
@@ -224,13 +237,13 @@ double eval_xi(const int i, const int j, const double * x){
     }
 }
 
-double eval_wi(const int i, const int j, const double * w){
+static double eval_wi(const int i, const int j, const double * w){
     double xm, xl;
     setxparameters(i, &xm, &xl);
     return 2.0*xl / w[j];
 }
 
-void gaulegm(double * __restrict__ x, double * __restrict__ w) {
+static void gaulegm(double * __restrict__ x, double * __restrict__ w) {
 /* Given the lower and upper limits of integration x1 and x2, 
  * and given n, this routine returns arrays x[1..n] and w[1..n]
  * of length n, containing the abscissas and weights of the Gauss-
@@ -263,13 +276,13 @@ void gaulegm(double * __restrict__ x, double * __restrict__ w) {
 }
 
 
-double ti(int i){
+static double ti(int i){
     double dr = (R_MAX-R_MIN)/L_INTERVALS;
     int pos = (i - KORD + 1);
     return R_MIN + (KORD - 1 < i) * dr * (pos - (pos - L_INTERVALS) * (KORD + L_INTERVALS - 1 < i));
 }
 
-int bsplvb(unsigned int jhigh, double rr, int left, double * __restrict__ biatx, double * __restrict__ biatx_1) {
+static int bsplvb(unsigned int jhigh, double rr, int left, double * __restrict__ biatx, double * __restrict__ biatx_1) {
   
     unsigned int j;
     double saved, term;
@@ -313,7 +326,7 @@ int bsplvb(unsigned int jhigh, double rr, int left, double * __restrict__ biatx,
 }
 
 
-double bder(double rr, unsigned int indexm, unsigned int left, double * __restrict__ Sp) {
+static double bder(double rr, unsigned int indexm, unsigned int left, double * __restrict__ Sp) {
 
     double dm = 0;
     //assert(ti(0)<rr && rr<ti(nk-1));
@@ -349,7 +362,7 @@ double bder(double rr, unsigned int indexm, unsigned int left, double * __restri
     return dm;
 }
 
-void calculo_matrices(const double * __restrict__ const x, const double * __restrict__ const w,
+static void calculo_matrices(const double * __restrict__ const x, const double * __restrict__ const w,
               double * __restrict__ s, double * __restrict__ v0,
               double * __restrict__ ke) {
 
@@ -465,11 +478,14 @@ static void interaccion(const double * __restrict__ const x, const double * __re
             size_t imp = i - KORD + mp - 1;
             if(imp < nb){
               for(size_t n=0 ; n<nb ; n++){ // n y np van completo, pero justo en los valores fuera de la diagonal g y f son 0s :) => f[i,j] + g[i,j] = 0
-                for(size_t np=0 ; np<nb ; np++){
-
-                  Vef[im][n][imp][np] += Sp[m]*Sp[mp]*w1*
+                for(size_t np= n > KORD ? n - KORD : 0 ; np < n + KORD+1 && np < nb ; np++){
+                	Vef[idxVef(im, n, imp, np)] += Sp[m]*Sp[mp]*w1*
                         (f[idx(n, np, nb)] + g[idx(n, np, nb)])
                         / sqrt(s[idx(n, n, nb)]*s[idx(np, np, nb)]);
+                  
+                  /*Vef[im][n][imp][np] += Sp[m]*Sp[mp]*w1*
+                        (f[idx(n, np, nb)] + g[idx(n, np, nb)])
+                        / sqrt(s[idx(n, n, nb)]*s[idx(np, np, nb)]);*/
                 }
               }
             }
@@ -484,11 +500,11 @@ static void interaccion(const double * __restrict__ const x, const double * __re
 static void ini_e(){
 
   for(size_t n=0 ; n<nb ; n++){
-     for(size_t np=0 ; np<nb ; np++){
+     for(size_t np =  n > KORD ? n - KORD : 0 ; np < n + KORD+1 && np < nb ; np++){
       double nor1 = sqrt(s[idx(n,n, nb)] * s[idx(np, np, nb)]);
       for(size_t m=0 ; m<nb ; m++){
-        for(size_t mp=0 ; mp<nb ; mp++){
-          Vef[n][m][np][mp] /= nor1;
+        for(size_t mp= m > KORD ? m - KORD : 0 ; mp < m+KORD+1 && mp<nb ; mp++){
+          Vef[idxVef(n,m,np,mp)]  /= nor1;
         }
       }
     }
@@ -496,7 +512,7 @@ static void ini_e(){
 
   
   for(size_t m=0 ; m<nb ; m++){
-    for(size_t n=m+1 ; n<nb ; n++){
+    for(size_t n=m+1 ; n < m + KORD + 1 && n<nb ; n++){
       double nor = sqrt(s[idx(m, m, nb)] * s[idx(n, n, nb)]);
       s[idx(m, n, nb)] /= nor;
       ke[idx(m, n, nb)] /= nor;
@@ -534,7 +550,27 @@ void eigenvalues(int n, int m, double * __restrict__ a,
     free(work); 
     free(iwork); 
     free(ifail);
-} 
+}
+
+
+double *cholesky(double *A, int n) {
+    double *L = (double*)calloc(n * n, sizeof(double));
+    if (L == NULL)
+        exit(EXIT_FAILURE);
+ 
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < (i+1); j++) {
+            double s = 0;
+            for (int k = 0; k < j; k++)
+                s += L[i * n + k] * L[j * n + k];
+            L[i * n + j] = (i == j) ?
+                           sqrt(A[i * n + i] - s) :
+                           (1.0 / L[j * n + j] * (A[i * n + j] - s));
+        }
+ 
+    return L;
+}
+
 
 
 void sener(){
@@ -542,8 +578,8 @@ void sener(){
 
   for(size_t m=0 ; m<nb ; m++){
       for(size_t n=0 ; n<=m ; n++){
-          mh[m][n] = ke[idx(m, n, nb)] - v0[idx(m,n,nb)];
-          mh[n][m] = mh[m][n];
+          mh[idx(m, n, nb)] = ke[idx(m, n, nb)] - v0[idx(m,n,nb)];
+          
       }
   }
 
@@ -558,51 +594,76 @@ void sener(){
     memset(hsim, 0, sizeof(hsim));
     for(size_t n = 0 ; n < nb ; n++){
       for(size_t m = n ; m < nb ; m++){
-      	int indp = 0;
-        for(size_t np=0 ; np<nb ; np++){
-          for(size_t mp=np ; mp<nb ; mp++){
+      	int cnt2 = n < KORD + 1 ? 0 : n - KORD - 1;
+      	int indp = (nb*(nb + 1)) / 2 - ((nb - cnt2) * (nb - cnt2 + 1)) / 2;
+
+        for(size_t np=cnt2 ; np<nb &&  np < n + KORD + 1; np++){
+        	int cnt = max(np, m < KORD + 1 ? 0 : m - KORD - 1) - np;
+        	indp += cnt;
+          for(size_t mp = cnt + np ; mp<nb && mp < m + KORD + 1 ; mp++){
             double val1, val2, val3;
             if(m == n && mp  == np){
-                val1 = 2.0 * s[idx(n, np, nb)] * mh[n][np] + eta * Vef[n][n][np][np];
+                val1 = 2.0 * s[idx(n, np, nb)] * mh[idx(n, np, nb)] + eta * Vef[idxVef(n,n,np,np)] ;
                 val2 = s[idx(n, np, nb)] * s[idx(n,np, nb)];
-                val3 = Vef[n][m][np][mp];
+                val3 = Vef[idxVef(n,m,np,mp)];
             }
             else if(m != n && mp == np){
-                val1 = raiz * ( 2.0 * s[idx(m,np,nb)] * mh[n][np] + 2.0 * s[idx(n,np, nb)]*mh[m][np]
-                    + eta * Vef[n][m][np][mp] + eta * Vef[m][n][np][mp] );
+                val1 = raiz * ( 2.0 * s[idx(m,np,nb)] * mh[idx(n, np, nb)] + 2.0 * s[idx(n,np, nb)]*mh[idx(m, np, nb)]
+                    + eta * Vef[idxVef(n,m,np,mp)]  + eta * Vef[idxVef(m,n,np,mp)]  );
                 val2 = 2.0*raiz*s[idx(n,np,nb)]*s[idx(m,np,nb)];
-                val3 = 2.0*raiz*(Vef[n][m][np][mp] + Vef[m][n][np][mp]);
+                val3 = 2.0*raiz*(Vef[idxVef(n,m,np,mp)]  + Vef[idxVef(m,n,np,mp)] );
             }
             else if(m == n && mp != np){
-                val1 = raiz*( 2.0*s[idx(n,mp,nb)] * mh[n][np] + 
-                    2.0*s[idx(n,np,nb)]*mh[n][mp] + 
-                    eta*Vef[n][m][np][mp] + eta*Vef[n][m][mp][np] );
+                val1 = raiz*( 2.0*s[idx(n,mp,nb)] * mh[idx(n, np, nb)] + 
+                    2.0*s[idx(n,np,nb)]*mh[idx(n, mp, nb)] + 
+                    eta*Vef[idxVef(n,m,np,mp)]  + eta*Vef[idxVef(n,m,mp,np)]  );
 
                 val2 = 2.0*raiz*s[idx(n,np,nb)]*s[idx(n,mp,nb)];
-                val3 = 2.0*raiz*(Vef[n][n][np][mp] + Vef[n][n][mp][np]);
+                val3 = 2.0*raiz*(Vef[idxVef(n,n,np,mp)]  + Vef[idxVef(n,n,mp,np)] );
             }
             else{
-                val1 = s[idx(n,np,nb)]*mh[m][mp] + s[idx(n,mp,nb)]*mh[m][np] 
-                + s[idx(m,mp,nb)]*mh[n][np] + s[idx(m,np,nb)]*mh[n][mp] 
-                + eta*0.5*(Vef[n][m][np][mp] + Vef[n][m][mp][np] + Vef[m][n][np][mp] + Vef[m][n][mp][np]);
+                val1 = s[idx(n,np,nb)]*mh[idx(m, mp, nb)] + s[idx(n,mp,nb)]*mh[idx(m, np, nb)] 
+                + s[idx(m,mp,nb)]*mh[idx(n, np, nb)] + s[idx(m,np,nb)]*mh[idx(n, mp, nb)] 
+                + eta*0.5*(Vef[idxVef(n,m,np,mp)]  + Vef[idxVef(n,m,mp,np)]  + Vef[idxVef(m,n,np,mp)]  + Vef[idxVef(m,n,mp,np)] );
                 val2 = s[idx(n,np,nb)]*s[idx(m,mp,nb)] + s[idx(n,mp,nb)]*s[idx(m,np,nb)];
-                val3 = 0.50*(Vef[n][m][np][mp] + Vef[n][m][mp][np] + Vef[m][n][np][mp] + Vef[m][n][mp][np]);
+                val3 = 0.50*(Vef[idxVef(n,m,np,mp)] + Vef[idxVef(n,m,mp,np)] + Vef[idxVef(m,n,np,mp)] + Vef[idxVef(m,n,mp,np)]);
             }
             hsim[ind][indp] = val1;
             ms[ind][indp] = val2;
             mv[ind][indp] = val3;
             indp++;
+            cnt++;
           }
+          //assert(cnt == min( (m + KORD + 1 < np ? 0 : m + KORD + 1 - np), nb - np ));
+          //indp += nb - np - min( (m + KORD + 1 < np ? 0 : m + KORD + 1 - np), nb - np );
+          indp += nb - np - cnt;
         }
         ind++;
-        assert(NN == indp);
+//        assert(NN == indp);
       }
     }
     assert(NN == ind);
 
+    printf("%d %d\n", NN, NN);
+    for(unsigned int i=0 ; i<NN ; i++){
+    	for(unsigned int j=0 ; j<NN ; j++){
+        printf("%e ", mv[i][j]);
+    		/*if(ms[i][j] == 0){
+    			printf("0 ");
+    		}
+    		else{
+    			printf("1 ");
+    		}*/
+    	}
+    	printf("\n");
+    }
+
+    assert(0);
+    
   //  int info;
   //  eigenvalues(NN, NEV, hsim, ms, AUVAL, AUVEC);
   }
+
 }
 
 
