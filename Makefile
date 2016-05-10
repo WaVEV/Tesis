@@ -1,54 +1,36 @@
-# Binary file
-BIN			= pozo-2
+# ARPACK++ v1.2 2/20/2000
+# c++ interface to ARPACK code.
+# examples/umfpack/sym directory makefile.
 
-# Flags
-# CFLAGS			= -std=gnu99 -Wall -Wextra
-CFLAGS			= -std=gnu99 -Wall -Wextra -fopenmp  -g -O2
-LDFLAGS			= -llapack -lm 
+#include Makefile.inc
+# ARPACK++ v1.2 2/20/2000
+# c++ interface to ARPACK code.
+# examples/umfpack/sym directory makefile.
 
-# Default Values
-Rmin			= 0.0
-Rmax			= 50.0f
-#l			= 2048
-#l			= 510
-kord			= 5
-r1			= 5.0f
-r2			= 10.0f
-me			= 1.f
-intg			= 500
-nev			= 15
-lmax			= 0
-lambda_in		= 0.0f
-lambda_fin		= 20.0f
-numero_puntos_lambda	= 200
-NUM_THREADS             = 8
-OFILE			= [CPU,$(Q),$(Rmin),$(Rmax),$(l),$(kord),$(r1),$(r2),$(me),$(intg), \
-			   $(nev),$(lmax),$(lambda_in),$(lambda_fin),$(numero_puntos_lambda)].dat
+# including other makefiles.
 
-# Simulation Parameters
-#PARAMETERS		= -DQ=$(Q) -DRmin=$(Rmin) -DRmax=$(Rmax) -Dl=$(l) -Dkord=$(kord) \
-#			  -Dr1=$(r1) -Dr2=$(r2) -Dme=$(me) -Dintg=$(intg) -Dnev=$(nev) -Dlamx=$(lmax) \
-#			  -Dlambda_in=$(lambda_in) -Dlambda_fin=$(lambda_fin) -Dnumero_puntos_lambda=$(numero_puntos_lambda) -DNUM_THREADS=$(NUM_THREADS)
+include Makefile.inc
 
-# Compilers
-CC			= gcc
-LINKER			= gcc
+# defining CSCMAT directory.
 
-# Files
-C_SOURCES		= $(BIN).c
-HEADERS			=
-C_OBJS			= $(patsubst %.c, %.o, $(C_SOURCES))
+CSCMAT_DIR = $(ARPACKPP_DIR)/examples/matrices/sym
 
+# compiling and linking all examples.
 
-# Rules
-$(BIN): clean $(C_OBJS) $(HEADERS)
-	$(LINKER) $(CFLAGS) -o $(BIN) $(C_OBJS) $(LDFLAGS) $(INCLUDES) $(LIBS)
+all: pozo-2
 
-$(C_OBJS): $(C_SOURCES) $(HEADERS) 
-	$(CC) -c $(C_SOURCES) $(CFLAGS) $(INCLUDES) $(PARAMETERS)
+# compiling and linking each symmetric problem.
 
-run: $(BIN)
-	./$(BIN) # > $(OFILE) &
+pozo-2:	pozo-2.o
+	$(CPP) $(CPP_FLAGS) -I$(CSCMAT_DIR) -o pozo-2 pozo-2.o $(UMFPACK_LIB) $(ALL_LIBS) -fopenmp -O3
 
+# defining cleaning rule.
+
+.PHONY:	clean
 clean:
-	rm -f $(BIN) *.o
+	rm -f *~ *.o core usymreg usymshf usymgreg usymgshf usymgbkl usymgcay
+
+# defining pattern rules.
+
+%.o:	%.cc
+	$(CPP) $(CPP_FLAGS) -I$(CSCMAT_DIR) -I$(UMFPACK_DIR) -c $< -fopenmp -O3

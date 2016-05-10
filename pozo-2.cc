@@ -38,6 +38,14 @@
 #include <omp.h> //omp_get_wtime()
 
 
+#include "lsmatrxc.h"
+#include "lsmatrxd.h"
+#include "arusmat.h"
+#include "arugsym.h"
+#include "lsymsol.h"
+#include "ardnsmat.h"
+
+
 #define debug(x) printf(#x": %lf ", x);
 // defino algunas constantes para el programa //
 #define EPS 3.0e-14  // EPS precision relativa para gauleg //
@@ -53,7 +61,7 @@
 #endif
 
 #ifndef L_INTERVALS
-#define L_INTERVALS 20 // numero de intervalos en el que divido al intervalo [R_MIN, R_MAX] //
+#define L_INTERVALS 500 // numero de intervalos en el que divido al intervalo [R_MIN, R_MAX] //
 #endif
 
 #ifndef KORD
@@ -137,7 +145,9 @@ double mh[(L_INTERVALS+2*KORD-3) * (KORD)];
 double Vef[(L_INTERVALS+2*KORD-3) * 2 * (KORD) * (L_INTERVALS+2*KORD-3) * 2 * (KORD)];
 
 double norma[L_INTERVALS + KORD - 3];
-double hsim[NN][NN], ms[NN][NN], mv[NN][NN];
+double hsim_val[NN * (2*KORD*KORD - KORD)], ms_val[NN * (2*KORD*KORD - KORD)], mv_val[NN * (2*KORD*KORD - KORD)];
+int irow[NN * (2*KORD*KORD - KORD)];
+int pcol[NN + 1];
 double E[NEV], V[NEV], AUVEC[NN][NEV];
 double VAL_EXP[NEV][NEV];
 double AUVAL[NEV];
@@ -338,7 +348,7 @@ static double bder(double rr, unsigned int indexm, unsigned int left, double * _
       }else if(indexm + 1 == nk-KORD-1){
         dm = -(KORD-1) / (ti(nk-1) - ti(nk-KORD));
       }else{
-      	assert(0);
+        assert(0);
       }
     }
     else if(indexm-left+KORD>=1) {
@@ -402,14 +412,14 @@ static void calculo_matrices(const double * __restrict__ const x, const double *
             }
 
             for(unsigned int m = i-KORD+1+(basek==0); m<=i && m<=nb ; ++m) {
-            	assert(m - (i-KORD+1+(basek==0)) < KORD);
+                assert(m - (i-KORD+1+(basek==0)) < KORD);
                 bders[m - (i-KORD+1+(basek==0))] = bder(rr, m, i, Sp_1);
             }
 
             for(int k=0 ; k<KORD ; k++){
                 for(unsigned int m = i-KORD + 1 + (basek==0), n = m + k; n<=i && n<=nb ; ++m, ++n) {
                     double  bm = bders[m - (i-KORD+1+(basek==0))],
-                     		bn = bders[n - (i-KORD+1+(basek==0))];
+                            bn = bders[n - (i-KORD+1+(basek==0))];
                     ke[idx(m-1, n-1, nb)] += 0.5*wikj*bm*bn/ME;
                 }
             }
@@ -419,20 +429,32 @@ static void calculo_matrices(const double * __restrict__ const x, const double *
 
 
 static void interaccion(const double * __restrict__ const x, const double * __restrict__ const w){
-
+  double t_in = omp_get_wtime();
   memset(Vef, 0, sizeof(Vef));
-  double Sp[KORD], Sp_1[KORD];
+  double Sp[KORD]; 
+  double Sp_1[KORD];
+  double Sps[L_INTERVALS][INT_G][KORD];
+  
+  for(int k=KORD ; k<KORD+L_INTERVALS ; k++){
+    int basek2 = k - KORD;
+    for(int l=0 ; l<INT_G ; l++){
+      double rr2 = eval_xi(basek2, l, x);
+      bsplvb(KORD, rr2, k-1, Sps[basek2][l], Sp_1);
+    }
+  }
 
+  
+  
   for(int i=KORD ; i<KORD+L_INTERVALS ; i++){
     int basek = i - KORD;
 
     for(int j=0 ; j<INT_G ; j++){
-      /* mirar esta parte puede haber algo mal con respecto al calculo -> linea 325 */
+
       double rr1 = eval_xi(basek, j, x);
+      
       double w1 = eval_wi(i, j, w);
 
       memset(f, 0, sizeof(f));
-      memset(g, 0, sizeof(g));
 
       for(int k=KORD ; k<KORD+L_INTERVALS ; k++){
         int basek2 = k - KORD;
@@ -440,9 +462,8 @@ static void interaccion(const double * __restrict__ const x, const double * __re
         for(int l=0 ; l<INT_G ; l++){
           double rr2 = eval_xi(basek2, l, x);
           double w2 = eval_wi(basek2, l, w);
-          
-          bsplvb(KORD, rr2, k-1, Sp, Sp_1);
-          //printf("%.16e\n", rr2);
+          double *Sp = Sps[basek2][l];
+          //bsplvb(KORD, rr2, k-1, Sp, Sp_1);
 
           for(int m=0 ; m<KORD ; m++){
             unsigned int im = k - KORD + m - 1;
@@ -452,14 +473,12 @@ static void interaccion(const double * __restrict__ const x, const double * __re
                 unsigned int in = k - KORD + n - 1;
 
                 if(in<nb){
-                  if(idx2(im, in, nb) == 0){
-                    printf("%d %d\n", im, in);
-                  }
                   assert(idx2(im, in, nb) != 0);
+
                   if(rr2 <= rr1){
                     f[idx2(im, in, nb)] += Sp[m] * Sp[n] * w2/rr1;
                   }else{
-                    g[idx2(im, in, nb)] += Sp[m] * Sp[n] * w2/rr2;
+                    f[idx2(im, in, nb)] += Sp[m] * Sp[n] * w2/rr2;
                   }
                 }
               }
@@ -467,9 +486,8 @@ static void interaccion(const double * __restrict__ const x, const double * __re
           }
         }
       }
-
-      bsplvb(KORD, rr1, i-1, Sp, Sp_1);
-
+      double *Sp = Sps[basek][j];
+      //bsplvb(KORD, rr1, i-1, Sp, Sp_1);
       for(size_t m=0 ; m<KORD ; m++){
         size_t im = i - KORD + m - 1;
         if(im < nb){
@@ -479,13 +497,10 @@ static void interaccion(const double * __restrict__ const x, const double * __re
             if(imp < nb){
               for(size_t n=0 ; n<nb ; n++){ // n y np van completo, pero justo en los valores fuera de la diagonal g y f son 0s :) => f[i,j] + g[i,j] = 0
                 for(size_t np= n > KORD ? n - KORD : 0 ; np < n + KORD+1 && np < nb ; np++){
-                	Vef[idxVef(im, n, imp, np)] += Sp[m]*Sp[mp]*w1*
-                        (f[idx(n, np, nb)] + g[idx(n, np, nb)])
+                  double term = Sp[m]*Sp[mp]*w1*
+                        (f[idx(n, np, nb)])
                         / sqrt(s[idx(n, n, nb)]*s[idx(np, np, nb)]);
-                  
-                  /*Vef[im][n][imp][np] += Sp[m]*Sp[mp]*w1*
-                        (f[idx(n, np, nb)] + g[idx(n, np, nb)])
-                        / sqrt(s[idx(n, n, nb)]*s[idx(np, np, nb)]);*/
+                  Vef[idxVef(im, n, imp, np)] += term;
                 }
               }
             }
@@ -494,11 +509,24 @@ static void interaccion(const double * __restrict__ const x, const double * __re
       }
     }
   }
+
+  /*
+  for(unsigned int i=0 ; i<nb ; i++)
+    for(unsigned int j=0 ; j<nb ; j++){
+      for(unsigned int k=0 ; k<nb ; k++){
+        for(unsigned int l=0 ; l<nb ; l++){
+          printf("%f ", Vef[idxVef(i, j, k, l)]);
+        }
+      }
+      puts("");
+    }
+  }*/
+
 }
 
-//https://github.com/flame/libflame/blob/65cc6f2a1ad6baedeb1d801e19c4e4d80cc854c7/src/map/lapack2flamec/f2c/c/dpftrf.c
-static void ini_e(){
 
+static void ini_e(){
+  
   for(size_t n=0 ; n<nb ; n++){
      for(size_t np =  n > KORD ? n - KORD : 0 ; np < n + KORD+1 && np < nb ; np++){
       double nor1 = sqrt(s[idx(n,n, nb)] * s[idx(np, np, nb)]);
@@ -526,52 +554,31 @@ static void ini_e(){
 }
 
 
-void eigenvalues(int n, int m, double * __restrict__ a,
-         double * __restrict__ b, double * __restrict__ w, 
-         double * __restrict__ z) {
-    int itype, lda, ldb, ldz;
-    int il, iu, lwork, info;
-    char jobz, range, uplo;
-    double abstol, vl, vu;
-    double * work;
-    int * iwork, * ifail;
-    // le doy los valores correspondientes a las distintas variables //
-    itype = 1; lda = n; ldb = n; ldz = n;
-    vl = 0.0; vu = 0.0;
-    jobz = 'V'; range = 'I'; uplo = 'U';
-    il = 1; iu = m; lwork = 9*n;
-    // le doy memoria a las matrices que neceista dsygvx //
-    work = (double *) malloc(lwork*sizeof(double));
-    iwork = (int *) malloc(5*n*sizeof(int));
-    ifail = (int *) malloc(n*sizeof(int));
-    dsygvx_( &itype, &jobz, &range, &uplo, &n, a, &lda, b, &ldb, 
-         &vl, &vu, &il, &iu, &abstol, &m, w, z, &ldz, work, 
-         &lwork, iwork, ifail, &info);
-    free(work); 
-    free(iwork); 
-    free(ifail);
-}
-
-
-double *cholesky(double *A, int n) {
-    double *L = (double*)calloc(n * n, sizeof(double));
-    if (L == NULL)
-        exit(EXIT_FAILURE);
+double* eigen(int n, int nz){
+  ARumSymMatrix<double> A(n, nz, hsim_val, irow, pcol, 'U');
+  ARumSymMatrix<double> B(n, nz, ms_val, irow, pcol, 'U');
+  ARumSymMatrix<double> C(n, nz, mv_val, irow, pcol, 'U');
+  ARluSymGenEig<double> dprob('C', NEV, A, B, -10, "SA");
  
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < (i+1); j++) {
-            double s = 0;
-            for (int k = 0; k < j; k++)
-                s += L[i * n + k] * L[j * n + k];
-            L[i * n + j] = (i == j) ?
-                           sqrt(A[i * n + i] - s) :
-                           (1.0 / L[j * n + j] * (A[i * n + j] - s));
-        }
- 
-    return L;
+  dprob.FindEigenvectors();
+
+  double *Ax = new double[n * NEV];
+  //printf("eigen values\n");
+  for (int i=0; i<NEV; i++) {
+    //printf("%e\n", dprob.Eigenvalue(i));
+    C.MultMv(dprob.RawEigenvector(i), &Ax[n * i]);
+  }
+  double *Rx = new double[NEV];
+  for(int i=0 ; i<NEV ; i++){
+      Rx[i] = 0;
+      for(int o=0 ; o<n ; o++){
+        Rx[i] +=  dprob.RawEigenvector(i)[o] * Ax[o + n * i];
+      }
+  }
+
+  delete[] Ax;
+  return Rx;
 }
-
-
 
 void sener(){
   memset(mh, 0, sizeof(mh));
@@ -586,21 +593,21 @@ void sener(){
   double raiz = 1.0/sqrt(2.0);
 
   double delta = (ETAF - ETAI)/(double)NUM_PUNTOS_ETA;
-  
+  pcol[0] = 0;
   for(size_t i = 0; i < NUM_PUNTOS_ETA ; i++)
   {
-  	size_t ind=0;
+    int nzcnt = 0, zcnt = 0;
+    size_t ind=0;
     double eta = ETAI + i * delta;
-    memset(hsim, 0, sizeof(hsim));
     for(size_t n = 0 ; n < nb ; n++){
-      for(size_t m = n ; m < nb ; m++){
-      	int cnt2 = n < KORD + 1 ? 0 : n - KORD - 1;
-      	int indp = (nb*(nb + 1)) / 2 - ((nb - cnt2) * (nb - cnt2 + 1)) / 2;
+      for(size_t m = n ; m < nb; m++){
+        int cnt2 = n < KORD ? 0 : n - KORD + 1;
+        int indp = (nb*(nb + 1)) / 2 - ((nb - cnt2) * (nb - cnt2 + 1)) / 2;
 
-        for(size_t np=cnt2 ; np<nb &&  np < n + KORD + 1; np++){
-        	int cnt = max(np, m < KORD + 1 ? 0 : m - KORD - 1) - np;
-        	indp += cnt;
-          for(size_t mp = cnt + np ; mp<nb && mp < m + KORD + 1 ; mp++){
+        for(size_t np=cnt2 ; np<nb &&  np < n + KORD; np++){
+            int cnt = max(np, m < KORD ? 0 : m - KORD + 1) - np;
+            indp += cnt;
+          for(size_t mp = cnt + np ; mp<nb && mp < m + KORD; mp++){
             double val1, val2, val3;
             if(m == n && mp  == np){
                 val1 = 2.0 * s[idx(n, np, nb)] * mh[idx(n, np, nb)] + eta * Vef[idxVef(n,n,np,np)] ;
@@ -628,41 +635,68 @@ void sener(){
                 val2 = s[idx(n,np,nb)]*s[idx(m,mp,nb)] + s[idx(n,mp,nb)]*s[idx(m,np,nb)];
                 val3 = 0.50*(Vef[idxVef(n,m,np,mp)] + Vef[idxVef(n,m,mp,np)] + Vef[idxVef(m,n,np,mp)] + Vef[idxVef(m,n,mp,np)]);
             }
-            hsim[ind][indp] = val1;
-            ms[ind][indp] = val2;
-            mv[ind][indp] = val3;
+
+            if(val1 != 0 && ind >= indp){
+              hsim_val[nzcnt] = val1;
+              ms_val[nzcnt] = val2;
+              mv_val[nzcnt] = val3;
+              irow[nzcnt++] = indp;
+            }
+            zcnt++;
+
+            assert(val1 != 0.0);
+
+ 
             indp++;
             cnt++;
           }
-          //assert(cnt == min( (m + KORD + 1 < np ? 0 : m + KORD + 1 - np), nb - np ));
-          //indp += nb - np - min( (m + KORD + 1 < np ? 0 : m + KORD + 1 - np), nb - np );
+ 
           indp += nb - np - cnt;
         }
         ind++;
-//        assert(NN == indp);
+        pcol[ind] = nzcnt;
       }
     }
     assert(NN == ind);
-
-    printf("%d %d\n", NN, NN);
-    for(unsigned int i=0 ; i<NN ; i++){
-    	for(unsigned int j=0 ; j<NN ; j++){
-        printf("%e ", mv[i][j]);
-    		/*if(ms[i][j] == 0){
-    			printf("0 ");
-    		}
-    		else{
-    			printf("1 ");
-    		}*/
-    	}
-    	printf("\n");
-    }
-
-    assert(0);
     
-  //  int info;
-  //  eigenvalues(NN, NEV, hsim, ms, AUVAL, AUVEC);
-  }
+    /*FILE *hsim_file = fopen("hsim.dat", "w");
+    FILE *ms_file = fopen("ms.dat", "w");
+    FILE *irow_file = fopen("irow.dat", "w");
+    FILE *pcol_file = fopen("pcol.dat", "w");
+
+    for(int i=0 ; i < nzcnt ; i++){
+        fprintf(hsim_file, "%e ", hsim_val[i]);
+        fprintf(ms_file, "%e ", ms_val[i]);
+        fprintf(irow_file, "%d ", irow[i]);
+    }
+    fprintf(hsim_file, "\n");
+    fprintf(ms_file, "\n");
+    fprintf(irow_file, "\n");
+    
+    fclose(hsim_file);
+    fclose(ms_file);
+    fclose(irow_file);
+    
+    for(int i=0 ; i< NN+1 ; i++){
+        fprintf(pcol_file, "%d ", pcol[i]);
+    }
+    fprintf(pcol_file, "\n");
+    fclose(pcol_file);
+    
+    int stim = NN * (2*KORD*KORD - KORD);
+    printf("%d %d vueltas:%d %d\n", stim, nzcnt, zcnt, NN);
+    */
+    double *val_exp = eigen(NN, nzcnt);
+    printf("eta: %f\n", eta);
+    printf("val exp\n");
+    for(int i=0 ; i<NEV ; i++){
+      printf("%e ", val_exp[i]);
+    }
+    printf("\n");
+
+
+    delete[] val_exp;
+   }
 
 }
 
@@ -686,20 +720,41 @@ int main(void) {
     // imprimo los parametros //
     cleard(INT_G, x);
     cleard(INT_G, w);
+    double t_total = 0;
 
     t_in = omp_get_wtime();
     gaulegm(x, w);
+    t_fin = omp_get_wtime();
+    printf("gaulegm: %.12f\n", t_fin - t_in);
+    t_total += t_fin - t_in;
     
+    t_in = omp_get_wtime();
     calculo_matrices(x, w, s, v0, ke);
-    
+    t_fin = omp_get_wtime();
+    printf("calculo_matrices: %.12f\n", t_fin - t_in);
+    t_total += t_fin - t_in;
+
+    t_in = omp_get_wtime();
     interaccion(x, w);
+    t_fin = omp_get_wtime();
+    printf("interaccion: %.12f\n", t_fin - t_in);
+    t_total += t_fin - t_in;
+
+    t_in = omp_get_wtime();
     ini_e();
+    t_fin = omp_get_wtime();
+    printf("ini_e: %.12f\n", t_fin - t_in);
+    t_total += t_fin - t_in;
+
+    t_in = omp_get_wtime();
     sener();
     t_fin = omp_get_wtime();
+    printf("sener: %.12f\n", t_fin - t_in);
+    t_total += t_fin - t_in;
 
-    t_n = (t_fin-t_in)/(nb*nb*L_INTERVALS*INT_G),
+    t_n = (t_total)/(nb*nb*L_INTERVALS*INT_G),
 
-    printf("%i     %i     %i     %.12f  %.12f\n", L_INTERVALS, nk, nb, t_fin-t_in, t_n); 
+    printf("%i     %i     %i     %.12f  %.12f\n", L_INTERVALS, nk, nb, t_total, t_n); 
 
     FILE *file;
     file = fopen("matrices.dat", "w");

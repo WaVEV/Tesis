@@ -111,7 +111,7 @@ gamma = 0.d0 ! parametro de la exponencial
 
 kord = 5 ! orden de los B-splines
 
-l = 20 ! # de intervalos
+l = 100 ! # de intervalos
 
 intg = 100 ! grado de la intregracion de cuadratura gaussiana, >=k
 
@@ -224,14 +224,14 @@ do i = 1,nb
     ke(j,i) = ke(i,j)
   end do
 end do
-
-
-
-
-
 !!write(*,*)"diagonaliza"
 call init_e( )
 t6 = omp_get_wtime();
+write(*, *) t6 - t1
+
+
+
+
 
 !write(*,*) " tiempo de KNOTS_PESOS =", t2-t1
 !write(*,*) " tiempo de calculo_matrices =", t3-t2
@@ -466,6 +466,8 @@ real(8) :: raiz
 real(8), allocatable, dimension(:,:) :: auvec, val_exp
 real(8), allocatable, dimension(:) :: v, e
 real(8), allocatable, dimension(:,:) :: mh, ms, mv, hsim
+real(8) :: time, t1, t2, t3, t4, t5, t6
+real(8) :: omp_get_wtime
 
 
 raiz = 1.d0/sqrt(2.d0);
@@ -552,14 +554,24 @@ do i = 0, num_puntos_eta-1
   if( NN.ne.(ind-1) ) stop
   if( NN.ne.(indp-1) ) stop  
 
-  write(*,*) NN, NN
-  do n = 1, NN
-    write(*,*) mv(n, :)!-hsim(m,n)
-  end do
-  stop;
+  !write(*,*) NN, NN
+  !do n = 1, NN
+  !  write(*,*) hsim(n, :)!-hsim(m,n)
+  !end do
+  !stop;
   
-
+  !t1 = omp_get_wtime();
+  !call  KNOTS_PESOS( kord, tip, gamma, Rmin, Rmax, c, l, lum, intg, t, k, x, w, pl)
   call eigen_value( NN, nev, info, hsim, ms, e, auvec)
+
+  !t2 = omp_get_wtime();
+  
+  !write(*,*) t2 - t1
+  !write(*,*) auvec
+  !stop;
+  !stop;
+
+
 
   val_exp = MATMUL( TRANSPOSE(auvec), MATMUL(mv, auvec)) 
   do j = 1, nev
@@ -567,8 +579,8 @@ do i = 0, num_puntos_eta-1
   end do
   
   !muestro los valores
-  !write(11,6) eta, (e(m), m = 1, 25)
-  !write(12,6) eta, (v(m), m = 1, 25)
+  write(11,6) eta, (e(m), m = 1, 25)
+  write(*,*) v
   !write(*,6) eta, (e(m), m = 1, 2)
   
   
