@@ -1,0 +1,3 @@
+[submodule "arpackpp"]
+	path = arpackpp
+	url = https://github.com/m-reuter/arpackpp

@@ -28,7 +28,7 @@ pozo-2:	pozo-2.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core usymreg usymshf usymgreg usymgshf usymgbkl usymgcay
+	rm -f *~ *.o core pozo-2
 
 # defining pattern rules.
 
