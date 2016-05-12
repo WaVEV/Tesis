@@ -61,7 +61,7 @@
 #endif
 
 #ifndef L_INTERVALS
-#define L_INTERVALS 500 // numero de intervalos en el que divido al intervalo [R_MIN, R_MAX] //
+#define L_INTERVALS 50 // numero de intervalos en el que divido al intervalo [R_MIN, R_MAX] //
 #endif
 
 #ifndef KORD
@@ -563,9 +563,9 @@ double* eigen(int n, int nz){
   dprob.FindEigenvectors();
 
   double *Ax = new double[n * NEV];
-  //printf("eigen values\n");
+  printf("eigen values\n");
   for (int i=0; i<NEV; i++) {
-    //printf("%e\n", dprob.Eigenvalue(i));
+    printf("%e\n", dprob.Eigenvalue(i));
     C.MultMv(dprob.RawEigenvector(i), &Ax[n * i]);
   }
   double *Rx = new double[NEV];
@@ -686,8 +686,8 @@ void sener(){
     int stim = NN * (2*KORD*KORD - KORD);
     printf("%d %d vueltas:%d %d\n", stim, nzcnt, zcnt, NN);
     */
-    double *val_exp = eigen(NN, nzcnt);
     printf("eta: %f\n", eta);
+    double *val_exp = eigen(NN, nzcnt);
     printf("val exp\n");
     for(int i=0 ; i<NEV ; i++){
       printf("%e ", val_exp[i]);

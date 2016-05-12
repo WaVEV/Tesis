@@ -1,4 +1,7 @@
 *.pyc
 *.o
 *.so
-
+*.out
+*.dat
+*.mod
+*.swp

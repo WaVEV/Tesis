@@ -111,7 +111,7 @@ gamma = 0.d0 ! parametro de la exponencial
 
 kord = 5 ! orden de los B-splines
 
-l = 100 ! # de intervalos
+l = 50 ! # de intervalos
 
 intg = 100 ! grado de la intregracion de cuadratura gaussiana, >=k
 
@@ -566,13 +566,6 @@ do i = 0, num_puntos_eta-1
 
   !t2 = omp_get_wtime();
   
-  !write(*,*) t2 - t1
-  !write(*,*) auvec
-  !stop;
-  !stop;
-
-
-
   val_exp = MATMUL( TRANSPOSE(auvec), MATMUL(mv, auvec)) 
   do j = 1, nev
     v(j) = val_exp(j,j);
@@ -581,7 +574,7 @@ do i = 0, num_puntos_eta-1
   !muestro los valores
   write(11,6) eta, (e(m), m = 1, 25)
   write(*,*) v
-  !write(*,6) eta, (e(m), m = 1, 2)
+  write(*,6) eta, (e(m), m = 1, 2)
   
   
   !e = 0.d0
