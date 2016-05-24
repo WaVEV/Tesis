@@ -16,7 +16,8 @@ CPP          = g++
 # ARPACKPP_INC is the directory that contains all arpack++ header files.
 # SUPERLU_DIR and UMFPACK_DIR must be set to ARPACKPP_INC.
 
-ARPACKPP_DIR = /home/emanuel/Tesis/Tesis/arpackpp
+current_dir = $(shell pwd)
+ARPACKPP_DIR = $(current_dir)/arpackpp
 #ARPACKPP_DIR = ../../..
 ARPACKPP_INC = $(ARPACKPP_DIR)/include
 SUPERLU_DIR  = $(ARPACKPP_INC)
