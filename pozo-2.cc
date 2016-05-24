@@ -36,6 +36,7 @@
 #include <assert.h>
 #include <string.h>
 #include <omp.h> //omp_get_wtime()
+#include <vector>
 
 
 #include "lsmatrxc.h"
@@ -554,18 +555,18 @@ static void ini_e(){
 }
 
 
-double* eigen(int n, int nz){
+void eigen(int n, int nz, std::vector<double> &exp_val, std::vector<double> &evec){
   ARumSymMatrix<double> A(n, nz, hsim_val, irow, pcol, 'U');
   ARumSymMatrix<double> B(n, nz, ms_val, irow, pcol, 'U');
   ARumSymMatrix<double> C(n, nz, mv_val, irow, pcol, 'U');
   ARluSymGenEig<double> dprob('C', NEV, A, B, -10, "SA");
  
   dprob.FindEigenvectors();
-
+  evec.resize(NEV);
   double *Ax = new double[n * NEV];
-  printf("eigen values\n");
   for (int i=0; i<NEV; i++) {
-    printf("%e\n", dprob.Eigenvalue(i));
+    evec[i] = dprob.Eigenvalue(i);
+    //printf("%e\n", dprob.Eigenvalue(i));
     C.MultMv(dprob.RawEigenvector(i), &Ax[n * i]);
   }
   double *Rx = new double[NEV];
@@ -577,10 +578,14 @@ double* eigen(int n, int nz){
   }
 
   delete[] Ax;
-  return Rx;
+  exp_val.resize(NEV);
+  for(int i=0 ; i<NEV ; i++){
+    exp_val[i] = Rx[i];
+  }
+  delete[] Rx;
 }
 
-void sener(){
+void sener(std::vector<std::vector<double> > &rlt, std::vector<std::vector<double> > &evalues){
   memset(mh, 0, sizeof(mh));
 
   for(size_t m=0 ; m<nb ; m++){
@@ -589,6 +594,8 @@ void sener(){
           
       }
   }
+  rlt.clear();
+  evalues.clear();
 
   double raiz = 1.0/sqrt(2.0);
 
@@ -646,7 +653,6 @@ void sener(){
 
             assert(val1 != 0.0);
 
- 
             indp++;
             cnt++;
           }
@@ -658,46 +664,15 @@ void sener(){
       }
     }
     assert(NN == ind);
-    
-    /*FILE *hsim_file = fopen("hsim.dat", "w");
-    FILE *ms_file = fopen("ms.dat", "w");
-    FILE *irow_file = fopen("irow.dat", "w");
-    FILE *pcol_file = fopen("pcol.dat", "w");
 
-    for(int i=0 ; i < nzcnt ; i++){
-        fprintf(hsim_file, "%e ", hsim_val[i]);
-        fprintf(ms_file, "%e ", ms_val[i]);
-        fprintf(irow_file, "%d ", irow[i]);
-    }
-    fprintf(hsim_file, "\n");
-    fprintf(ms_file, "\n");
-    fprintf(irow_file, "\n");
-    
-    fclose(hsim_file);
-    fclose(ms_file);
-    fclose(irow_file);
-    
-    for(int i=0 ; i< NN+1 ; i++){
-        fprintf(pcol_file, "%d ", pcol[i]);
-    }
-    fprintf(pcol_file, "\n");
-    fclose(pcol_file);
-    
     int stim = NN * (2*KORD*KORD - KORD);
-    printf("%d %d vueltas:%d %d\n", stim, nzcnt, zcnt, NN);
-    */
-    printf("eta: %f\n", eta);
-    double *val_exp = eigen(NN, nzcnt);
-    printf("val exp\n");
-    for(int i=0 ; i<NEV ; i++){
-      printf("%e ", val_exp[i]);
-    }
-    printf("\n");
 
+    std::vector<double> val_exp, eval;
 
-    delete[] val_exp;
-   }
-
+    eigen(NN, nzcnt, val_exp, eval);
+    rlt.push_back(val_exp);
+    evalues.push_back(eval); 
+  }
 }
 
 
@@ -705,16 +680,12 @@ int main(void) {
 
     // defino algunas variables que voy a usar //
     double t_in, t_fin, t_n;
-    FILE * archivo;
 
     // controlo algunos parametros //
     assert(INT_G>KORD);
     assert(NEV>0);
     assert(KORD > 1);
-
-    //archivo = fopen("autovalores_pozo-1.dat", "w");
- //   show_config(stdout);
-    //fclose(archivo);
+    std::vector<std::vector<double> > val_exp, evalues;
 
     
     // imprimo los parametros //
@@ -747,14 +718,27 @@ int main(void) {
     t_total += t_fin - t_in;
 
     t_in = omp_get_wtime();
-    sener();
+    sener(val_exp, evalues);
     t_fin = omp_get_wtime();
     printf("sener: %.12f\n", t_fin - t_in);
     t_total += t_fin - t_in;
 
     t_n = (t_total)/(nb*nb*L_INTERVALS*INT_G),
+    printf("%.12f\n", t_total);
 
     printf("%i     %i     %i     %.12f  %.12f\n", L_INTERVALS, nk, nb, t_total, t_n); 
+
+    double delta = (ETAF - ETAI)/(double)NUM_PUNTOS_ETA;
+    for(int i=0 ; i<val_exp.size() ; i++){
+        double eta = ETAI + i * delta;
+        printf("eta: %f\n", eta);
+        for(int j=0 ; j<val_exp[i].size() ; j++){
+            printf("val_exp[%d]: %f\n", j, val_exp[i][j]);
+        }
+        for(int j=0 ; j<evalues[i].size() ; j++){
+            printf("evalues[%d]: %f\n", j, evalues[i][j]);
+        }
+    }
 
     FILE *file;
     file = fopen("matrices.dat", "w");
