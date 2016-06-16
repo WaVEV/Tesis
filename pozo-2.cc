@@ -412,13 +412,13 @@ static void calculo_matrices(const double * __restrict__ const x, const double *
                 }
             }
 
-            for(unsigned int m = i-KORD+1+(basek==0); m<=i && m<=nb ; ++m) {
+            for(unsigned int m = i-KORD+1+(basek==0); m<=i && m<nb ; ++m) {
                 assert(m - (i-KORD+1+(basek==0)) < KORD);
                 bders[m - (i-KORD+1+(basek==0))] = bder(rr, m, i, Sp_1);
             }
 
             for(int k=0 ; k<KORD ; k++){
-                for(unsigned int m = i-KORD + 1 + (basek==0), n = m + k; n<=i && n<=nb ; ++m, ++n) {
+                for(unsigned int m = i-KORD + 1 + (basek==0), n = m + k; n<=i && n<nb ; ++m, ++n) {
                     double  bm = bders[m - (i-KORD+1+(basek==0))],
                             bn = bders[n - (i-KORD+1+(basek==0))];
                     ke[idx(m-1, n-1, nb)] += 0.5*wikj*bm*bn/ME;
