@@ -17,7 +17,7 @@ CPP          = g++
 # SUPERLU_DIR and UMFPACK_DIR must be set to ARPACKPP_INC.
 
 current_dir = $(shell pwd)
-ARPACKPP_DIR = $(current_dir)/arpackpp
+ARPACKPP_DIR = $(current_dir)/../Tesis/arpackpp
 #ARPACKPP_DIR = ../../..
 ARPACKPP_INC = $(ARPACKPP_DIR)/include
 SUPERLU_DIR  = $(ARPACKPP_INC)
@@ -68,14 +68,12 @@ CHOLMOD_INC  = -I$(SUITESPARSE_DIR)/CHOLMOD/Include -I$(SUITESPARSE_DIR)/SuiteSp
 # Defining g++ flags and directories.
 
 # CPP_WARNINGS = -fpermissive 
-CPP_WARNINGS = -Wall -ansi -pedantic-errors
-CPP_DEBUG    = -g
-CPP_OPTIM    = -O
+CPP_WARNINGS = 
 CPP_LIBS     = 
 CPP_INC      = 
 
-CPP_FLAGS    = $(CPP_DEBUG) -D$(PLAT) -I$(ARPACKPP_INC) -I$(CPP_INC) \
-               $(CPP_WARNINGS) -std=c99
+CPP_FLAGS    = $(CPP_DEBUG) -D$(PLAT) -I$(ARPACKPP_INC) \
+               $(CPP_WARNINGS)
 
 # Putting all libraries together.
 
