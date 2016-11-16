@@ -1,0 +1,608 @@
+\documentclass[a4paper,openright,12pt, oneside]{book}
+\usepackage[spanish]{babel} 
+\usepackage[latin1]{inputenc}
+\usepackage{url}
+\usepackage{graphics,graphicx}
+\usepackage{algpseudocode}
+\usepackage{colortbl}
+\usepackage{anysize} %Para los margeness
+\usepackage{array}
+\usepackage{multirow} % para unir filas
+\usepackage{multicol}
+\usepackage{dsfont}
+\usepackage{blkarray}
+\usepackage{amsmath} %para hacer la combinatoria
+\usepackage{listings}
+\usepackage{mathtools}
+\usepackage{tabularx,ragged2e}
+\usepackage{titlesec}
+\usepackage[]{algorithm2e}
+\lstset{ %
+language=Php,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=2,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+mathescape=true, %para agregar simbolos YOOOOO
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+\DeclareRobustCommand{\orderof}{\ensuremath{\mathcal{O}}}
+\DeclareRobustCommand{\matrix}{\ensuremath{\mathcal{M}}}
+\newcommand{\sii}{\Leftrightarrow}
+\newcommand{\reales}{\mathds{R}}
+\newcommand{\enteros}{\mathds{Z}}
+\newcommand{\nat}{\mathds{N}}
+\newcommand{\infinito}{\infty}
+\def\blacksquare{\hbox{\vrule width 5pt height 5pt depth 0pt}}
+\def\fin{\ \ \ \hbox{}\nolinebreak\hfill $\blacksquare \  \  \  \  $ \par{}\medskip}
+
+\newcommand{\implica}{\rightarrow}
+
+
+
+\makeatletter
+\newif\if@borderstar
+\def\bordermatrix{\@ifnextchar*{%
+\@borderstartrue\@bordermatrix@i}{\@borderstarfalse\@bordermatrix@i*}%
+}
+\def\@bordermatrix@i*{\@ifnextchar[{\@bordermatrix@ii}{\@bordermatrix@ii[()]}}
+\def\@bordermatrix@ii[#1]#2{%
+\begingroup
+\m@th\@tempdima8.75\p@\setbox\z@\vbox{%
+\def\cr{\crcr\noalign{\kern 2\p@\global\let\cr\endline }}%
+\ialign {$##$\hfil\kern 2\p@\kern\@tempdima & \thinspace %
+\hfil $##$\hfil && \quad\hfil $##$\hfil\crcr\omit\strut %
+\hfil\crcr\noalign{\kern -\baselineskip}#2\crcr\omit %
+\strut\cr}}%
+\setbox\tw@\vbox{\unvcopy\z@\global\setbox\@ne\lastbox}%
+\setbox\tw@\hbox{\unhbox\@ne\unskip\global\setbox\@ne\lastbox}%
+\setbox\tw@\hbox{%
+$\kern\wd\@ne\kern -\@tempdima\left\@firstoftwo#1%
+\if@borderstar\kern2pt\else\kern -\wd\@ne\fi%
+\global\setbox\@ne\vbox{\box\@ne\if@borderstar\else\kern 2\p@\fi}%
+\vcenter{\if@borderstar\else\kern -\ht\@ne\fi%
+\unvbox\z@\kern-\if@borderstar2\fi\baselineskip}%
+\if@borderstar\kern-2\@tempdima\kern2\p@\else\,\fi\right\@secondoftwo#1 $%
+}\null \;\vbox{\kern\ht\@ne\box\tw@}%
+\endgroup}
+
+\begin{document}
+
+\begin{titlepage}
+
+\begin{center}
+\vspace*{-1in}
+
+
+FACULTAD DE MATEM\'ATICA, ASTRONOM\'IA, F\'ISICA Y COMPUTACI\'ION\\
+\vspace*{0.15in}
+DEPARTAMENTO DE COMPUTACI\'ON \\
+\vspace*{0.6in}
+\begin{large}
+\end{large}
+\vspace*{0.2in}
+\begin{Large}
+\textbf{TITULO} \\
+\end{Large}
+\vspace*{0.3in}
+\begin{large}
+Tesis realizada por Emanuel Emilio Lupi para la Licenciatura en Ciencias de la Computaci\'on en la Universidad Nacional de C\'ordoba\end{large}
+
+\vspace*{0.3in}
+\rule{80mm}{0.1mm}\\
+\vspace*{0.1in}
+\begin{large}
+Dirigida por: \\
+Doctor\\
+Doctor\\
+\vspace*{0.1in}
+\end{large}
+\end{center}
+\end{titlepage}
+
+\mbox{}
+\thispagestyle{empty}
+\pagenumbering{arabic}
+
+\chapter*{Agradecimientos} % si no queremos que a\~nada la palabra "Capitulo"
+\addcontentsline{toc}{chapter}{Agradecimientos} % si queremos que aparezca en el \'indice
+\markboth{AGRADECIMIENTOS}{AGRADECIMIENTOS} % encabezado
+
+\begin{itemize}
+\item A mi familia, quienes siempre ser\'an los primeros agradecidos en
+cualquier logro de mi vida por formarme como persona, por el amor y el apoyo incondicional que siempre me brindan.
+
+\item A mis directores Nicolas y Mariano por la calidez humana y la gran ayuda que siempre me prestaron a lo largo del proyecto.
+
+\item A mis amigos y compa\~neros Kevin, Fernando, Franco, Emiliano, Maxi, Eric, H\'ector, Elias, Pablo, Ezequiel, Agustin, Leandro, Emanuel, Joaquin, Fede, Gonza, Alan, Agus, Demetrio y tantos mas.
+
+\item Al Ingeniero Marcelo Cometto por darme la posibilidad de crecer profesionalmente y confiar en mi.
+\end{itemize}
+
+\chapter*{\hspace{0.65cm}Resumen} % si no queremos que a\~nada la palabra "Capitulo"
+\addcontentsline{toc}{chapter}{Resumen} % si queremos que aparezca en el \'indice
+\markboth{RESUMEN}{RESUMEN} % encabezado
+
+El problema consiste en resolver la ecuaci\'on de Schrodinger independiente del tiempo, usando el conjunto de funciones conocido como B-splines.
+
+La ecuaci\'on de Schr\"odinger independiente del tiempo predice que las funciones de onda pueden tener la forma de ondas estacionarias, denominados estados estacionarios (tambi\'en llamados ``orbitales``, como en los orbitales at\'omicos o los orbitales moleculares). Estos estados son importantes, y si los estados estacionarios se clasifican y se pueden comprender, entonces es m\'as f\'acil de resolver la ecuaci\'on de Schr\"odinger dependiente del tiempo para cualquier estado. La ecuaci\'on de Schr\"odinger independiente del tiempo es la ecuaci\'on que describe los estados estacionarios.
+
+La ecuaci\'on de Schrodinger es una ecuaci\'on diferencial con autovalores y 
+autovectores o autofunciones, las autofunciones representan los autoestados cu\'anticos del sistema 
+(cuando hablamos de ecuaci\'on de Schrodinger es siempre hablando en el contexto de mec\'anica cu\'antica) y 
+los autovalores asociados a cada autofuncion representa la energ\'ia de esa autofuncion.
+
+Ahora bien, desde un punto de vista mas matem\'atico, tenemos que resolver una ecuaci\'on diferencial 
+en derivadas parciales de segundo orden y desgraciadamente no existe una forma general para 
+las soluciones de una ecuaci\'on diferencial arbitraria de segundo orden, por lo que hay que buscar formas 
+alternativas para encontrar las soluciones o aproximaciones a las soluciones, un m\'etodo bastante 
+usado, que en particular es el m\'etodo que estamos usando, se llama m\'etodo variacional de 
+Rayleigh-Ritz, el cual permite resolver o encontrar las soluciones a ecs diferenciales con una alta 
+precisi\'on.
+
+
+\tableofcontents % indice de contenidos
+
+
+\setcounter{chapter}{1}
+\chapter*{Introduccion}\label{Introduccion}
+\addcontentsline{toc}{chapter}{Introduccion} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+Para el desarrollo del trabajo que presentamos en este informe, es necesario estudiar y comprender varias herramientas y t\'ecnicas que usaremos a lo largo del proyecto. A continuaci\'on presentamos un resumen de los temas que abordaremos.
+
+\section{Motivaci\'on}
+
+La aplicaci\'on del m\'etodo es pr\'acticamente cualquier problema de mec\'anica cu\'antica en el 
+cual no se pueda encontrar una soluci\'on anal\'itica.
+En la gran mayor\'ia de los problemas, no es posible encontrar una soluci\'on anal\'itica a la ecuaci\'on de Schrodinger por lo que se buscan soluciones aproximadas en forma num\'erica.
+
+En un gran n\'umero de problemas, para obtener una buena aproximaci\'on de la soluci\'on real es necesario recurrir a tama\~nos de matrices grandes por lo que el c\'omputo y memoria de las mismas se hace cada vez m\'as lento y pesado, y es de suma importancia tener un software lo m\'as eficiente posible para dicho c\'alculo. 
+
+
+
+\section{Objetivos del trabajo}
+
+El objetivo del trabajo es mejorar una implementaci\'on existente de del m\'etodo variacional de Rayleigh-Ritz en cuanto a eficiencia de tiempo y memoria del calculo a travez de estructuras de datos especificas (como son matrices dispersas) y utilizando arquitecturas de GPU en algunas rutinas.
+
+
+\section{Estructura de la Tesis}
+
+La t\'esis esta estructurada de la siguiente manera:
+
+\begin{itemize}
+    \item Nociones Preliminares: Se introducen las estucturas de datos a utilizar, ventajas y desventajas de las mismas
+    \item Modelo Computacional SIMD: Se explican los conceptos de las arquitecturas GPGPU y las t\'ecnicas de programaci\'on para su mejor desempe\~nio.
+    \item Optimizaci\'on: Se desarrollan variaciones estructurales y algoritmicas. 
+    \item Resultados: Se presentan los resultados obtenidos por las modificaciones.
+    \item Concluciones: Se prensentan concluciones del trabajo y futuras posibles mejoras
+\end{itemize}
+
+
+\setcounter{chapter}{2}
+\setcounter{section}{0}
+\chapter*{Nociones preliminares}\label{Nociones preliminares}
+\addcontentsline{toc}{chapter}{Nociones preliminares} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+
+
+\section{Estructura de representacion de matrices dispersas}
+
+En esta secci\'on explicaremos las estructuras de representaciones de matrices.
+
+A medida que el problema crece las matrices se vuelven mas garndes y al mismo tiempo mas dispersas (para este problema en particular).
+Un sistema linear grande de la forma $\mathcal{A}x = b$ puede ser mas eficientemente resuelto si los elementos que son ceros de $\mathcal{A}$ no son guardados. Los esquemas de almacenamiento dispersos asignan almacenamiento contiguo en memoria para los elementos distintos de cero de la matriz y tal vez un n\'umero limitado de ceros. Esto, por supuesto, requiere un esquema para saber d\'onde encajan los elementos en la matriz completa
+
+Hay muchos m\'etodos para almacenar los datos (v\'ease por ejemplo Saad \cite{SPARSKIT} y Eijkhout \cite{LAPACK}). Aqu\'i discutiremos \textit{almacenamiento de filas y columnas comprimidas}, \textit{almacenamiento de filas comprimidas en bloques}, \textit{almacenamiento en diagonal} y \textit{almacenamiento diagonal recortado}
+
+\subsection{Almacenamiento de filas y columnas comprimidas}
+
+Los formatos Compressed Row y Column Storage son los m\'as generales: no hacen absolutamente ninguna suposici\'on sobre la estructura de dispersi\'on de la matriz y no almacenan elementos innecesarios. Por otra parte, no son muy eficientes, necesitando un paso de direccionamiento indirecto para cada operaci\'on escalar individual en un producto vectorial matricial o soluci\'on precondicionadora.
+
+Este formato pone los elementos no ceros de las filas en memoria contigua. Suponiendo que tenemos una matriz dispersa no sim\'etrica $\mathcal{A}$, creamos 3 arreglos: uno con tipo float (\textit{val}), y otros dos con tipo interos (\textit{col\_ind, row\_ptr}). El arreglo \textit{val} guarda los valores de los elementos no ceros de la matriz $\mathcal{A}$. El arreglo \textit{col\_ind} guarda los indices de la columna de los elementos en el arreglo \textit{val}. Esto es: 
+$$val_{k} = \mathcal{A}_{i,j} \implica col\_ind_{k} = j $$
+El arreglo \textit{row\_ptr} guarda la ubicaci\'on de \textit{val} donde empieza la fila. esto es:
+$$val_{k} = \mathcal{A}_{i,j} \implica row\_ptr_{i} \leq k < row\_ptr_{i+1} $$
+Por convenci\'on definimos $row\_ptr_{n+1} = nnz + 1$ Donde nnz es la cantidad de numeros no ceros de la matriz $\mathcal{A}$. La memoria necesaria para este enfoque es \orderof(nnz + n)
+
+Ejemplo: considere la siguiente matriz:
+
+\begin{equation}
+\mathcal{A} =
+\left(
+\begin{array}{cccccc}
+ 
+10& 0& 0& 0& -2& 0 \\
+
+3& 9& 0& 0& 0& 3 \\
+   
+0& 7& 8& 7& 0& 0 \\
+
+3& 0& 8& 7& 5& 0 \\
+   
+0& 8& 0& 9& 9& 13 \\
+    
+0& 4& 0& 0& 2& -1 \\
+\end{array}
+\right)
+\end{equation}
+
+En formato CRS tendria esta forma
+\begin{equation}
+val = 
+\left(
+\begin{array}{ccccccccccccccccccc}
+10& -2& 3& 9& 3 & 7& 8& 7& 3& 8& 7& 5& 8& 9& 9& 13 & 4& 2& -1 
+\end{array}
+\right)
+\end{equation}
+
+\begin{equation}
+col\_ind = 
+\left(
+\begin{array}{ccccccccccccccccccc}
+0 & 4 & 0 & 1 & 5 & 1 & 2 & 3 & 0 & 2 & 3 & 4 & 1 & 3 & 4 & 5 & 1 & 4 & 5
+\end{array}
+\right)
+\end{equation}
+
+
+\begin{equation}
+row\_ptr = 
+\left(
+\begin{array}{ccccccc}
+1 & 3 & 6 & 9 & 13 & 17 & 20
+\end{array}
+\right)
+\end{equation}
+
+
+
+
+El almacenamiento de columnas comprimidas es an\'alogo
+
+\subsection{Almacenamiento de filas comprimidas en bloques.}
+
+Si la matriz escasa se compone de bloques densos cuadrados de nonzeros en alg\'un patr\'on regular, podemos modificar el formato CRS (o CCS) para explotar tales patrones de bloque. Las matrices de bloque t\'ipicamente surgen de la discretizaci\'on de ecuaciones diferenciales parciales en las que hay varios grados de libertad asociados con un punto. Luego, la partici\'on de la matriz en bloques peque\~nos con un tama\~no igual al n\'umero de grados de libertad, y tratar cada bloque como una matriz densa, a pesar de que puede tener algunos ceros.
+
+Sea \textit{$n_{b}$} es la dimensi\'on de cada bloque y \textit{nnzb} la cantidad de no ceros de cada bloque en la matriz $\mathcal{A}^{n,m}$, la cantidad de memoria es $\orderof(nnz)$.
+
+\subsection{Almacenamiento en diagonal.}
+
+Si la matriz $\mathcal{A}$ es una matriz de banda donde el ancho de la banda es susficientemente constante de fila en fila. Entonces podemos aprovechar esta estructura en el esquema de almacenamiento almacenando subdiagonales de la matriz en ubicaciones consecutivas. No s\'olo podemos eliminar el vector que identifica la columna y la fila (si lo miramos como un CRS), podemos empaquetar los elementos no nulos de tal manera que el producto vectorial sea m\'as eficiente. Este esquema de almacenamiento es particularmente \'util si la matriz surge de una discretizaci\'on de elementos finitos o diferencias finitas en una matriz de producto tensor.
+
+Decimos que la matriz $\mathcal{A}^{m,n}$ es de banda si hay enteros no negativos \textit{p},\textit{q} tal que $\mathcal{A}_{i,j}$ $\neq$ 0 $\implica$ i-p $\leq$ j $\leq$ i + q. En este caso podemos alojar la matriz $\mathcal{A}$ en un arreglo \textit{val}(1:n, -p:q) la declaraci\'on con dimensiones invertidas corresponde a \textit{LINPACK band format} \cite{LINPACK}
+
+Por lo general, los formatos de banda incluyen almacenar algunos ceros. El formato CDS puede incluso contener algunos elementos de matriz que no corresponden a elementos de matriz en absoluto. Consideremos la matriz no simétrica definida por:
+
+\begin{equation}
+\mathcal{A} =
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 0& 0& 0& 0\\
+3&   9& 6& 0& 0& 0 \\
+0&   7& 8& 7& 0& 0 \\
+0&   0& 8& 7& 5& 0 \\
+0&   0& 0& 9& 9& 13 \\
+0&   0& 0& 0& 2& -1 \\
+\end{array}
+\right)
+\end{equation}
+
+Usando el formato CDS, alojamos la matriz $\mathcal{A}$ en un arreglo \textit{$cdsA^{6, 3}$} donde las columnas estan indexadas desde -1 usando el mapeo $val_{i, j}$ = $a_{i, i+j}$
+
+\begin{tabular}{ l || c | c | c | c | c | c}
+  val(:, -1) & 0 & 3 & 7 & 8 & 9 & 2 \\
+  val(:, 0) & 10 & 9 & 8 & 7 & 9 & -1 \\
+  val(:, 1) & -3 & 6 & 7 & 5 & 13 & 0 \\
+\end{tabular}
+
+Notar que los dos ceros no corresponden a un elemento existente de la matriz.
+
+Una generalizaci\'on del formato CDS m\'as adecuada para manipular matrices dispersas generales en superordenadores vectoriales es discutido por Melhem en \cite{MELHEM}. Esta variante de CDS utiliza una estructura de datos de banda para almacenar la matriz. Esta estructura es m\'as eficiente en el almacenamiento en el caso de variar el ancho de banda, pero hace que el producto de vector de matriz sea ligeramente m\'as caro, ya que implica una operaci\'on de recopilaci\'on.
+
+Como es definido en \cite{MELHEM}, una linea en $\mathcal{A}^{n,m}$ es un conjunto de posiciones 
+S = $\{(i, \theta(i)): i \in I \subseteq I_{n} \}$ donde $I_{n}$ = ${1, ..., n}$ y $\theta$ es una funci\'on estrictamente creciente. Especificamente: 
+
+
+$$(i, \theta(i)), (j, \theta(j)) \in S \implica (i < j \implica \theta(i) < \theta(j)) $$
+
+Cuando se computa el producto Matriz-vector $ y = \mathcal{A}x $ usando rayas, cada (i, $\theta_{k}(i)$) de $\mathcal{A}$ se multiplica por $x_{\theta_{k}(i)}$ y es acumulado en $y_{i}$.
+
+
+\subsection{Almacenamiento diagonal recortado.}
+
+El formato JDS (sus siglas en ingles de Jagged Diagonal Storage) puede ser \'util para la implementaci\'on de m\'etodos iterativos en procesadores paralelos y vectoriales (v\'ease Saad \cite{JDS}). Al igual que el formato Diagonal Comprimido, da una longitud de vector esencialmente del tama\~no de la matriz. Es m\'as eficiente en cuanto a espacio que CDS a costa de una operaci\'on de recopilaci\'on / dispersi\'on.
+
+Una forma simplificada de JDS, llamada almacenamiento de ITPACK o almacenamiento Purdue, se puede describir como sigue:
+
+\begin{equation}
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 0& 1& 0& 0\\
+0&   9& 6& 0& -2& 0 \\
+3&   0& 8& 7& 0& 0 \\
+0&   6& 0& 7& 5& 0 \\
+0&   0& 0& 0& 9& 13 \\
+0&   0& 0& 0& 5& -1 \\
+\end{array}
+\right)
+\implica
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 1&  &  & \\
+9& 6& -2& &  & \\
+3& 8& 7& &  & \\
+6& 7& 5& &  & \\
+9& 13 & &  & \\
+5& -1 & &  &\\
+\end{array}
+\right)
+\end{equation}
+
+Luego las columnas se almacenan consecutivamente. Todas las filas se rellenan con ceros a la derecha para darles la misma longitud. Correspondiente al arreglo de elementos de matriz \textit{val}(:, :), un arreglo de \'indices de columna, col\_ind (:, :) tambi\'en se almacena:
+
+Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventaja, especialmente si el ancho de banda de la matriz varía fuertemente. Por lo tanto, en el formato CRS, reordenamos las filas de la matriz de forma decreciente de acuerdo con el n\'umero de elementos no ceros de una fila. Las diagonales comprimidas y permutadas se almacenan entonces en una matriz lineal. La nueva estructura de datos se denomina diagonales dentadas.
+
+
+
+\begin{table}[htdp]
+    \caption{}
+    \begin{tabular}{ | l || c | c | c | c | c | c |}
+      \hline
+      val(:, 1) & 10 & 9 & 3 & 6 & 9 & 5 \\ \hline 
+      val(:, 2) & -3 & 6 & 8 & 7 & 13 & -1 \\ \hline
+      val(:, 3) & 1 & -2 & 7 & 5 & 0 & 0 \\ \hline
+      val(:, 4) & 0 & 0 & 0 & 4 & 0 & 0 \\ \hline 
+    \end{tabular}
+\end{table}
+
+\begin{table}[htdp]
+    \caption{}
+    \begin{tabular}{| l || c | c | c | c | c | c |}
+        \hline
+      col\_ind(:, 1) & 1 & 2 & 1 & 2 & 5 & 5 \\ \hline
+      col\_ind(:, 2) & 2 & 3 & 3 & 4 & 6 & 6 \\ \hline
+      col\_ind(:, 3) & 4 & 5 & 4 & 5 & 0 & 0 \\ \hline
+      col\_ind(:, 4) & 0 & 0 & 0 & 6 & 0 & 0 \\ \hline
+    \end{tabular}
+\end{table}
+
+
+El n\'umero de diagonales irregulares es igual al n\'umero de no ceros en la primera fila, es decir, el mayor n\'umero de no ceros en cualquier fila de $\mathcal{A}$. La estructura de datos para representar la matriz por lo tanto consiste en un arreglo de permutaci\'on (\textit{perm} (1: n)) que reordena las filas, un arreglo de punto flotante (jdiag (:)) que contiene las diagonales dentadas en sucesi\'on, un arreglo de enteros (\textit{col\_ind} :)) que contiene los \'indices de columna correspondientes, y finalmente un arreglo de punteros (\textit{jd\_ptr} (:)) cuyos elementos apuntan al comienzo de cada diagonal dentada. Las ventajas de JDS para las multiplicaciones matriciales son discutidas por Saad en \cite{JDS}.
+
+El formato JDS para la matriz anterior en el uso de los arreglos lineales {perm, jdiag, col\_ind, jd\_ptr} se da a continuaci\'on (diagonales irregulares est\'an separados por punto y coma).
+
+\begin{table}[htdp]
+    \caption{}
+    \begin{tabular}{ | l || c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c |}
+        \hline
+      jdiag & 6 & 9 & 3 & 10 & 9 & 5; & 7 & 6 & 8 & -3 & 13 & -1; & 5 & -2 & 7 & 1 & 4; \\ \hline
+      col\_ind & 2 & 2 & 1 & 1 & 5 & 5; & 4 & 3 & 3 & 2 & 6 & 6; & 5 & 5 & 4 & 4 & 6; \\ \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[htdp]
+    \caption{}
+    \begin{tabular}{ | l || c | c | c | c | c | c |}
+        \hline
+        perm & 4 & 2 & 3 & 1 & 5 & 6 \\ \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[htdp]
+    \caption{}
+    \begin{tabular}{ | l || c | c | c | c | }
+        \hline
+      perm & 1 & 7 & 13 & 17 \\ \hline
+    \end{tabular}
+\end{table}
+
+
+
+\section{Problema de autovalores y autovectores}
+
+Como vimos anteriormente el metodo requiere que se calcule los autovalores mas peque\~nos para lograr eso se utiliz\'o packete ARPACK.
+
+Este paquete est\'a dise\~nado para calcular algunos autovalores y vectores propios correspondientes de una matriz general n por n A. Es m\'as apropiado para matrices grandes escasas o estructuradas A donde estructurado significa que un producto vectorial matricial w = $\mathcal{A}$*v requiere $\orderof(m)$ en lugar de $\orderof(n^{2})$ donde m es menor que n operaciones de punto flotante. Este software se basa en una variante algor\'itmica del proceso Arnoldi llamado Implicitly Restarted Arnoldi Method (IRAM). Cuando la matriz A es sim\'etrica, se reduce a una variante del proceso de Lanczos denominado M\'etodo Lanczos Impl\'icitamente Reiniciado (IRLM). Estas variantes pueden ser vistas como una s\'intesis del proceso de Arnoldi\/ Lanczos con la t\'ecnica QR impl\'icitamente desplazada que es adecuada para problemas a gran escala. Para muchos problemas est\'andar, no se requiere una factorizaci\'on de matriz. S\'olo se necesita la acci\'on de la matriz sobre un vector.
+
+ARPACK es capaz de resolver grandes problemas simb\'olicos sim\'etricos, no sim\'etricos y generalizados de \'areas de aplicaci\'on significativas. El software est\'a dise\~nado para calcular algunos (k) valores propios con caracter\'isticas especificadas por el usuario tales como los de mayor parte real o mayor magnitud. Los requisitos de almacenamiento est\'an en el orden \orderof(n * k) de memoria. No se requiere almacenamiento auxiliar. Se calcula un conjunto de vectores de base de Schur para el eigen-espacio k-dimensional deseado que es num\'ericamente ortogonal a la precisi\'on de trabajo. Los autovectores num\'ericamente exactos est\'an disponibles a petici\'on.
+
+\subsection{Algoritmo de Lanczos}
+
+Este algoritmo hecho por Lanczos es un algoritmo iterativo, es una adaptacion al metodo de las potencias para calcular los autovalores y autovectores mas significativos de un sistema lineal $n^{2}$.
+
+\subsubsection{M\'etodo Iterativo}
+El m\'etodo iterativo para encontrar el mayor autovalor de una matriz $\mathcal{A}$, puede resumirse se\~nalando que si ${\displaystyle x_{0}\,}$ es un vector aleatorio y ${\displaystyle x_{n+1}=Ax_{n}\,}$
+Entonces para un ${\displaystyle m\,}$ grande tal que 
+$
+\frac{
+  \displaystyle x_{n}
+} 
+{
+  \norm{{
+    \displaystyle x_{n} 
+    }}
+} 
+$ este pr\'oximo a un autovector.
+
+Si ${\displaystyle A=U\operatorname {diag} (\sigma _{i})U'\,} $ es la descomposici\'on en valores propios de una matriz $\mathcal{A}$, entonces ${\displaystyle A^{n}=U\operatorname {diag} (\sigma _{i}^{n})U'}$. Para $\displaystyle n$ grande la matriz diagonal de autovalores est\'a acotada por el autovalor mas grande. Luego 
+$
+\frac{
+  \norm{{\displaystyle x_{n+1}}}
+} 
+{
+  \norm{{
+    \displaystyle x_{n} 
+    }}
+} 
+$ converge al valor propio mas grande y 
+$
+\frac{
+  \displaystyle x_{n}
+} 
+{
+  \norm{{
+    \displaystyle x_{n} 
+    }}
+} 
+$ al autovector asociado. Si el autovalor mas grande esta repetido, entonces $\displaystyle x_{n} $ converge a un vector en el subespacio generado por los autovectores asociados con esos autovalores m\'as grandes. Luego de haber encontrado el primer autovector o autovalor, uno puede restringir sucesivamente el algoritmo para el espacio nulo (nucleo) de los autovectores propios conocidos para obtener el segundo autovector o autovalor mas grande y as\'i sucesivamente.
+
+En la pr\'actica, este sencillo algoritmo no funciona muy bien para el c\'alculo de muchos autovalores, ya que cualquier error de redondeo podr\'ia introducir ligeros cambios a los componentes de los autovectores m\'as significativos. Degradando la exactitud del c\'omputo.
+
+\subsubsection{M\'etodo Lanczos}
+Durante el procedimiento de aplicaci\'on del m\'etodo, al obtener el \'ultimo valor propio ${\displaystyle A^{n-1}v}$, tambi\'en se obtiene una serie de vectores ${\displaystyle A^{j}v,\,j=0,1,\cdots ,n-2}$ los cuales son descartados. Como ${\displaystyle n}$ es grande, puede que se tenga una gran cantidad de informaci\'on que no se utilice. Los algoritmos m\'as avanzados, Como el el algoritmo de Arnoldi, guardan esta informaci\'on y utilizan el proceso de Gram-Schmidt o el algoritmo Householder para ortogonalizar nuevamente en una base que abarca el subespacio de Krylov correspondiente a la matriz ${\displaystyle A}$.
+
+\subsubsection{El algoritmo}
+
+Se decea calcular la matriz tridiagonal sim\'etrica ${\displaystyle T_{mm}=V_{m}^{*}AV_{m}.} {\displaystyle T_{mm}=V_{m}^{*}AV_{m}.}$
+
+Los elementos de la diagonal se denotan por ${\displaystyle \alpha _{j}=t_{jj}=t_{jj} }$, Y los elementos fuera de la diagonal son denotados por ${\displaystyle \beta _{j}=t_{j-1,j}}$.
+
+\subsubsection{Iteraci\'on}
+
+En principio, hay cuatro maneras de escribir el procedimiento de iteraci\'on.
+Paige[1972] y otros trabajos muestran que el siguiente algoritmo es el m\'as estable numericamente. \cite{Cullum} \cite{booksaad}
+
+
+\begin{algorithm}
+    \underline{Iteraci\'on}\;
+    ${v_{0}} = 0$\\
+
+    \For{$j = 1$ to $m-1$}
+    {
+      $w_j = Av_j$ \\
+      $\alpha_j = w_j \cdot v_j $\\
+      $w_j = w_j - \alpha_j v_j - \beta_j v_{j-1}$ \\
+      $\beta_{j+1} = \norm{w_j}$ \\
+      $v_{j+1} = w_j / \beta_{j+1}$\\ 
+    }
+
+    $w_m = Av_m$ \\
+    $\alpha_m = w_m \cdot v_m $\\
+    \caption{Iteraci\'on en el algoritmo de Lanczos}
+
+\end{algorithm}
+
+Luego de la iteraci\'on, se obtiene $\alpha_j$ y $\beta_j$ con los que se forma la matriz tridiagonal.
+
+\begin{equation}
+\mathcal{T} =
+\left(
+\begin{array}{cccccc}
+\alpha_1 & \beta_2& & & & 0\\
+\beta_2&   \alpha_2& \beta_3& & &  \\
+&   \beta_3& \alpha_3& \beta_4& &  \\
+&   & \ddots& \ddots& \ddots&  \\
+&   & & \beta_{m-1}& \alpha_{m-1}& \beta_{m} \\
+0&   & & & \beta_{m}& \alpha_{m} \\
+\end{array}
+\right)
+\end{equation}
+
+Despues que la matr\'iz $\displaystyle T$ es calculada, se pueden obtener sus autovalores $\lambda_i^{(m)}$ y sus correspondientes autovectores (usando por ejemplo QR o Multiple Robust Representation MRRR).
+Los autovalores pueden ser calculados en $\orderof(m^2)$ usando MRRR.
+Los valores propios calculados son aproximaci\'on de los valores propios de $\displaystyle A$
+
+\subsection{Algoritmo de Arnoldi}
+
+
+
+\setcounter{chapter}{3}
+\setcounter{section}{0}
+\chapter*{Modelo Computacional SIMD}\label{Modelo Computacional SIMD}
+\addcontentsline{toc}{chapter}{Modelo Computacional SIMD} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+
+\setcounter{chapter}{4}
+\setcounter{section}{0}
+\chapter*{Optimizaci\'on}\label{Optimizacion}
+\addcontentsline{toc}{chapter}{Optimizacion} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+
+
+\setcounter{chapter}{5}
+\setcounter{section}{0}
+\chapter*{Resultados}\label{Resultados}
+\addcontentsline{toc}{chapter}{Resultados} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+
+\setcounter{chapter}{6}
+\setcounter{section}{0}
+\chapter*{Concluciones}\label{Concluciones}
+\addcontentsline{toc}{chapter}{Concluciones} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+
+\begin{thebibliography}{X}
+
+\bibitem{SPARSKIT}
+  SPARSKIT 
+  \emph{working note 50: Distributed sparse data structures for linear algebra operations},
+  Tech. Rep. CS 92-169, Computer Science Department, University of Tennessee, Knoxville, TN.
+  1992.
+
+\bibitem{LAPACK}
+  LAPACK 
+  \emph{A basic tool kit for sparse matrix computation, Tech. Rep. CSRD TR 1029, CSRD},
+  University of Illinois, Urbana, IL
+  1990
+
+\bibitem{JDS}
+  Krylov,
+  \emph{\LaTeX: subspace methods on supercomputers},
+  SIAM J. Sci. Statist. Comput.
+  10 (1989), pp. 1200-1232.
+
+\bibitem{SKYMAT}
+  I. S. DUFF, A. M. ERISMAN, AND J.K.REID,
+  \emph{Direct methods for sparse matrices},
+  Oxford University Press, London
+  1986
+
+\bibitem{LINPACK}
+  J. DONGARRA, C. MOLER, J. BUNCH, AND G. STEWART
+  \emph{LINPACK Users\' Guide, SIAM},
+  Philadelphia
+  1979.
+
+\bibitem{MELHEM}
+  R. MELHEM
+  \emph{Toward efficient implementation of preconditioned conjugate gradient methods on vector supercomputers},
+  Internat. J. Supercomput. Appls., 1 (1987), pp. 77-98
+
+\bibitem{Cullum}
+  Cullum; Willoughby. 
+  \emph{Lanczos Algorithms for Large Symmetric Eigenvalue Computations. 1.} 
+  ISBN 0-8176-3058-9.
+\bibitem{booksaad}
+  Yousef Saad. 
+  \emph{Numerical Methods for Large Eigenvalue Problems.} 
+  ISBN 0-470-21820-7.
+
+\end{thebibliography}
+
+
+
+\end{document}
+
+
