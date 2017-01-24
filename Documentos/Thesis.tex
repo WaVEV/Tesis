@@ -848,7 +848,7 @@ autom\'aticamente. De este modo, cada bloque de hilos puede ser asignado a cualq
 de los multiprocesadores disponibles en la GPU, en cualquier orden, de forma concurrente
 o secuencial, permitiendo que el c\'odigo CUDA pueda ejecutarse en cualquier n\'umero
 de multiprocesadores y solo el sistema de planificaci\'on debe conocer la cantidad
-f\'isica de multiprocesadores, como se ilustra en la Figura 3.1.
+f\'isica de multiprocesadores, como se ilustra en la Figura \ref{CUDA1}
 
 \begin{figure}[!htbp]
   \begin{center}
@@ -857,7 +857,7 @@ f\'isica de multiprocesadores, como se ilustra en la Figura 3.1.
     \includegraphics[]{automatic-scalability.png}
 
     \caption{Escalabilidad Autom\'atica}
-    \label{CUDA}
+    \label{CUDA1}
   \end{center}
 \end{figure}
 
@@ -885,7 +885,7 @@ del procesador. El n\'umero m\'aximo de hilos por bloques es de 1024 en la arqui
 utilizada en este trabajo.
 
 Los bloques son organizados en grillas de una, dos o tres dimensiones como se ilustra
-en la Figura 3.2. El n\'umero de bloques de hilos en una grilla est\'a normalmente
+en la Figura \ref{CUDA2}. El n\'umero de bloques de hilos en una grilla est\'a normalmente
 limitado directamente por le tama\~no de los datos a procesar o el n\'umero de procesadores
 en el sistema.
 
@@ -896,7 +896,7 @@ en el sistema.
     \includegraphics[]{grid-of-thread-blocks.png}
 
     \caption{Grilla de bloques de hilos}
-    \label{CUDA}
+    \label{CUDA2}
   \end{center}
 \end{figure}
 
@@ -913,7 +913,7 @@ compartida tenga baja latencia y la sincronizaci\'on no tenga una gran penalizac
 \subsection*{Jerarqu\'ia de Memoria}
 
 Los hilos de CUDA pueden acceder a diferentes espacios de memoria durante su ejecuci\'on como
-se ilustra en la Figura 3.3. Cada hilo dispone de memoria local. Cada bloque de hilos
+se ilustra en la Figura \ref{CUDA3}. Cada hilo dispone de memoria local. Cada bloque de hilos
 dispone de memoria compartida visible por todos los hilos de un mismo bloque. Todos
 los hilos tiene acceso a la misma memoria global.
 
@@ -930,7 +930,7 @@ este tipo de memoria ya que no es utilizada en el trabajo.
     \includegraphics[]{memory-hierarchy.png}
 
     \caption{Jerarqu\'ia de memoria}
-    \label{CUDA}
+    \label{CUDA3}
   \end{center}
 \end{figure}
 
@@ -1193,8 +1193,6 @@ S_{jk} = \sum^{n}_{j} \sum^{n}_{k} {\partial \over \partial c_{i}}
 \end{displaymath}
 
 
-
-
 y como los $c_{i}$ son variables independientes, tan solo para $c_{j}=c_{i}$ se verifica que  ${\partial c_i\over \partial c_i} =
 1$, mientras que el resto ser\'a igual a cero, o sea:  ${\partial
 c_j\over \partial c_i} = \delta _{ij}$, luego
@@ -1224,8 +1222,6 @@ $
 
 \begin{displaymath}2 W \sum^{n}_{k} c_{k} S_{ik} = 2 \sum^{n}_{k} c_{k} H_{ik}\qquad \hbox{
 para }i = 1,2,\ldots ,n \end{displaymath}
-
-
 
 \begin{displaymath}\sum^{n}_{k} \left[(H_{ik} - S_{ik} W ) c_{k} \right] = 0 \qquad
 \hbox{ para } i = 1,2,\ldots ,n \end{displaymath}
@@ -1261,13 +1257,111 @@ Si ahora queremos la funci\'on de onda de cada estado, debemos sustituir en las 
 el valor $W$ del estado en que estemos interesados y obtener los coeficientes, que como ya vimos, nos quedar\'an en funci\'on de uno de ellos, y para determinarlo recurriremos a normalizar la funci\'on.
 
 
+\subsection{Variables del Programa}
+En estas secci\'on  hablaremos de la implementacion de las matrices del metodo en nuestro programa y de los parametros del tama\~no del problema. Cuales son, su dimensi\'on y que objeto sem\'antico representan.
+
+
+\begin{enumerate}
+    \item $KORD$ orden de los B-splines, el grado es kord-1
+    \item $L_INT$ numero de intervalos en el que divido al intervalo [$R_{MIN}$, $R_{MAX}$]
+    \item $R_MIN y R_MAX$ R minimo y m\'aximo donde empieza y termina el intervalo para la integraci'on respectivamente.
+    \item $INT_G$ grado de integracion por cuadratura
+    \item $s$ lkasjdlkasjdlaksdlaksdlaskld, es una matriz de banda sim\'etrica de tama\~no KORD.
+    \item $v_0$ lkasjdlkasjdlaksdlaksdlaskld, es una matriz de banda sim\'etrica de tama\~no KORD.
+    \item $ke$ lkasjdlkasjdlaksdlaksdlaskld, es una matriz de banda sim\'etrica de tama\~no KORD.
+    \item $f$ lkasjdlkasjdlaksdlaksdlaskld, es una matriz de banda de de tama\~no KORD.
+    \item $g$ lasldkjalskdjalskdjalksdjals, es una matriz de banda de de tama\~no KORD.
+    \item $Vef$ asldkjalskdjalskdjl, tiene de dimensi\'on $R^4$ pero los elementos del conjunto ${Vef_{i, j, k, l} | \norm{i - j} \geq KORD o \norm{k - l} \geq KORD}$ son ceros.
+    \item $hsim$ asldkjalskdjalskdjl, es una matriz dispersa y sim\'etrica.
+    \item $ms$ asldkjalskdjalskdjl, es una matriz dispersa y sim\'etrica.
+    \item $mv$ asldkjalskdjalskdjl, es una matriz dispersa y sim\'etrica.
+\end{enumerate}
+
 
 
 \subsection{Optimizaci\'on en Memoria}
 
-La optimizaci\'on en cuanto a almacenamiento se da al intentar no almacenar ceros en la matrices (almacenar la minima cantidad de ceros posibles sin desmerecer mucho la eficiencia computacional de operaciones de matrices y vectores).
+La optimizaci\'on en cuanto a almacenamiento se da al intentar no almacenar ceros en la matrices (almacenar la minima cantidad de ceros posibles sin desmerecer la eficiencia computacional de operaciones de matrices y vectores) y no almacenar datos que no requieren muchas operaciones para ser recalculados.
 
-Para esto se utiliz\'o estructuras de matrices dispersas.
+Para esto se utiliz\'o estructuras de matrices dispersas y se reemplazaron arreglos por funciones que devuelven el mismo valor dado un indice. Se utiliz\'o dos tipos de estructuras Matriz de banda y Matriz de almacenamiento de columnas comprimidas.
+
+\subsubsection{Matrices de Banda}
+Las variables que estaban definidas en torno a la traza seg\'un la variable $KORD$ son $s, v_0, ke, f y
+ g$ donde todas son sim\'etricas salvo $f$ y $g$ por lo tanto se utilizo una estructura de matriz de 
+ banda. Estas matrices son comprimdas de un orden de $\orderof{((L_INT + KORD)^2)}$ a $\orderof{((L_INT+
+  KORD) * KORD)}$. La variable $V_ef$ es un tensor de banda por lo tanto se puede usar una estructura 
+ analoga para almacenaje, por tanto es comprimida de un orden de $\orderof{((L_INT + KORD)^4)}$ a $\orderof{(( (L_INT + KORD) * KORD)^2)}$
+
+
+\subsubsection{Matrices de Almacenamiento de Columnas Comprimidas}
+Para las matrices $hsim, ms, mv$ que no necesariamente estan definidas solo en torno (ver \ref{img:matstyle}) a la traza se utiliz\'o este tipo de almacenamiento, que tambi\'en es provechoso para el metodo de Arnoldi. Estas matrices son comprimidas de un orden de $\orderof{(( L_INT + KORD)^4)}$ a $\orderof{(( L_INT + KORD)^2)}$
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \leavevmode
+
+    \includegraphics[scale=0.3]{mat1.png}
+
+    \caption{Distribuci\'on de no ceros en la matriz hsim, ms. mv}
+    \label{img:matstyle}
+  \end{center}
+\end{figure}
+
+\subsection{Optimizaci\'on en CPU}
+La optimizaci\'on mas grande se debi\'o al reducir el espacio de c\'alculo de los ciclos (reduciendo las iteraciones de los ciclos), tomando solo a los valores no cero de la matriz, ya que estos pueden saberse de antemanos. 
+Y como el tama\~no de los no ceros es en orden menor al tama\~no de los ceros esto permite una gran mejora en tiempo computacional, reduciendo complejidad ver \ref{img:matstyle}.
+Otras optimizaciones han sido por cacheo de resultados, factorizaci\'on de codigo, calculo de valores en vez de ser almacenados.
+
+\subsubsection{Reducir el Espacio de C\'alculo}
+
+Para reducir el espacio de c\'alculos se ha modificado los espacio de iteraci\'on en los ciclos del programa en los cuales se calculaba la matriz, de esa manera intentar calcular la menor cantidad de ceros. Para ello se estudi\'o la estructura de cada matriz, como ya explicamos en la secci\'on anterior de optimizaci\'on de memoria, algunas matrices son de banda y otras son dispersas sin esta propiedad (o no se cumple como uno desea).
+
+\subsubsection{Factorizaci\'on de c\'odigo}
+Esta optimizaci\'on se raliza de intercambiar la anidaci\'on de ciclos para asi evitar recalcular una funci\'on con los mismos parametros.
+
+\subsubsection{Cacheo de Resultados}
+Si bien anteriormente hablamos que reducir el uso de memoria por recalcular el valor de una funci\'on era conveniente, este no es el caso pues la funci\'on $bsplvb$ es costosa de calcular, por ende conviene hacer cacheo de la funci\'on en vez de recalcular
+Esta funci\'on se requiere calcular su valor repetidas veces en el metodo $interaccion$ y se abordo a la soluci\'on de su c\'alculo memorizando los resultados de la funci\'on, no fue posible factorizaci\'on.
+
+\subsubsection{C\'alculo de Valores versus Almacenamiento}
+Cuando el c\'alculo del valor es sencillo es mejor calcularlo nuevamente en vez de ir a buscarlo a memoria, puesto que eso produce m\'as fallos de cach\'e.
+
+Tal es el caso de:
+\begin{enumerate}
+    \item Cuadratura Gausiana: La cuadratura se necesita en diferentes escalas, entonces se calcula s\'olo una vez (con escala uno) y luego se escala para los diferentes valores cada vez que se necesita tal escala y tambi\'en se ahorra memoria y tiempo de computo de todas las escalas.
+    \item La funci\'on $t$: esta se calcula sin necesidad de memoria ya que es una funci\'on que tiene tres partes bien diferenciadas, donde la primera y la ultima son constantes y la segunda es lineal ver \ref{img:funciont}
+\end{enumerate}
+
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \leavevmode
+
+    \includegraphics[scale=0.3]{funcionT.png}
+
+    \caption{Funcion T Restringida para observar su forma}
+    \label{img:funciont}
+  \end{center}
+\end{figure}
+
+\subsection{Optimizaci\'on en GPU}
+Se implemento una version hibrida (parte en GPU y parte en CPU) del m\'etodo $interaccion$. 
+
+La formula {poner integral aca que se iguala a la sumatoria}. Se puede paralelizar {tomando tales parametros como hilos y bloques, hay que explicar el alcance de cada uno. o sea hasta donde llegan}
+
+Como al integrar se hace una suma con los coeficiente de la Cuadratura Gaussiana y estos son independiente se puede paralelizar, luego de integrar se van acomulando en la variable $Vef$. 
+Se realizaron dos CUDA kernels uno para calcular la funcion integral y otro para realizar la suma sobre $Vef$.
+
+\subsubsection{Kernel de acomulaci\'on sobre $Vef$}
+
+El Kernel que realiza la sumatoria se llama $L_{INT} + KORD$ blockes y un vector tridimensional de hilos de tama\~no ($KORD, KORD, 2*KORD$).
+
+
+\subsubsection{Integraci\'on}
+El Kernel que realiza la integraci\'on calcula de manera paralela la funciones $f y g$ al ser acomulaciones son facilmente paralelizables. 
+Para esto se hizo un Kernel con la siguiente configuraci\'on de bloque e hilos por bloques: Un vector de dos dimensiones para los hilos por bloques de tama\~no ($KORD, KORD$) y un vector bidimensional de bloques de tama\~no ($L_{INT}, INT_{G}$)
+
+
 
 
 \setcounter{chapter}{5}
@@ -1275,6 +1369,9 @@ Para esto se utiliz\'o estructuras de matrices dispersas.
 \chapter*{Resultados}\label{Resultados}
 \addcontentsline{toc}{chapter}{Resultados} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
+
+
+
 
 
 \setcounter{chapter}{6}
@@ -1375,3 +1472,4 @@ Para esto se utiliz\'o estructuras de matrices dispersas.
 %http://www.netlib.org/utk/people/JackDongarra/etemplates/node215.html
 
 % http://www.netlib.org/utk/people/JackDongarra/etemplates/node203.html
+
