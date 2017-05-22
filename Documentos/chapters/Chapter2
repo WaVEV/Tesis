@@ -1,0 +1,773 @@
+\chapter*{Nociones preliminares}\label{Nociones preliminares}
+\addcontentsline{toc}{chapter}{Nociones preliminares} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+\section{M\'etodo variacional de Rayleigh-Ritz.}
+\label{RRMETHOD}
+
+Entre las formas de dependencia de los par\'ametros variacionales, una ampliamente utilizada es la de los par\'ametros lineales:
+
+Se considera una funci\'on variacional lineal, que es una combinaci\'on de $n$ funciones linealmente independientes:
+
+\begin{displaymath}\Psi = c_{1}f_{1}+ c_{2}f_{2}+ \ldots + c_{n}f_{n}= \sum^{n}_{i}
+c_{i}f_{i} \end{displaymath}
+
+donde $c_{i}$ son los coeficientes a obtener por m\'etodos variacionales, y donde $f_{i}$ cumple las condiciones l\'imite del problema, es decir est\'an bien condicionadas.
+
+Tenemos que
+
+\begin{displaymath}
+\prointerno{\Psi}{\Psi} = \prointerno {\sum^{n}_{j} c_{j}f_{j}}{ \sum^{n}_{k} c_{k}f_{k}} = \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k} \prointerno{f_{j}}{f_{k}} = \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k} S_{jk}
+\end{displaymath}
+($S$ es la Matriz de solapamiento)
+
+\begin{displaymath}
+\prointernot{\Psi}{H}{\Psi} = \prointernot{\sum^{n}_{j} c_{j}f_{j}}{H} {\sum^{n}_{k} c_{k}f_{k}} = \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k} H_{jk}
+\end{displaymath}
+El valor esperado de la energ\'ia, o \emph{integral variacional}, ser\'a:
+\begin{displaymath}W = { \prointernot{\Psi}{H}{\Psi} \over \prointerno{\Psi}{\Psi} } \end{displaymath}
+Tenemos que minimizar $W$, que depender\'a de $n$ variables $\{c_{i}\}$:
+\begin{displaymath}W \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k} S_{jk} = \sum^{n}_{j}
+\sum^{n}_{k} c_{j} c_{k} H_{jk} \end{displaymath}
+Una condici\'on necesaria para que sea m\'inimo es:
+\begin{displaymath}{\partial W\over \partial c_{i}} = 0 \qquad \qquad i = 1,2,\ldots ,n \end{displaymath}
+y haciendo la derivada respecto a cada uno de los $c_{i}$, tendremos n ecuaciones:
+\begin{displaymath}{
+    {\partial W \over \partial c_{i}} \sum^{n}_{j} \sum^{n}_{k} c_j c_k S_{jk} + W {\partial \over \partial c_{i}}}
+\sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k} S_{jk} =  {{ \partial \over \partial c_i} \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k} H_{jk}}
+\end{displaymath}
+pero
+\begin{displaymath}
+{\partial \over \partial c_{i}} \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k}
+S_{jk} = \sum^{n}_{j} \sum^{n}_{k} {\partial \over \partial c_{i}}
+(c_{j} c_{k}) S_{jk} =
+\end{displaymath}
+\begin{displaymath}
+\sum^{n}_{j} \sum^{n}_{k} (c_{k}{\partial c_j\over \partial c_{i}}
++ c_{j} {\partial c_k\over \partial c_{i}} ) S_{jk}
+\end{displaymath}
+y como los $c_{i}$ son variables independientes, tan solo para $c_{j}=c_{i}$ se verifica que  ${\partial c_i\over \partial c_i} =
+1$, mientras que el resto ser\'a igual a cero, o sea:  ${\partial
+c_j\over \partial c_i} = \delta _{ij}$, luego
+\begin{displaymath}
+{\partial \over \partial c_{i}} \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k}
+S_{jk} = \sum^{n}_{k} c_{k} S_{ik} + \sum^{n}_{j} c_{j} S_{ji}
+\end{displaymath}
+Pero  $S_{ij} = S^{*}_{ji}$, y si las funciones son reales, entonces $S_{ij}=S_{ji}$, por lo que
+\begin{displaymath}{\partial \over \partial c_{i}} \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k}
+S_{jk} = 2 \sum^{n}_{k} c_{k} S_{ik} \end{displaymath}
+Igualmente, para el t\'ermino de la derecha, ya que $H$ es herm\'itico:
+\begin{displaymath}{\partial \over \partial c_{i}} \sum^{n}_{j} \sum^{n}_{k} c_{j} c_{k}
+H_{jk} = 2 \sum^{n}_{k} c_{k} H_{ik} \end{displaymath}
+as\'i pues, si         ${\partial W\over \partial c_{i}} = 0 \Rightarrow$
+\begin{displaymath}2 W \sum^{n}_{k} c_{k} S_{ik} = 2 \sum^{n}_{k} c_{k} H_{ik}\qquad \hbox{
+para }i = 1,2,\ldots ,n \end{displaymath}
+\begin{displaymath}\sum^{n}_{k} \left[(H_{ik} - S_{ik} W ) c_{k} \right] = 0 \qquad
+\hbox{ para } i = 1,2,\ldots ,n \end{displaymath}
+tenemos un conjunto de $n$ ecuaciones con $n$ inc\'ognitas, que forman un sistema de ecuaciones lineales homog\'eneo, las cuales para tener una soluci\'on distinta de la trivial, debe tener el determinante de los coeficientes igual a cero, (el determinante de los coeficientes de las n variables debe ser nulo):
+
+\begin{displaymath} \abs{ H_{ik} - S_{ik} W} = 0 \end{displaymath}
+que se conoce con el nombre de \emph{determinante secular}.
+El desarrollo del determinante nos proporciona una ecuaci\'on algebraica de grado n en la inc\'ognita W, que l\'ogicamente tendr\'a n ra\'ices (que ser\'an reales), que se pueden agrupar en orden creciente:
+
+\begin{displaymath}W_{0} \le W_{1} \le W_{2} \ldots \ldots \le W_{n-1} \end{displaymath}
+y si enumeramos los estados del sistema en orden de energ\'ias crecientes:
+
+\begin{displaymath}E_{0} \le E_{1} \le E_{2} \ldots \ldots \le E_{n-1} \end{displaymath}
+Por el teorema variacional (o de Eckart), $W_{0}~\ge ~E_{0}$, pero adem\'as, J.K.L. MacDonald, \cite{macdonald}, demostr\'o que  $E_{1}~\le ~W_{1}, E_{2}~\le ~W_{2},
+\ldots, E_{n-1}~\le ~W_{n-1}$.
+
+Si ahora queremos la funci\'on de onda de cada estado, debemos sustituir en las ecuaciones originales:
+
+\begin{displaymath}
+\sum^{n}_{k} \left[{(H_{ik} - S_{ik} W) c_{k}}\right] = 0\ \hbox{para}\ i = 1,2,\ldots ,n
+\end{displaymath}
+el valor $W$ del estado en que estemos interesados y obtener los coeficientes, que como ya vimos, nos quedar\'an en funci\'on de uno de ellos, y para determinarlo recurriremos a normalizar la funci\'on.
+
+\section{B-splines}
+Los B-splines son funciones dise\~nadas para generalizar polinomios con propositos de aproximar una funci\'on dada. De esta manera se pueden obtener valores de funciones, sus dereivadas y sus integrales. A continuaci\'on introduciremos algunas definiciones:
+\begin{enumerate}
+    \item El polinomio de orden $k$ (maximo grado $k-1$) es: $ p_{(x)} = a_0 + a_1 + \ldots + a_{k-1}^{k-1}$.
+    \item Una funci\'on $f$ y sus derivadas que son continuas (dado un intervalo) hasta orden $n$ se le dice que pertenecen a la clase $C^n$. Por lo tanto $C^0$ significa que $f$ es continua, $C^{-1}$ significa que $f$ es no es continua.
+    \item Considere el intervalo $I = [a,b]$ dividido en $l$ intervalos $I_j = [\xi_j, \xi_{j+1}]$ es una secuencia de $l+1$ puntos en orden creciente estricto. Los \{$\xi_i$\} sera llamado breakpoints (bps).
+\end{enumerate}
+
+Cada B-spline es una funci\'on compuesta por diferentes piezas de polinomios en subintervalos adjacentes. Unidas con cierto grado de continuidad en los $bps$. 
+Rara vez estas condiciones son necesarias:
+
+\begin{enumerate}
+ \item Asociemos a bps $ \xi_j, j = 2, \ldots, l $, una segunda secuencia de enteros no negativos $ v_j, j = 2, \ldots, l, v_j \geq 0 $, que definen la condici\'on de continuidad $ C {v_j-1} $ en el bsp $ \xi_j $ asociado. Con el fin bsp $ \xi_1 $ y $ \xi_{l + 1} $ asociamos $ v_1 = v_ {l + 1} = 0 $, es decir, no necesitamos ninguna continuidad. Esto es natural ya que s\'olo estamos interesados en el intervalo [a, b]. Otras restricciones pueden ser dictadas por condiciones de frontera en los extremos, y son f\'acilmente implementadas como veremos. Por lo tanto, en el ejemplo tenemos {$ v_j $} = \{0,2,2,2,2,0 \}
+ \item Finalmente llamemos a nodos otra secuencia de puntos {$ t_i $} en orden ascendente, no necesariamente distinta, asociada con $ \xi_j $ y $ v_j $ como sigue:
+     \begin{displaymath}
+         $$
+         $t_1 = t_2 = \ldots = t_{\mu_1} = \xi_1; \mu_1 = k$\\
+         $t{\mu_1 + 1} = \ldots = t_{\mu_1 + \mu_2} = \xi_2$\\
+         $\ldots$\\
+         $t_{p+1} = \ldots = t_{p = \mu_i} = \xi_i; p = \mu_1 + \mu_2 + \ldots + \mu_{i-1}$\\
+         $\ldots$\\
+         $t_{n+1} = \ldots = t_{k + n} = \xi_{l+1}; \mu_{l+1} = k; n = \mu_1 + \mu_2 + \ldots + \mu_{l}$\\
+         $$
+     \end{displaymath}
+\end{enumerate}
+
+Donde $ \mu_j $ es la multiplicidad de los nudos $ t_i $ a $ \xi_j $ y est\'a dada por $ \mu_j = k - v_j $ .Actualmente s\'olo la multiplicidad en el bps interno es importante, y siempre elegiremos la multiplicidad m\'axima $ \mu_1 = \mu_ {l + 1} = k $ en los extremos.
+
+La opci\'on m\'as com\'un para la multiplicidad de nudos en bps internos es la unidad, correspondiente a
+m\'axima continuidad, que es $ C ^ {k-2} $. Esta elecci\'on se emplear\'a, a menos que se indique lo contrario. Con esta elecci\'on el n\'umero de funciones B-spline $n$ est\'a dado por:
+$$ n = l + k - 1 $$
+
+La continuidad puede relajarse en las bps internas aumentando la multiplicidad de nudos asociada.
+Cualquier funci\'on expresada como una combinaci\'on lineal del $B_i$ se llamar\'a una funci\'on polin\'omica por partes (\textit{funci\'on pp}) sobre [a, b].
+$f = \sum_{i=1}^n c_i B_i$
+y $ f $ es la funci\'on m\'as general hecha de $l$ piezas polinomiales de
+$ K $, una para cada subintervalo $ I_j $ unida en el interior bps con continuidad $ C ^ {v_j-1} $. Note que no tiene sentido pedir m\'as de $ C ^ {k-2} $ continuidad, ya que de otro modo $f$ se reduce a
+Un \'unico polinomio sobre todo $I$, por lo que cierta discontinuidad es la esencia de las $funciones\ pp$. Sobre el
+Por otra parte es raro emplear discontinuidad en las derivadas m\'as bajas o en la funci\'on misma. Si
+Este es el caso, por ejemplo sin restricciones de continuidad, $ f\ \in\ C^1 $, hay que tener cuidado para 
+considerar que $ f (\xi ^ {-} _ j) = f (\xi^{+}_j) $; La funci\'on tiene diferentes l\'imites izquierdo y derecho en 
+los bps. Para $f$ y $D^rf$ definidos \'unicamente sobre todos los $ I $. Sin embargo, una consideraci\'on cuidadosa 
+de las discontinuidades no se limitan a los derivados m\'as altos que los realmente necesarios, lo que siempre 
+ocurre en aplicaciones. Definimos la derivada $r$ de una \textit{funci\'on pp}, $ D ^ {r} f $, como la funci\'on pp de orden
+$ K - r $ que tiene la misma secuencia $ \xi $ y est\'a escrito en t\'erminos de $ D^{r}p_{j} $ polinomios.
+
+\subsection{La base de B-splines}
+Un B-spline $B(x)$ est\'a definida por el orden $k>0$, y un conjunto de $k + 1$ knots, {$t_i$,\ldots,$T_{i+k}$},
+Tal que $t_i <t_{i+k}$.
+Las propiedades importantes, son las siguientes.
+
+\begin{enumerate}
+  \item B(x) es una pp-funci\'on de orden $k$ sobre [$t_i$, $t_{i + k}$]
+  \item $B(x) > 0$ para $x$ $\in$ ($t_i$, $t_{i+k}$).
+  \item $B(x) = 0$ para $x$ $\not \in$ [$t_i$, $t_{i+k}$].
+\end{enumerate}
+
+Los B-splines est\'an dise\~nados para tener un soporte m\'inimo. Algunas propiedades generales de las B-splines son las siguiendo.
+\begin{enumerate}
+  \item En cada intervalo ($t_i$, $t_{i + 1}$), $t_i < t_{i+1}$, exactamente k B-splines no son cero, Esto ser\'ia
+  $B_j(x)\neq0\ para\ j = i - k + 1,\ldots,i $
+  \item En la expansi\'on de una funci\'on arbitraria. 
+  $$ f(s) = \sum_{j=1}^{n}c_jB_j(x)\ = \sum_{j=i-k+1}^{i} c_jB_j(x)\ para\ x\ \in\ [t_i, t_{i+1}] $$ 
+  Donde siempre contribuyen $k$ t\'erminos, por lo que un n\'umero m\'inimo de operaciones son necesarias.
+  \item Como los B-splines no son negativos con soporte m\'inimo, los coeficientes de expansi\'on de una funci\'on arbitraria $f$ est\'an pr\'oximos a los valores de funci\'on en los $knots$. Esto significa que las oscilaciones en los coeficientes se evitan, los errores de cancelaci\'on son m\'inimos y num\'ericamente estables.
+  \item Cada intervalo $I_j = [\xi_j, \xi_{j+1}] = [t_i, t_{i + 1}]$ se caracteriza por un par de nudos consecutivos
+      $t_i <t_{i + 1}$. $t_i$ se llama el knot izquierdo del intervalo $I_j$, y determina los \'indices de $B_i$
+      contribuyendo sobre $I_j$, estos son $B_{i-k+1}$,\ldots, $B_i$.
+  \item Est\'an normalizados como $\sum_i B_i(x) = 1$ sobre [$t_k$, $t_n$].
+  \item Para los knots equidistantes cada $B_i$ es s\'olo una traducci\'on por un intervalo del anterior. Si los knots no son equidistantes hay un cambio suave en la forma.
+  \item B-splines satisfacen la recursion 
+  $$ B_{i}^{k}(x) = \frac{x - t_i}{t_{i+k-1} - t_{i}} B_{i}^{k-1}(x) + \frac{t_{i+k} - x}{t_{i + k} - t_{i+1}}B_{i+1}^{k-1}(x) $$
+
+Esto da el algoritmo empleado para la evaluaci\'on pr\'actica de las B-splines: dado un punto $x$, se generan por recursi\'on los valores de todas los $k$ B-splines que no son cero en x.
+
+\end{enumerate}
+
+
+\section{Estructura de representacion de matrices dispersas}
+
+En esta secci\'on explicaremos las estructuras de representaciones de matrices.
+
+A medida que este problema particular crece las matrices se vuelven mas grandes y al mismo tiempo el porcentaje de no-ceros de la matriz decrese.
+Un sistema linear grande de la forma $\mathcal{A}x = b$ puede ser mas eficientemente resuelto si los elementos que son ceros de $\mathcal{A}$ no son guardados. Los esquemas de almacenamiento dispersos asignan almacenamiento contiguo en memoria para los elementos distintos de cero de la matriz y tal vez un n\'umero limitado de ceros. Esto, por supuesto, requiere un esquema para saber d\'onde encajan los elementos en la matriz completa
+
+Hay muchos m\'etodos para almacenar los datos (v\'ease por ejemplo Saad \cite{SPARSKIT} y Eijkhout \cite{LAPACK}). Aqu\'i discutiremos tres m\'etodos: \textit{almacenamiento de filas y columnas comprimidas}, \textit{almacenamiento de filas comprimidas en bloques}, \textit{almacenamiento en diagonal} y \textit{almacenamiento diagonal recortado}
+
+\subsection{Almacenamiento de filas y columnas comprimidas}\label{CCS}
+
+
+Los formatos CRS y CCS (sus siglas en \'ingles de Compressed Row Storage y Compressed Column Storage) son los m\'as generales: no hacen ninguna suposici\'on sobre la estructura de dispersi\'on de la matriz y no almacenan elementos innecesarios. Por otra parte, no son muy eficientes, necesitando un paso de direccionamiento indirecto para cada operaci\'on escalar individual en un producto vectorial matricial o soluci\'on precondicionadora.
+
+Este formato pone los elementos no ceros de las filas en memoria contigua. Suponiendo que tenemos una matriz dispersa no sim\'etrica $\mathcal{A}$, creamos 3 arreglos: uno que tiene el tipo de los elementos de $\mathcal{A}$ (flotantes simples, flotantes dobles, enteros, etc.) \textit{val}, y otros dos con tipo enteros \textit{col\_ind, row\_ptr}. El arreglo \textit{val} guarda los valores de los elementos no ceros de la matriz $\mathcal{A}$ de manera lineal por cada fila teniendo primero los elementos no ceros de la fila 1 luego los de la 2 etc. 
+El arreglo \textit{col\_ind} guarda a que columna pertenece cada elemento de del arreglo \textit{val} y \textit{row\_ptr} guarda intervalos de inicio y fin de cada fila en del arreglo \textit{val}. Esto es: 
+
+$$val_{k} = \mathcal{A}_{i,j} \implica col\_ind_{k} = j $$
+El arreglo \textit{row\_ptr} guarda la ubicaci\'on de \textit{val} donde empieza la fila. Esto es:
+$$val_{k} = \mathcal{A}_{i,j} \implica row\_ptr_{i} \leq k < row\_ptr_{i+1} $$
+Por convenci\'on definimos $row\_ptr_{n+1} = nnz + 1$. Donde $nnz$ es la cantidad de numeros no ceros de la matriz $\mathcal{A}$. La memoria necesaria para este enfoque es \orderof($nnz$ + $n$)
+
+Ejemplo: considere la siguiente matriz:
+
+\begin{equation}
+\mathcal{A} =
+\left(
+\begin{array}{cccccc}
+ 
+10& 0& 0& 0& -2& 0 \\
+
+3& 9& 0& 0& 0& 3 \\
+   
+0& 7& 8& 7& 0& 0 \\
+
+3& 0& 8& 7& 5& 0 \\
+   
+0& 8& 0& 9& 9& 13 \\
+    
+0& 4& 0& 0& 2& -1 \\
+\end{array}
+\right)
+\end{equation}
+
+En formato CRS tendria esta forma
+\begin{equation}
+val = 
+\left(
+\begin{array}{ccccccccccccccccccc}
+10& -2& 3& 9& 3 & 7& 8& 7& 3& 8& 7& 5& 8& 9& 9& 13 & 4& 2& -1 
+\end{array}
+\right)
+\end{equation}
+
+\begin{equation}
+col\_ind = 
+\left(
+\begin{array}{ccccccccccccccccccc}
+0 & 4 & 0 & 1 & 5 & 1 & 2 & 3 & 0 & 2 & 3 & 4 & 1 & 3 & 4 & 5 & 1 & 4 & 5
+\end{array}
+\right)
+\end{equation}
+
+
+\begin{equation}
+row\_ptr = 
+\left(
+\begin{array}{ccccccc}
+1 & 3 & 6 & 9 & 13 & 17 & 20
+\end{array}
+\right)
+\end{equation}
+
+
+
+
+El almacenamiento de columnas comprimidas es an\'alogo
+
+\subsection{Almacenamiento de filas comprimidas en bloques.}
+
+El formato BCRS (sus siglas en \'ingles de Block Compressed Row Storage) es \'util si la matriz rala se compone de bloques densos cuadrados de no nulos con alg\'un patr\'on regular, podemos modificar el formato CRS (o CCS) para explotar tales patrones de bloque. Las matrices de bloque t\'ipicamente surgen de la discretizaci\'on de ecuaciones diferenciales parciales en las que hay varios grados de libertad asociados con un punto. Luego, la partici\'on de la matriz en bloques peque\~nos con un tama\~no igual al n\'umero de grados de libertad, y tratar cada bloque como una matriz densa, a pesar de que puede tener algunos ceros.
+
+Sea \textit{$n_{b}$} es la dimensi\'on de cada bloque y \textit{nnzb} la cantidad de no ceros de cada bloque en la matriz $\mathcal{A}^{n,m}$, la cantidad de memoria es $\orderof($nnz$ $b$)$.
+
+\subsection{Almacenamiento en diagonal.}\label{CDS}
+
+
+El formato CDS (sus siglas en \'ingles de Compressed Diagonal Storage) es \'util si la matriz $\mathcal{A}$ es una matriz de banda donde el ancho de la banda es constante de fila en fila. Entonces podemos aprovechar esta estructura en el esquema de almacenamiento almacenando subdiagonales de la matriz en ubicaciones consecutivas. No s\'olo podemos eliminar el vector que identifica la columna y la fila (si lo miramos como un CRS), podemos empaquetar los elementos no nulos de tal manera que el producto vectorial sea m\'as eficiente. Este esquema de almacenamiento es particularmente \'util si la matriz surge de una discretizaci\'on de elementos finitos o diferencias finitas en una matriz de producto tensor.
+
+Decimos que la matriz $\mathcal{A}^{m,n}$ es $\emph{de banda}$ si hay enteros no negativos \textit{p},\textit{q} tal que 
+$\mathcal{A}_{i,j}$ $\neq$ 0 $\implica$ i{-}p $\leq$ j $\leq$ i{+}q. 
+En este caso podemos poner la matriz $\mathcal{A}$ en un arreglo \textit{val}(1:n, -p:q) (si no tenemos indices negativos se puede hacer un desplazamientos $p$ de indices) la declaraci\'on con dimensiones invertidas corresponde a \textit{LINPACK band format} \cite{LINPACK}
+
+Por lo general, los formatos de banda incluyen almacenar algunos ceros. El formato CDS puede incluso contener algunos elementos de matriz que no corresponden a elementos de matriz en absoluto. Consideremos la matriz no sim\'etrica definida por:
+
+\begin{equation}
+\mathcal{A} =
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 0& 0& 0& 0\\
+3&   9& 6& 0& 0& 0 \\
+0&   7& 8& 7& 0& 0 \\
+0&   0& 8& 7& 5& 0 \\
+0&   0& 0& 9& 9& 13 \\
+0&   0& 0& 0& 2& -1 \\
+\end{array}
+\right)
+\end{equation}
+
+Usando el formato CDS, alojamos la matriz $\mathcal{A}$ en un arreglo \textit{$cdsA^{6, 3}$} donde las columnas estan indexadas desde -1 usando el mapeo $val_{i, j}$ = $a_{i, i+j}$
+
+\begin{tabular}{ l || c | c | c | c | c | c}
+  val(:, -1) & 0 & 3 & 7 & 8 & 9 & 2 \\
+  val(:, 0) & 10 & 9 & 8 & 7 & 9 & -1 \\
+  val(:, 1) & -3 & 6 & 7 & 5 & 13 & 0 \\
+\end{tabular}
+
+Notar que los dos ceros no corresponden a un elemento existente de la matriz.
+
+Una generalizaci\'on del formato CDS m\'as adecuada para manipular matrices dispersas generales en supercomputadoras vectoriales es discutido por Melhem en \cite{MELHEM}. Esta variante de CDS utiliza una estructura de datos de banda para almacenar la matriz. Esta estructura es m\'as eficiente en el almacenamiento en el caso de variar el ancho de banda, pero hace que el producto de  matriz por vector sea ligeramente m\'as caro, ya que implica una operaci\'on de recopilaci\'on.
+
+Como est\'a definido en \cite{MELHEM}, una l\'inea en $\mathcal{A}^{n,m}$ es un conjunto de posiciones 
+S = $\{(i, \theta(i)): i \in I \subseteq I_{n} \}$ donde $I_{n}$ = ${1, ..., n}$ y $\theta$ es una funci\'on estrictamente creciente. Espec\'ificamente: 
+
+
+$$(i, \theta(i)), (j, \theta(j)) \in S \implica (i < j \implica \theta(i) < \theta(j)) $$
+
+Cuando se computa el producto matriz-vector $ y = \mathcal{A}x $, cada (i, $\theta_{k}(i)$) de $\mathcal{A}$ se multiplica por $x_{\theta_{k}(i)}$ y es acumulado en $y_{i}$.
+
+\subsection{Almacenamiento diagonal recortado.}
+
+El formato JDS (sus siglas en ingles de Jagged Diagonal Storage) puede ser \'util para la implementaci\'on de m\'etodos iterativos en procesadores paralelos y vectoriales (v\'ease Saad \cite{JDS}). Al igual que el formato Diagonal Comprimido, da una longitud de vector esencialmente del tama\~no de la matriz. Es m\'as eficiente en cuanto a espacio que CDS a costa de una operaci\'on de recopilaci\'on / dispersi\'on.
+
+Una forma simplificada de JDS, llamada almacenamiento de ITPACK o almacenamiento Purdue, se puede describir como sigue:
+
+\begin{equation}
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 0& 1& 0& 0\\
+0&   9& 6& 0& -2& 0 \\
+3&   0& 8& 7& 0& 0 \\
+0&   6& 0& 7& 5& 0 \\
+0&   0& 0& 0& 9& 13 \\
+0&   0& 0& 0& 5& -1 \\
+\end{array}
+\right)
+\implica
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 1&  &  & \\
+9& 6& -2& &  & \\
+3& 8& 7& &  & \\
+6& 7& 5& &  & \\
+9& 13 & &  & \\
+5& -1 & &  &\\
+\end{array}
+\right)
+\end{equation}
+
+Luego las columnas se almacenan consecutivamente. Todas las filas se rellenan con ceros a la derecha para darles la misma longitud. Correspondiente al arreglo de elementos de matriz \textit{val}(:, :), un arreglo de \'indices de columna, $col\_ind$ (:, :) tambi\'en se almacena.
+
+Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventaja, especialmente si el ancho de banda de la matriz var\'ia fuertemente. Por lo tanto, en el formato CRS, reordenamos las filas de la matriz de forma decreciente de acuerdo con el n\'umero de elementos no ceros de una fila. Las diagonales comprimidas y permutadas se almacenan entonces en una matriz lineal. La nueva estructura de datos se denomina diagonales dentadas.
+
+
+
+\begin{table}[htdp]
+    
+    \centering
+    \begin{tabular}{ | l || c | c | c | c | c | c |}
+      \hline
+      val(:, 1) & 10 & 9 & 3 & 6 & 9 & 5 \\ \hline 
+      val(:, 2) & -3 & 6 & 8 & 7 & 13 & -1 \\ \hline
+      val(:, 3) & 1 & -2 & 7 & 5 & 0 & 0 \\ \hline
+      val(:, 4) & 0 & 0 & 0 & 4 & 0 & 0 \\ \hline 
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[htdp]
+    
+    \centering
+    \begin{tabular}{| l || c | c | c | c | c | c |}
+        \hline
+      col\_ind(:, 1) & 1 & 2 & 1 & 2 & 5 & 5 \\ \hline
+      col\_ind(:, 2) & 2 & 3 & 3 & 4 & 6 & 6 \\ \hline
+      col\_ind(:, 3) & 4 & 5 & 4 & 5 & 0 & 0 \\ \hline
+      col\_ind(:, 4) & 0 & 0 & 0 & 6 & 0 & 0 \\ \hline
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[!b]
+    
+    \begin{tabular}{ | l || c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c |}
+        \hline
+      jdiag & 6 & 9 & 3 & 10 & 9 & 5; & 7 & 6 & 8 & -3 & 13 & -1; & 5 & -2 & 7 & 1 & 4; \\ \hline
+      col\_ind & 2 & 2 & 1 & 1 & 5 & 5; & 4 & 3 & 3 & 2 & 6 & 6; & 5 & 5 & 4 & 4 & 6; \\ \hline
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[!b]
+    \centering
+    \begin{tabular}{ | l || c | c | c | c | c | c |}
+        \hline
+        perm & 4 & 2 & 3 & 1 & 5 & 6 \\ \hline
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[!b]
+    \centering
+    \begin{tabular}{ | l || c | c | c | c | }
+        \hline
+      perm & 1 & 7 & 13 & 17 \\ \hline
+    \end{tabular}
+    \caption{}
+\end{table}
+
+
+El n\'umero de diagonales irregulares es igual al n\'umero de no ceros en la primera fila, es decir, el mayor n\'umero de no ceros en cualquier fila de $\mathcal{A}$. La estructura de datos para representar la matriz por lo tanto consiste en un arreglo de permutaci\'on \textit{perm} (1: n) que reordena las filas, un arreglo de punto flotante $jdiag (:)$ que contiene las diagonales dentadas en sucesi\'on, un arreglo de enteros \textit{col\_ind} (:) que contiene los \'indices de columna correspondientes, y finalmente un arreglo de punteros (\textit{jd\_ptr} (:)) cuyos elementos apuntan al comienzo de cada diagonal dentada. Las ventajas de JDS para las multiplicaciones matriciales son discutidas por Saad en \cite{JDS}.
+
+
+El formato JDS para la matriz anterior en el uso de los arreglos lineales {$perm$, $jdiag$, $col\_ind$, $jd\_ptr$} se d\'a a continuaci\'on (diagonales irregulares est\'an separados por punto y coma).
+
+
+
+
+\section{Problema de autovalores y autovectores}
+
+Como vimos anteriormente este m\'etodo consiste en escribir una representaci\'on matricial de la ecuaci\'on diferencial, a partir de un conjunto de funciones, y luego calcular los autovalores y autovectores de dicha matriz, se buscan los autovalores mas peque\~nos para lograr eso se utiliz\'o paquete ARPACK.
+
+Este paquete est\'a dise\~nado para calcular algunos autovalores y vectores propios correspondientes de una matriz general cuadrada $A$. Es m\'as apropiado para matrices grandes ralas o estructuradas, donde estructurado significa que un producto vectorial matricial w = $\mathcal{A}$v requiere $\orderof(m)$ en lugar de $\orderof(n^{2})$ donde $m$ es menor que $n$ operaciones de punto flotante. Este software se basa en una variante algor\'itmica del proceso Arnoldi llamado Implicitly Restarted Arnoldi Method (IRAM) \cite{IRAM}. Cuando la matriz A es sim\'etrica, se reduce a una variante del proceso de Lanczos denominado M\'etodo Lanczos Impl\'icitamente Reiniciado (IRLM) \cite{IRLM}. Estas variantes pueden ser vistas como una s\'intesis del proceso de Arnoldi\/ Lanczos con la t\'ecnica QR \cite{QR} impl\'icitamente desplazada que es adecuada para problemas a gran escala. Para muchos problemas est\'andar, no se requiere una factorizaci\'on de matriz.
+
+ARPACK es capaz de resolver grandes problemas simb\'olicos sim\'etricos, no sim\'etricos y generalizados de \'areas de aplicaci\'on significativas. El software est\'a dise\~nado para calcular algunos (k) valores propios con caracter\'isticas especificadas por el usuario tales como los de mayor parte real o mayor magnitud. Los requisitos de almacenamiento est\'an en el orden \orderof(n k) de memoria. No se requiere almacenamiento auxiliar. Se calcula un conjunto de vectores de base de Schur para el autoespacio k-dimensional deseado que es num\'ericamente ortogonal a la precisi\'on de trabajo. Para mas detalles ver \cite{libromagico}
+
+A continuaci\'on daremos una breve explicaci\'on de metodos num\'ericos utilizados para resolver el problema de autovalores y autovectores.
+
+\subsection{M\'etodo de la Potencia}
+El m\'etodo mas simple para calcular el autovalor dominante junto con su vector propio es el m\'etodo de la potencia presentado en el Algoritmo \ref{powermethod}. Bajo suposiciones suaves encuentra el autovalor de $ A $ que tiene el valor absoluto m\'as grande, y un autovector correspondiente.
+
+\begin{algorithm}
+    \label{powermethod}
+    ${y} = z$ vector\ inicial\\
+
+    \Do{$\norm{y - \theta v}_2 \le \epsilon \abs{\theta}$}{
+        $v = y/\norm{y}_2$\\
+        $y = A * v$\\
+        $\theta = v \cdot y$\\
+    }
+    $\lambda=\theta $\\
+    $x=v$
+
+    \caption{M\'etodo de las Potencia}
+\end{algorithm}
+
+Sea $ x_1 $ el autovector correspondiente a $ \lambda_1 = \lambda_{max} (A) $. El \'angulo $ \angle (z, x_1) $ entre $ x_1 $ y $ z $ se define por la relaci\'on
+ \begin{displaymath}
+\cos \angle(z,x_1)= \frac{z \cdot x_1}
+                            {\left\|z\right\|_2 \, \|x_1\|_2}
+\end{displaymath}
+
+Si el vector inicial $ z $ y el autovector $ x_1 $ son perpendiculares entre s\'i, entonces $ \cos \angle (z, x_1) = 0 $. En este caso, el m\'etodo de potencia no converge. Por otro lado, si $ \cos \angle (z, x_1) \ \neq 0 $, el m\'etodo de las potencias genera una secuencia de vectores que se vuelven cada vez m\'as paralelos a $ x_1 $. Esta condici\'on en $ \angle(z, x_1) $ es verdadera con probabilidad muy alta si $ z $ se elige al azar.
+
+La convergencia del m\'etodo de la potencias depende de $ \vert \lambda_2 / \lambda_1 \vert $, donde $ \lambda_2 $ es el segundo autovalor m\'as grande de $ A $ en magnitud. Esta proporci\'on es generalmente menor que $ 1 $, lo que permite una convergencia adecuada. Pero hay casos en los que esta relaci\'on puede ser muy cercana a $ 1 $, causando convergencia muy lenta. Para discusiones detalladas sobre el m\'etodo de las potencias, v\'ease Demmel \cite{Demmel}, Golub y Van Loan \cite{Householder}, y Parlett \cite{Parlett}.
+
+\subsection{Algoritmo de Lanczos}
+
+El algoritmo de Lanczos est\'a estrechamente relacionado con los algoritmos iterativos en el sentido de que s\'olo necesita acceder a la matriz en forma de operaciones de matriz por vector. Es diferente en el sentido de que hace mucho mejor uso de la informaci\'on obtenida recordando todas las direcciones calculadas y siempre permite que la matriz opere sobre un vector ortogonal a todos aquellos previamente probados.
+
+En esta secci\'on se describe el algoritmo de Lanczos para el caso de matriz hermitiana.
+
+\begin{displaymath}
+Ax=\lambda x\;,
+\end{displaymath}
+
+Donde $ A $ es una matriz hermitiana, o en el caso real sim\'etrica.
+
+El algoritmo comienza con un vector de inicio elegido $ v $ y construye una base ortogonal $ V_j $ del subespacio de Krylov.
+
+ \begin{equation}
+{\cal K}^j(A,v)=\mbox{span}\{v,VA,A^2v,\dots,A^{j-1}v\}\;,
+\end{equation}
+ 
+En cada paso s\'olo una multiplicaci\'on matriz-vector. En la nueva base ortogonal $ V_j $ el operador $ A $ est\'a representado por una matriz real tridiagonal sim\'etrica. 
+
+\begin{equation}
+T_{j}=\left[
+\begin{array}{cccc}\alpha_1 & \beta_1 &&\\
+\beta_1 & \alpha_2 &\ddots&\\
+&\ddots&\ddots&\beta_{j-1}\\
+&&\beta_{j-1}&\alpha_j\\
+\end{array} \right]\;,
+\end{equation}
+
+$T$ Se construye de a una fila y una columna a la vez (por se sim\'etrica).
+
+\begin{equation}
+AV_j=V_{j}T_{j}+re_j^{\ast} \quad \mbox{with} \quad V^{\ast}_j r = 0.
+\end{equation}
+
+En cualquier paso $ j $, podemos calcular una \emph{auto soluci\'on} de $ T_{j} $
+
+\begin{equation}
+T_{j}s_i^{(j)}=s_i^{(j)}\theta_i^{(j)}\;,
+\end{equation}
+
+Donde el super\'indice $ (j) $ se utiliza para indicar que estas cantidades cambian para cada iteraci\'on $ j $. El valor de Ritz $ \ theta_i ^ {(j)} $ y su vector.
+
+\begin{equation}
+x_i^{(j)}=V_js_i^{(j)}\;,
+\end{equation}
+
+Ser\'a una buena aproximaci\'on a un autovalor y autovector de $ A $ si el residuo tiene una norma tolerante.
+
+Para calcular el residuo de este par de Ritz se utiliza:
+
+\begin{displaymath}
+r_i^{(j)}=Ax_i^{(j)}-x_i^{(j)}\theta_i^{(j)}
+=AV_js_i^{(j)}-V_js_i^{(j)}\theta_i^{(j)}=(AV_j-V_jT_{j})s_i^{(j)}=
+v_{j+1}\beta_js_{j,i}^{(j)}\;.
+\end{displaymath}
+
+Donde su norma satisface:
+
+\begin{equation}
+\|r_i^{(j)}\|_2=|\beta_js_{i,j}^{(j)}|=\beta_{j,i}\;,
+\end{equation}
+
+Por lo que solamente necesitamos monitorear los elementos subdiagonales $ \beta_j $ de $ T $ y los \'ultimos elementos $ s_{i, j} ^ {(j)} $ de sus auto vectores para obtener una estimaci\'on del valor absoluto del residuo. Tan pronto como esta estimaci\'on es peque\~na, podemos marcar el valor de Ritz $ \theta_i ^ {(j)} $ como convergente con el autovalor $ \lambda_i $. Obs\'ervese que el c\'alculo de los valores de Ritz no necesita la multiplicaci\'on matriz-vector. Podemos ahorrar esta operaci\'on que lleva mucho tiempo hasta el paso $ j $, cuando la estimaci\'on indique la convergencia.
+
+\begin{algorithm}
+    \label{lanczosalgorithm}
+    ${r} = v$ vector\ inicial\\
+    $\beta_0 = \norm{r}_2$
+    $j = 1$
+    \Do{$hasta\ converger$}{
+        $v_j = r/\beta_{j-1}$\\
+        $r = Av_j$\\
+        $r = r - v_{j-1}\beta_{j-1}$\\
+        $\alpha_j = v_j \cdot r$\\
+        $r = r - v_j \alpha_j$\\
+        $reortogonalizar\ si\ es\ necesario$\\
+        $\beta_j = \norm{r}_2$\\
+        $computar\ el\ autovalor\ aproximado\ T_j = S\Theta^{j}S*$\\
+        $verificar\ convergencia$\\
+    }
+    $convergenciaomputar\ los\ autovectores\ aproximados\ X= V_jS$
+    
+
+    \caption{Algoritmo de Lanczos}
+\end{algorithm}
+
+Si se sabe de una buena suposici\'on para el autovector deseado, \'uselo. Por ejemplo, si para una ecuaci\'on diferencial parcial discretizada se sabe que el vector propio deseado es suave con respecto a la cuadr\'icula, se podr\'ia comenzar con un vector con todos unos. 
+En otros casos elija una direcci\'on aleatoria, por ejemplo, una que consiste en n\'umeros aleatorios normalmente distribuidos.
+
+La recursi\'on de Lanczos se construye para que la base $ V $ sea ortogonal, pero esto es cierto s\'olo para el c\'alculo de precisi\'on infinita. En el algoritmo s\'olo nos aseguramos de que el nuevo vector $ v_{j + 1} $ sea ortogonal a la precisi\'on de los dos vectores m\'as recientes $ v_ {j-1} $ y $ v_j $, y la ortogonalidad a los vectores anteriores se sigue de La simetr\'ia de $ A $ y la recursi\'on.
+Tan pronto como converge un valor propio, es decir, el par de Ritz tiene un residuo peque\~no, todos los vectores de base $ v_j $ obtienen perturbaciones en la direcci\'on del autoespacio del valor propio convergente. Como resultado de esto, una copia duplicada de ese valor propio pronto aparecer\'a en la matriz tridiagonal $ T $ \cite{Parlett}.
+
+La gran ventaja de este tipo de algoritmo es que la matriz $ A $ se accede s\'olo en una operaci\'on matriz por vector en el Algoritmo \ref{lanczosalgorithm}. Cualquier de tipo de esquema de almacenamiento puede ser aprovechado.
+
+Es necesario mantener s\'olo tres vectores, $ r $, $ v_j $, y $ v_ {j-1} $, f\'acilmente accesibles. Incluso hay una variante en la que s\'olo se necesitan dos vectores (v\'ease \cite{Parlett} cap\'itulo 13.1]), pero requiere cierta destreza para codificarla.
+
+\subsection{Algoritmo de Arnoldi}
+\label{capter2:arnoldi}
+
+El met\'odo de Arnoldi se present\'o por primera vez como un algoritmo directo para reducir una matriz general en la forma superior de Hessenberg \cite{FORMHESS}. M\'as tarde se descubri\'o que este algoritmo conduce a una buena t\'ecnica iterativa para aproximar valores propios de grandes matrices ralas.
+
+El algoritmo functiona para matrices no hermitaneas. Es muy \'util para casos en los que la matriz $\displaystyle A$ es grande, pero los productos de matriz por vector son relativamente baratos de realizar. Esta es la situaci\'on, por ejemplo, cuando $\displaystyle A $ es grande y ralo. Comenzamos con una presentaci\'on del algoritmo b\'asico y luego describimos una serie de variaciones.
+
+\subsubsection{Algoritmo B\'asico}
+El m\'etodo de Arnoldi es un m\'etodo de proyecci\'on ortogonal sobre un subspacio de Krylov. Comienza con el procedimiento de Arnoldi como se describe en el algoritmo \ref{alg:arnoldi}. El procedimiento puede ser visto esencialmente como un proceso de Gram-Schmidt midificado para construir una base ortogonal del subespacio de Krylov. $\displaystyle K^{m}(A,v) $
+
+
+\begin{algorithm}
+    \label{alg:arnoldi}
+    \underline{Procedimiento Arnoldi}\;
+    ${v_{1}} = v/\norm{v}_{2} $\\
+
+    \For{$j = 1$ to $m$}
+    {
+      $w = Av_j$ \\
+      \For{$j = 1$ to $j$}
+      { 
+        $h_{ij} = w*v_i$\\
+        $w = w - h_{ij}v{i}$\\
+      }
+      $h_{j+1, k} = \norm{w}_2$\\
+      \If {$h_{j+1, j}$ == $0$} {
+        $stop$
+       }
+      
+      $v_{j+1} = w/h_{j+1, j}$\\
+    }
+    \caption{Procedimiento de Arnoldi}
+
+\end{algorithm}
+
+El algorimo \ref{alg:arnoldi} se detendr\'a si el vector $\displaystyle w$ tiene norma 0 (desaparece).  Los vectores $ v_1, v_2, \ldots, v_m $ forman un sistema ortonormal por construcci\'on y se llaman vectores de Arnoldi. Un argumento de inducci\'on f\'acil demuestra que este sistema es una base del subespacio de Krylov $K^m(A, v) $.
+
+A continuaci\'on se considera una relaci\'on fundamental entre las cantidades generadas por el algoritmo. La siguiente igualdad se deriva f\'acilmente:
+
+\begin{equation}
+A v_j = \sum_{i=1}^{j+1} h_{ij} v_i, \quad j=1,2,\ldots ,m \ .
+\end{equation}
+
+
+Si denotamos por $ V_m $ la matriz $ n \times m $ con vectores columna $ v_1,
+\ldots, v_m $ y $ H_m $ la matriz $ m \times m $ Hessenberg cuyas entradas no nulas $ h_{ij} $ son definidas por el algoritmo, entonces las siguientes relaciones se mantienen:
+
+\begin{equation}
+\label{eq:AVm}
+\displaystyle A V_m \textstyle = \displaystyle V_m H_m + h_{m+1,m} v_{m+1} e_m^{\ast}
+\end{equation}
+
+\begin{equation}
+\label{eq:VmTAVm}
+\displaystyle V_m^{\ast} A V_m \textstyle = \displaystyle H_m.
+\end{equation}
+
+La ecuaci\'on \ref{eq:VmTAVm} viene de \ref{eq:AVm} multiplicando las dos partes de la ecuacion \ref{eq:AVm} por $ V_m^{\ast}$ y usando la ortonormalidad de $\{ v_1, \ldots,v_m \} $.
+
+Como se observ\'o anteriormente, el algoritmo se descompone cuando la norma de $ w $  desaparece en un cierto paso $ j $. Esto ocurre si y s\'olo si el vector de partida $ v $ es una combinaci\'on de $ j $ vectores propios (es decir, el polinomio m\'inimo de $ v_1 $ es de grado $ j $). Adem\'as, el subespacio $ K_j $ es entonces invariante y los autovalores y autovectores aproximados son exactos. \cite{booksaad}
+
+Los autovalores aproximados $ \lambda_i^{m} $ dados por el proceso de proyecci\'on sobre $ K_m $ son los valores propios de la matriz de Hessenberg $ H_m $. Estos son conocidos como valores de Ritz. Un autovector aproximado de Ritz asociado con un valor de Ritz $ \lambda_i ^ {m} $ es definido por $ u_i ^ {m} = V_m y_i ^ {m} $, donde $
+Y_i ^ {m} $ es un vector propio asociado con el autovalor $ \lambda_i ^ {m} $. Un n\'umero de los valores propios del Ritz, t\'ipicamente una peque\~na fracci\'on de $ m $, generalmente constituyen buenas aproximaciones para los valores propios correspondientes $ \lambda_i $ de $ A $, y la calidad de la aproximaci\'on usualmente mejorar\'a a medida que $ m $ aumenta.
+
+El algoritmo original consiste en aumentar $ m $ hasta que todos los autovalores deseados de $ A $ se encuentren. Para matrices grandes, esto resulta costoso tanto en t\'erminos de c\'alculo como de almacenamiento. En t\'erminos de almacenamiento, necesitamos mantener $ m $ vectores de longitud $ n $ m\'as una matriz de Hessenberg de $ m^2 $ elementos, un total aproximado de $ n m + m ^ 2/2 $ elementos.
+ Para los costos aritm\'eticos, necesitamos multiplicar $ v_j $ por $ A $, al costo de $ 2 \times N_z $, donde $ N_z $ es el n\'umero de elementos no nulos en $ A $, y luego ortogonalizar el resultado contra $ j $ vectores al costo de $ 4 (j + 1) n, $ que aumenta con el paso n\'umero $ j $. Por lo tanto, un procedimiento de Arnoldi de $ m $-dimensionales cuesta $ \approx n m + m ^ 2/2 $ en almacenamiento y $ \approx N_z + 2 n m ^ 2 $ en operaciones aritm\'eticas.
+
+Obtener la norma residual, para un par Ritz, a medida que el algoritmo progresa es bastante eficiente. Sea $Y_y $ un autovector de $ H_m $ asociado al autovalor $ \lambda_i ^ {m} $, y sea $ u_i ^ {m} $ el autovector aproximado de Ritz $ u_i ^ {m} = V_m y_i ^ {m} $. Tenemos la relaci\'on.
+\begin{displaymath}
+(A - \lambda_i ^{m}I ) u_i ^{m}= h_{m+1,m}(e_m^{\ast} y_i^{m})v_{m+1},
+\end{displaymath}
+y por lo tanto
+\begin{displaymath}
+\Vert ( A - \lambda_i ^{m}I ) u_i ^{m}\Vert _2 = h_{m+1,m} \vert e_m^{\ast} y_i
+^{m}\vert \ .
+\end{displaymath}
+
+As\'i, la norma residual es igual al valor absoluto del \'ultimo componente del vector propio $
+Y_i ^ {m} $ multiplicado por $ h_ {m + 1, m} $. Las normas residuales no son siempre indicativas de errores reales en $ \lambda_i ^ {m} $, pero pueden ser muy \'utiles para decidir la detenci\'on.
+
+\subsubsection{Variantes}
+
+La descripci\'on del procedimiento de Arnoldi dado anteriormente se bas\'o en el proceso modificado de Gram-Schmidt. Otros algoritmos de ortogonalizaci\'on podr\'ian ser utilizados. Una mejora es recuperar la ortogonalidad cuando sea necesario. Cada vez que se calcula el vector final obtenido al final del segundo bucle en el algoritmo anterior, se realiza una prueba para comparar su norma con la norma del $ w $ inicial (que es $ \Vert A v_j \Vert_2 $). Si la reducci\'on cae por debajo de un determinado umbral (una indicaci\'on de que puede haber ocurrido una cancelaci\'on severa), se realiza una segunda ortogonalizaci\'on. Se sabe por un resultado de Kahan que m\'as de dos ortogonalizaciones son superfluas (v\'ease, por ejemplo, Parlett \cite{Parlett})
+
+Una de las t\'ecnicas de ortogonalizaci\'on m\'as confiables, desde el punto de vista num\'erico, es el algoritmo Householder \cite{Householder}. Esto ha sido implementado para el procedimiento de Arnoldi por Walker \cite{Householder2}. El algoritmo Householder es num\'ericamente m\'as estable que las versiones de Gram-Schmidt o Gram-Schmidt modificado, pero tambi\'en es m\'as caro, requiriendo aproximadamente el mismo almacenamiento que el Gram-Schmidt modificado, pero aproximadamente el doble de operaciones. La ortogonalizaci\'on de Householder es una opci\'on razonable cuando se desarrollan paquetes de software confiables y de prop\'osito general donde la robustez es un criterio cr\'itico.
+
+\subsubsection{Reinicios expl\'icitos}
+
+Como se mencion\'o anteriormente, las implementaciones est\'andar del m\'etodo Arnoldi est\'an limitadas por sus altos requisitos de almacenamiento y computaci\'on a medida que $ m $ crece. Supongamos que estamos interesados en un solo autovalor / autovector de $ A $, llamado el autovalor de la parte real m\'as grande de $ A $. Entonces una manera de eludir la dificultad es reiniciar el algoritmo. Despu\'es de una corrida con vectores de $ m $ Arnoldi, calculamos el vector propio aproximado y lo usamos como vector inicial para la siguiente ejecuci\'on con el m\'etodo de Arnoldi. Este proceso, el m\'as simple de este tipo, es iterado a la convergencia para calcular un par propio. Para el c\'alculo de otros pares autovector autovalor, y para mejorar la eficiencia del proceso, se han desarrollado una serie de estrategias, que est\'an algo relacionadas. Estos incluyen \emph{procedimientos de deflaci\'on} brevemente discutidos en la siguiente Secci\'on, y la estrategia de reinicio expl\'icito descrita en Algoritmo \ref{alg:ERAM}
+
+\begin{algorithm}
+    \label{alg:ERAM}
+    \While{True}{
+        Iterate: Hacer m iteraciones del algoritmo \ref{alg:arnoldi}\\
+        Reiniciar: Calcular el autovalor aproximado $u_1^{(m)}$ asociado con el autovalor mas a la derecha 
+        $\lambda_1^{(m)}$\\
+        \If {$satisface$} {
+            $Stop$ \\
+        }
+        $v_1 = u_1^{(m)}$\\
+    }
+    \caption{M\'etodo Expl\'icito de Arnoldi Reiniciado para NHEP}
+\end{algorithm}
+
+ \subsubsection{Deflaci\'on}
+
+ Ahora consideramos la siguiente implementaci\'on que incorpora un proceso de deflaci\'on. Hasta ahora hemos descrito algoritmos que calculan s\'olo un autopar. En caso de que se busquen varias autopar, hay dos opciones posibles.
+
+La primera es tomar $ v_1 $ como una combinaci\'on lineal de los vectores propios aproximados cuando reiniciamos. Por ejemplo, si necesitamos calcular los vectores propios $ p $ a la derecha, podemos tomar
+
+\begin{displaymath}\hat v_1 = \sum_{i=1}^p \rho_i \tilde u_i, \end{displaymath}
+
+Donde los autovalores est\'an numerados en orden decreciente de sus partes reales. El vector $ v_1 $ se obtiene luego de normalizar $ \hat v_1 $. La opci\'on m\'as simple para los coeficientes $ \rho_i $ es tomar $ \rho_i = 1, i = 1, \ldots, p $. Hay varios inconvenientes a este enfoque, el m\'as importante de los cuales es que no hay manera f\'acil de elegir los coeficientes $ \rho_i $ de una forma sistem\'atica. El resultado es que para los problemas dif\'iciles, la convergencia es dif\'icil de lograr.
+Una alternativa m\'as confiable es computar un autopar a la vez y usar la deflaci\'on. La matriz $ A $ puede deflactarse expl\'icitamente construyendo progresivamente los primeros $ k $ vectores de Schur. Si ya se ha calculado una base ortogonal previa $ U_ {k-1} = [u_1, \ldots, u_ {k-1}] $ del subespacio invariante, entonces para computar el valor propio $ \lambda_{k} $, Puede trabajar con la matriz
+\begin{displaymath}
+\tilde A = A - U_{k-1} \Sigma U_{k-1}^{\ast}, 
+\end{displaymath}
+
+
+En la que $\Sigma = diag(\sigma_i)$ es una matriz diagonal de desplazamientos. Los autovalores de $ \tilde A $ consisten en dos grupos. Estos valores propios asociados con los vectores de Schur $ u_1, 
+\ldots, u_{k-1} $ ser\'an cambiados a $ \tilde \lambda_i = \lambda_i - \sigma_i $ y los otros no se modificar\'an. Si se buscan los valores propios con partes reales m\'as grandes, entonces los desplazamientos se seleccionan de modo que $ \lambda_k $ se convierta en el autovalor siguiente con la parte real m\'as grande de $ \tilde A $. Tambi\'en es posible desinflar simplemente proyectando los componentes asociados con el subespacio invariante cubierto por $ U_ {k-1} $; Esto conducir\'ia a operar con la matriz.
+
+\begin{displaymath}
+\tilde A = A (I - U_{k-1} U_{k-1}^{\ast}).
+\end{displaymath}
+
+Hay que tener en cuenta que si $ A U_{k-1} = U_ {k-1} R_ {k-1} $ es la descomposici\'on parcial de Schur asociada con los primeros $ k-1 $ valores de Ritz, entonces $ \tilde A = A - U_ {k-1} R_ {k-1} U_ {k-1} ^ {\ast} $. Los valores propios asociados con los vectores Schur $ u_1, \ldots, u_ {k-1} $ ahora se mover\'an a cero.
+
+Una mejor implementaci\'on de la deflaci\'on, que encaja bien con el procedimiento de Arnoldi, es trabajar con una sola base $ v_1, v_2, \ldots, v_m $ cuyos primeros vectores son los vectores de Schur que ya han convergido. Supongamos que $ k-1 $ tales vectores han convergido y llamamos $ v_1, v_2
+, \ldots, v_ {k-1} $. Luego empezamos por elegir un vector $ v_k $ que es ortogonal a $ v_1, \ldots, v_ {k-1} $ y de norma 1. Luego realizamos $ mk $ pasos de un procedimiento de Arnoldi en el que la ortogonalidad del vector $ V_j $ contra todos los $ v_i $ anteriores, incluyendo $ v_1, \ldots, v_ {k-1} $. Esto genera una base ortogonal del subespacio. 
+
+\begin{displaymath}
+\label{set:base}
+{\rm span}\{ v_1,\ldots, v_{k-1}, v_k, A v_k, \ldots, A^{m-k} v_k \} \ .
+\end{displaymath} 
+
+As\'i, la dimensi\'on de este subespacio Krylov modificado es constante e igual a $ m $ en general. A continuaci\'on se presenta un esquema de este procedimiento impl\'icito de deflaci\'on combinado con el m\'etodo Arnoldi.
+
+
+\begin{algorithm}
+    \label{alg:ERAMDEF}
+    \SetKwInOut{Input}{Input}
+
+    \Input{
+    Matriz $A$, vector inicial $v_1$, dimensi\'on del subespacio $m$ y la cantidad de autovalores $nev$ }
+    $k = 1 $ \\
+    \While {$k \leq nev$}{
+        \For{$j = k$ to $m$}
+        {
+          $w = Av_j$ \\
+          $calcular\ un\ conjunto\ de\ j\ coeficientes\ h_{ij}\ tales\ que\ w\ =\ \sum_{i=1}^j\ h_{ij}v_i\ es\ ortogonal\ a\ todos\ los\ anteriores\ v_i,\ para\ i = 1, 2, \ldots, j$\\
+          $h_{j=1, j} = \norm{w}_2$\\
+          $v_{j+1} = w / h_{j+1, j}$\\
+        }
+        $calcular\ el\ autovector\ aproximado\ de\ A\ con\ el\ autovalor\ \tilde\lambda_k\ y\ su\ norma\ residual\ estimada\ \rho_k$\\
+        $ortonormalizar\ este\ autovector\ sobre\ todos\ los\ anteriores\ v_j\ para\ obtener\ un\ vector\ de\ Schur\ aproximado\ \tilde\ u_k\ y\ definir\ v_k = \tilde u_k$\\
+        \If {$\rho_k < tol $}
+        {
+            $h_{ik} = v_{i}^{*}Av_{k}, i = 1, \ldots ,k$\\
+            $k = k+1$\\
+        }
+    }
+    \caption{M\'etodo expl\'icito de Arnoldi reiniciado con deflaci\'on para NHEP}
+\end{algorithm}
+
+Notar que en el bucle, los vectores Schur asociados con los autovalores $ \lambda_1, \ldots, \lambda_ {k-1} $ no se tocar\'an en pasos posteriores. A veces se les denomina \"vectores bloqueados\". De manera similar, la correspondiente matriz triangular superior correspondiente a estos vectores tambi\'en est\'a bloqueada.
+
+\begin{displaymath}
+\underbrace{\left[v_1, v_2, \ldots, v_{k-1}\right.}_{Bloqueados},
+\underbrace{\left. v_k, v_{k+1}, \ldots v_m \right] }_{Activos}
+\end{displaymath}
+
+Cuando converge un nuevo vector de Schur, se calcula la columna $ k $-\'esima de $ R $ asociada con este nuevo vector de base. En los pasos siguientes, los valores propios aproximados son los valores propios de la matriz $ m \times m $ Hessenberg $ H_m $ definida en el algoritmo y cuya $ k^2 $ principal submatriz es triangular superior. Por ejemplo, cuando $ m = 6 $ y despu\'es del segundo vector de Schur, $ k = 2 $, ha convergido, la matriz $ H_m $ tendr\'a la forma
+
+\begin{displaymath}
+H_m ~ = ~
+\left[ \begin{array}{cccccc}
+* & * & * & * & * & * \\
+ & * & * & * & * & * \\
+ &  & * & * & * & * \\
+ &  & * & * & * & * \\
+ &  &  & * & * & * \\
+ &  &  &  & * & * \\
+\end{array} \right].
+\end{displaymath}
+
+En los pasos subsiguientes, s\'olo deben considerarse los valores propios no asociados con la matriz triangular superior de $ 2 \times 2 $.
+
+Se puede demostrar que, en aritm\'etica exacta, la matriz de Hessenberg $ H_m $ en el bloque inferior $ (2 \times 2) $ es la misma matriz que se obtendr\'ia de una corrida de Arnoldi aplicada a matriz
+
+\begin{displaymath}
+\tilde A = (I-U_{k-1} U_{k-1}^{\ast} ) A.
+\end{displaymath}
+
+
+Por lo tanto, estamos proyectando impl\'icitamente el subespacio invariante ya calculado desde el rango de $ A $.
+
+
+\subsubsection{Reiniciado Impl\'icito del M\'etodo de Arnoldi}
+
+El metodo IRAM (por sus siglas en \'ingles Implicitly Restarted Arnoldi Method ) es quiz\'as el algoritmo num\'erico m\'as exitoso y mas completo para calcular los autovectores y autovalores de una matriz cuadrada general $ A $ es el algoritmo QR impl\'icitamente desplazado. Una de las claves para el \'exito de este m\'etodo es su relaci\'on con la descomposici\'on de Schur.
+
+\begin{equation}
+\label{eq:AUTU}
+A = U T U^{\ast}.
+\end{equation}
+
+Esta descomposici\'on bien conocida afirma que cada matriz cuadrada $ A $ es unitariamente equivalentes a una matriz triangular superior $ T $.
+
+El algoritmo QR produce una secuencia de transformaciones unitarias de similitud que reducen iterativamente $ A $ a la forma triangular superior. En otras palabras, calcula una descomposici\'on de Schur. Una implementaci\'on pr\'actica del algoritmo QR comienza con una transformaci\'on de similitud unitaria inicial de $ A $ a la forma condensada $ V ^ {\ast} AV = H $ donde $ H $ es Hessenberg superior ( `` casi triangular superior ``) y $ V $ es unitario. Entonces se realiza la siguiente iteraci\'on.
+
+\begin{algorithm}
+    \label{alg:SHIFTMETHOD}
+    \SetKwInOut{Input}{Input}
+
+    \Input{Matriz $A$}
+
+    $Factorizar\ V^{\ast} AV = H$ \\
+
+    \While {no converge}{
+        $seleccionar\ el\ desplazamiento\ \mu$\\
+        $QR = H - \mu I$\\
+        $H = Q^{\ast} H Q$\\ 
+        $V = VQ$\\
+    }
+
+    \caption{M\'etodo QR Desplazado}
+\end{algorithm}
+
+En este esquema, $ Q $ es unitaria y $ R $ es triangular superior (es decir, la factorizaci\'on QR de $ H - \mu I $). Es f\'acil ver que $ H $ es unitariamente equivalente a $ A $ a lo largo de esta iteraci\'on. La iteraci\'on se contin\'ua hasta que los elementos subdiagonales de $ H $ convergen a cero, es decir, hasta que se ha obtenido (aproximadamente) una descomposici\'on de Schur.
+
+Si $ U_k $ representa las columnas $ k $ principales de $ U $, y $ T_k $ el principio principal $ k \times k $ submatriz de $ T $ en \ref{eq:AUTU}, entonces:
+
+\begin{displaymath}
+A U_k = U_k T_k,
+\end{displaymath}
+
+Y nos referimos a esto como una descomposici\'on parcial de Schur de $ A $. Dado que hay una descomposici\'on de Schur con los autovalores de $ A $ que aparecen en la diagonal en cualquier orden, siempre hay una descomposici\'on parcial de Schur de $ A $ con los elementos diagonales de $ T_k $ que consisten en cualquier subconjunto especificado de $ k $ autovalores de $ A $. Adem\'as, $ \mbox{span} (U_k) $ es un subespacio invariante de $ A $ para estos autovalores.
+
+\section{Concluciones}
+
+En este capitulo hemos visto estructuras de datos alternativas para modelar matrices con sus ventajas y desventajas, tambi\'en vimos algoritmos para calcular autovalores y autovectores de un sistema. Este conocimiento previo es necesario a la hora de elejir que estructura se utilizara, como manipularla, cuales seran sus beneficios y costos, y ademas que algoritmo de calculos de autovectores y autovalores.
+En este trabajo se decidio usar formato comprimido por columnas (CCS) y el metodo Reinicio Implicito del Metodo de M\'etodo de Arnoldi (IRAM) pues es el mas estable y el que a propositos generales, robusto y en terminos de requerimientos de sistema es razonable. Si bien el programa devuelve el sistema para que se pueda usar el modulo de resoluci\'on de autovalores que mas convenga, se opto por esta alternativa utilizando el modulo ARPACK++.
+

@@ -1,0 +1,31 @@
+\setcounter{chapter}{1}
+\chapter*{Introduccion}\label{Introduccion}
+\addcontentsline{toc}{chapter}{Introducci\'on} % si queremos que aparezca en el 
+\markboth{}{} % encabezado
+
+Para el desarrollo del trabajo que presentamos en este informe, es necesario estudiar y comprender varias herramientas y t\'ecnicas que usaremos a lo largo del proyecto. A continuaci\'on presentamos un resumen de los temas que abordaremos.
+
+\section{Motivaci\'on}
+
+La aplicaci\'on del m\'etodo es pr\'acticamente cualquier problema de mec\'anica cu\'antica en el 
+cual no se pueda encontrar una soluci\'on anal\'itica.
+En la gran mayor\'ia de los problemas, no es posible encontrar una soluci\'on anal\'itica a la ecuaci\'on de Schrodinger por lo que se buscan soluciones aproximadas en forma num\'erica.
+
+En un gran n\'umero de problemas, para obtener una buena aproximaci\'on de la soluci\'on real es necesario recurrir a tama\~nos de matrices grandes por lo que el c\'omputo y memoria de las mismas se hace cada vez m\'as lento y pesado, y es de suma importancia tener un software lo m\'as eficiente en tiempo y espacio para dicho c\'alculo. 
+
+\section{Objetivos del trabajo}
+
+El objetivo del trabajo es mejorar una implementaci\'on existente de del m\'etodo variacional de Rayleigh-Ritz en cuanto a eficiencia de tiempo y memoria del ca\'lculo a traves de estructuras de datos espec\'ificas (como son matrices dispersas) y utilizando arquitecturas de GPU en algunas rutinas.
+
+
+\section{Estructura de la Tesis}
+
+La t\'esis esta estructurada de la siguiente manera:
+
+\begin{itemize}
+    \item Nociones Preliminares: Se presentan las estucturas de datos a utilizar, ventajas y desventajas de las mismas
+    \item Modelo Computacional SIMD: Se explican los conceptos de las arquitecturas GPGPU y las t\'ecnicas de programaci\'on para su mejor desempe\~no.
+    \item Optimizaci\'on: Se desarrollan variaciones estructurales y algor\'itmicas. 
+    \item Resultados: Se presentan los resultados obtenidos por las modificaciones.
+    \item Concluciones: Se prensentan concluciones del trabajo y posibles mejoras.
+\end{itemize}

@@ -1,0 +1,181 @@
+\chapter*{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}\label{methodimp}
+\addcontentsline{toc}{chapter}{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}
+\markboth{}{} % encabezado
+En esta secci\'on explicaremos como se implement\'o el m\'etodo, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en \ref{RRMETHOD}, para ello detallar\'a el pipeline.
+
+\section{Variables del Programa}
+En estas secci\'on  hablaremos de la implementaci\'on de las matrices del metodo en nuestro programa y de los parametros del tama\~no del problema. Cuales son, su dimensi\'on y que objeto representan.
+
+
+\begin{enumerate}
+    \item ${KORD}$ orden de los B-splines, el grado es ${kord-1}$
+    \item ${L_{INT}}$ numero de intervalos en el que se divide al intervalo [$R_{MIN}$, $R_{MAX}$]
+    \item $R_{MIN}$ y $R_{MAX}$ R m\'inimo y m\'aximo (respectivamente) donde empieza y termina el intervalo para la integraci\'on.
+    \item ${INT}_G$ grado de integraci\'on por cuadratura
+    \item Matriz $s$ de solapamiento del sistema por una particula, es una matriz de banda sim\'etrica de tama\~no KORD.
+    \item Matriz $v_0$ de Potencial, es una matriz de banda sim\'etrica de tama\~no KORD.
+    \item Matriz $ke$ de Energ\'ia cinetica, es una matriz de banda sim\'etrica de tama\~no KORD.
+    \item $f$ Es la integral $\int_{-\infty}^{+\infty} {B_j(x_2) V_{int} B_l(x_2) dx_2}$, es una matriz de banda de tama\~no KORD.
+    \item Matriz $Vef$ potencial de un pozo con dos particulas, tiene de dimensi\'on $R^4$ pero los elementos del conjunto ${Vef_{i, j, k, l} | \norm{i - j} \geq KORD\ o\ \norm{k - l} \geq KORD}$ son ceros.
+    \item Hamiltoniano $hsim$, es una matriz dispersa y sim\'etrica.
+    \item Matriz $ms$ solapamiento del sistema sim\'etrico de dos particulas.
+    \item Matriz $mv$ potencial de un sistema sim\'etrico.
+\end{enumerate}
+
+\section{Pipeline}
+En estas secci\'on detallaremos las funciones del programa y como se enlazan para llevar a cabo el m\'etodo.
+El Pipeline esta dado de la siguiente manera:
+
+
+\begin{enumerate}[label=\Alph*]
+    %\item[0] $gauleg$: Teniendo en cuenta los l\'imites inferior y superior de la integraci\'on x1 y x2, y dada n, esta rutina devuelve los arrays x [1..n] y w[1..n] de longitud n, que contienen las abscisas y los pesos del Gauss-Legendre n de punto en cuadratura.
+    %\item[0] $bder$: derivada del spline en el punto.
+    %\item[0] $bsplvb$: Calcula los bsplines no ceros en un punto.
+
+    \item[1] $calculo\_matrices$: Calcula las matrices $s$, $ke$ y $v_0$.
+    \item[2] $iteraccion$: Calcula la $V_{ef}$
+    \item[3] $sener$: simetrizaci\'on del sistema, esta funcion calcula $h_{sim}$, $ms$ y $mv$
+    \item[4] $eigen$: resuelve el problema de autovectores y autovalores generalizado.
+\end{enumerate}
+
+\subsection{Calucluo\_matrices}
+Esta funci\'on calcula las matrices de solapamiento $s$, la matriz de potencial $v_e$ y la matriz de energ\'ia $ke$ para el sistema de una particula. Sus formulas son las siguientes
+\begin{equation}
+S_{i,j} = \prointerno{\varphi_i}{\varphi_j} = \int_{-\infty}^{+\infty}\varphi_i(x)\varphi_j(x)dx
+\end{equation}
+
+\begin{equation}
+ Ke_{i,j} =  \prointernot{\varphi_i}{\frac{\partial^2}{\partial x^2}}{\varphi_j} = \int_{-\infty}^{\infty}\varphi_i(x) \frac{\partial^2\varphi_j}{\partial x^2} dx = \varphi_i(x) \frac{\partial \varphi_j}{dx}\Big|_{-\infty}^{\infty} - \int_{-\infty}^{\infty} \frac{\partial\varphi_i}{\partial x} \frac{\partial\varphi_j}{\partial x} dx 
+\end{equation}
+
+Como $ \displaystyle\lim_{x \to {+\infty \atop -\infty} } \varphi_i(x) = 0 $
+
+\begin{equation}
+ Ke_{i,j} =  - \int_{-\infty}^{\infty} \frac{\partial\varphi_i}{\partial x} \frac{\partial\varphi_j}{\partial x^2} dx
+\end{equation}
+
+\begin{equation}
+ V_{0i,j} = \prointernot{\varphi_i}{V(x)}{\varphi_j} = \int_{-\infty}^{\infty} \varphi_i(x) V(x) \varphi_j(x)dx
+\end{equation}
+
+Como el potencial $V(r) \simeq 0 $ si r $\notin [r_1, r_2]$ para un cierto $r_1, r_2$ luego las anteriores integrales las podemos escribir
+\begin{equation}
+\int_{\infty}^{\infty} f(x) dx \approx \int_{r_1}^{r_2} f(x) dx
+\end{equation}
+
+Luego podemos obtener una aproximaci\'on de la integral definida por medio del metodo $Cuadratura\ de\ Gauss$ reescalando los intervalos.
+
+\begin{equation}
+	\int_{r_1}^{r_2} f(x) dx \approx \frac{r_2 - r_1}{2} \sum_{i=1}^{n} w_i f(\frac{r_2-r_1}{2} x_i + \frac{r_1 + r_2}{2})
+\end{equation}
+
+Luego solo nos queda hacer la sumatoria con las correspondientes funciones para obtener las matrices como se puede ver en el algoritmo \ref{alg:calculomatrices}.
+
+\begin{algorithm}[H]
+ \label{alg:calculomatrices}
+ %\KwData{this text}
+ \KwResult{C\'alculo de las matrices $s$, $v_0$ y $ke$ }
+ \For{$bk$ $\in$ $intervalos$}{
+  $sp$ = C\'alcular los b-splines en el intervalo bk\;
+  \For{$i$ $\in$ $bk$ to $bk + kord$}{
+    \For{$j$ $\in$ $bk$ to $bk + kord$}{
+      $s_{ij}$ = integral por Gauss-Legendre de $\varphi_i(x)\varphi_j(x)$ usando $sp$\;
+      $ke_{ij}$ = integral por Gauss-Legendre de $\frac{\partial\varphi_i}{\partial x} \frac{\partial\varphi_j}{\partial x^2} $ usando $sp$\;
+      $v_{0i,j}$ = integral por Gauss-Legendre de $V(x)$ usando $sp$\;
+    }
+  }
+ }
+ \caption{Calculo de matrices}
+\end{algorithm}
+
+\subsection{iteraccion}
+Esta funci\'on calcula el tensor de interacci\'on entre las dos particulas. Formalmente ser\'ia:
+
+\begin{equation}
+ Vef_{i,j,k,l} =  \prointernot{\varphi_i} {V(x_1, x_2)} {\varphi_j} = 
+ \int_{-\infty}^{\infty}
+  \int_{-\infty}^{\infty}
+    V(x_1, x_2) \varphi_i(x_1) \varphi_j(x_2) \varphi_k(x_1) \varphi_l(x_2)
+    dx_2
+  dx_1
+\end{equation}
+\begin{equation}
+  \int_{-\infty}^{\infty}
+    \varphi_i(x_1) \int_{-\infty}^{\infty}
+      V(x_1, x_2)  \varphi_j(x_2) \varphi_l(x_2)
+    dx_2\ \varphi_k(x_1)\ 
+  dx_1
+\end{equation}
+
+\begin{equation}
+  \int_{-\infty}^{\infty}
+    \varphi_i(x_1) 
+      F(x_1) 
+    \varphi_k(x_1)\ 
+  dx_1
+\end{equation}
+
+Donde $F(x_1)$ es:
+
+\begin{equation}
+  \int_{-\infty}^{\infty}
+    V(x_1, x_2)  \varphi_j(x_2) \varphi_l(x_2)
+  dx_2
+\end{equation}
+
+Por lo descripto en la secci\'on anterior podemos reducir el intervalo de integraci\'on a [$r_1,\ r_2$] y para su c\'alculo se utilizo la Cuadratura Gauss-Legendre. Luego solo hay que integrar de una manera anidada, primero la funcion $F$ que ser\'ia la integral sobre $x_2$ y luego integrar sobre $x_1$ como se puede ver en el algoritmo \ref{alg:interaccion}
+
+\begin{algorithm}[H]
+ \label{alg:interaccion}
+ %\KwData{this text}
+ \KwResult{C\'alculo del tensor $Vef$ }
+ \For{$bk_1$ $\in$ $intervalos$}{
+  $x_1$ = punto de la cuadratura en el intervalo $bk_1$\;
+  \For{$bk_2$ $\in$ $intervalos$}{
+    $sp$ = C\'alcular los b-splines en el intervalo $bk_2$\;
+    \For{$i$ $\in$ $bk$ to $bk + kord$}{
+      \For{$j$ $\in$ $bk$ to $bk + kord$}{
+        $V_{margin}$ = $v(x_1)$\;
+        $F_{ij}$ = integral por Gauss-Legendre de $\varphi_i(x) V_{margin} \varphi_j(x)$ usando $sp$\;
+      }
+    }
+
+  }
+  $sp$ = C\'alcular los b-splines en el intervalo $bk_2$\;
+  \For{$i$ $\in$ $bk$ to $bk + kord$}{
+    \For{$j$ $\in$ $bk$ to $bk + kord$}{
+      $Vef_{ijlk}$ = integral por Gauss-Legendre de $\varphi_i(x) F(x) \varphi_j(x)$ usando $sp$\;
+    }
+  }
+ }
+ \caption{interaccion}
+\end{algorithm}
+
+\subsection{sener}
+
+Esta funci\'on realiza la simetrizaci\'on del problema, de esta manera el problema queda reducido a calcular los autovalores y autovectores de un problema de autovalores generalizado.
+
+$$
+\mid \widetilde{\varphi}_{ij}(x_1, x_2) \rangle =
+\begin{cases}
+\mid {\varphi}_{ij}(x_1, x_2) \rangle & i = j\\
+\frac{\mid {\varphi}_{ij}(x_1, x_2) \rangle + \mid {\varphi}_{ji}(x_1, x_2) \rangle} {\sqrt{2}} & i \neq j
+\end{cases}
+$$
+
+\subsection{eigen}
+
+Como ya lo mensionamos anteriormente para la resoluci\'on del sistema $Ax = \lambda Bx$ usaremos el paquete ARPACK++, que es un empaquetador del paquete ARPACK escrito en Fortran, este paquete proporciona rutinas para encontrar r\'apidamente autovalores y autovectores de matrices grandes y dispersas implementado el metodo de Arnoldi explicado en la secci\'on \ref{capter2:arnoldi}.
+
+
+\section{Funciones auxiliares}
+Si bien la parte mas importantes del metodo ha sido explicada anteriormente, cabe detallar las funciones auxiliares que son:
+
+\subsection{gauleg}
+Esta rutina devuelve los arrays x[1..n] y w[1..n] de longitud n, que contienen las abscisas y los pesos del Gauss-Legendre n de punto en cuadratura. Estos arrays son utilizados para la  aproximaci\'on de una integral definida de una funci\'on.
+${\displaystyle \int _{-1}^{1}f(x)\,dx\approx \sum _{i=1}^{n}w_{i}f(x_{i})}$
+El arreglo $x$ y $w$ son calculados para el intervalo [0, 1] y luego se los escala para las diferentes limites.
+
+
+
+

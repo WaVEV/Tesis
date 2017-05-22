@@ -5,3 +5,9 @@
 *.dat
 *.mod
 *.swp
+*.qti*
+Documentos/Thesis.aux
+Documentos/Thesis.log
+Documentos/Thesis.pdf
+Documentos/Thesis.toc
+
