@@ -130,6 +130,7 @@ ocurre en aplicaciones. Definimos la derivada $r$ de una \textit{funci\'on pp}, 
 $ K - r $ que tiene la misma secuencia $ \xi $ y est\'a escrito en t\'erminos de $ D^{r}p_{j} $ polinomios.
 
 \subsection{La base de B-splines}
+\label{chapter2:bsplines}
 Un B-spline $B(x)$ est\'a definida por el orden $k>0$, y un conjunto de $k + 1$ knots, {$t_i$,\ldots,$T_{i+k}$},
 Tal que $t_i <t_{i+k}$.
 Las propiedades importantes, son las siguientes.
