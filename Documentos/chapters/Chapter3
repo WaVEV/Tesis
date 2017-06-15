@@ -5,56 +5,94 @@
 En esta secci\'on explicaremos como se implement\'o el m\'etodo para una y dos particulas, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en \ref{RRMETHOD}, para ello detallar\'a el pipeline.
 
 \section{Introduci\'on}
-En esta secci\'on introduciremos las t\'ecnicas b\'asicas en la descripci\'on de la estructura at\'omica con una base de B-Spline. Primeramente nos centramos en los sistemas at\'omicos más simples: con un electr\'on unido en un potencial central. Esta clase de sistemas incluye obviamente el \'atomo de hidr\'ogeno y cualquier iones de hidr\'ogeno caracterizados por el potencial de Coulomb, pero tambi\'en sistemas de electrones de una valencia verdaderos tales como \'atomos alcalinos (Na, K, Rb, Cs, ...) o alcalinos iones (Be +, Mg +, ...) siempre que se disponga de un modelo o pseudo-potencial suficientemente preciso para
-describir el potencial del n\'ucleo de iones.
+En mec\'anica cu\'antica el estado de una part\'icula est\'a dado por una funcio\'on de onda,
+$|\Psi(\vec{r})\rangle$, la cual puede escribirse como combinaci\'on lineal de los autoestados del sistema
+$|\psi_n(\vec{r})\rangle$.
+Los autoestados son las soluciones de la ecuacio\'on de Schr\"odinger independiente del tiempo
 
-\subsection{Sistema de una particula}
-Un autoestado $\mid \phi(r) \rangle$ con la energia $E$ describe a una particula es la soluci\'on de la ecuaci\'on de Schr\"odinger.
-\begin{equation}
-\label{chap3:equation1}
-\hham \mid\phi(r)_n\rangle = E_n \mid\phi(r)_n\rangle
-\end{equation}
-A $\hham$ esta definida de la siguiente manera:
-\begin{equation}
-\label{chap3:equation2}
-\hham = - \frac{\bar{h}^2}{2m} \frac{d^2}{dx^2} + V(x) 
-\end{equation}
-Reemplazando obtenemos \ref{chap3:equation1} en \ref{chap3:equation2} obtenemos:
-\begin{equation}
-\label{chap3:equation3}
-\frac{\bar{h}^2}{2m} \frac{d^2}{dx^2} \mid\phi(r)_n\rangle + V(x) \mid\phi(r)_n\rangle = E_n \mid\phi(r)_n\rangle
+\begin{equation}\label{ec_schrodinger}
+\mathcal{H} |\psi_n(\vec{r})\rangle = E_n |\psi_n(\vec{r})\rangle\,,
 \end{equation}
 
-La ecuaci\'on radial \ref{chap3:equation3} se resuelve num\'ericamente en un subespacio suponiendo que cualquier soluci\'on $\mid\phi(r)_n\rangle$ puede ser aproximada, por funciones spline. Como se explica en la secci\'on \ref{chapter2:bsplines},
-Tal subespacio puede ser generado por la base de las funciones B-spline. Por lo tanto, es natural expandir las soluciones pertenecientes a ese espacio sobre la base B-spline establecido como:
+\noindent
+donde $\mathcal{H}$ es el Hamiltoniano del sistema y $E_n$ es la energ\'ia asociada al n-\'esimo 
+autoestado. El operador Hamiltoiano, $\mathcal{H}$, en Ec. \ref{ec_schrodinger} es el operador 
+de la energ\'ia del sistema. En un sistema de tres dimensiones, el Hamiltoniano en coordenadas 
+esfer\'icas, $(r,\varphi,\theta)$, es
 
-\begin{equation}
-\label{chap3:equation4}
-\mid\phi_n\rangle = \sum_{i=1}^{N} \alpha_i \varphi_i
+\begin{align}\label{hamiltoniano}
+\mathcal{H} &= -\frac{\hbar^2}{2m} \nabla^2 + V(r)\,, \\
+            &= -\frac{\hbar^2}{2m} \frac{1}{r^2}\frac{d}{dr}\left(r^2\frac{d}{dr}\right) 
+            + \frac{\hbar^2\,l(l+1)}{2m\,r^2} + V(r) \,,
+\end{align}
+
+\noindent
+donde $V(r)$ es potencial del sistema que solo depende de la coordenada radial, $l$ es el 
+momento angular de la part\'icula. Para obtener el Hamiltoniano en la Ec. \ref{hamiltoniano} 
+es necesario escribir el operador Laplaciano, $\nabla^2$, en coordenadas esfericas y luego, 
+haciendo separacion de variables se obtiene que la dependencia de las funciones $|\phi_n(\vec{r})\rangle$
+con las variables $\varphi$ y $\theta$ est\'a dada por las funciones conocidas como 
+arm\'onicos esf\'ericos, $Y_{l,m}(\theta,\varphi)$. De esta forma s\'olo hay que 
+resolver una ecuaci\'on en la variable radial, $r$, dicha ecuaci\'on es
+
+\begin{equation}\label{ec_radial}
+-\frac{\hbar^2}{2m} \frac{1}{r^2}\frac{d}{dr}\left(r^2\frac{dR_n(r)}{dr}\right) 
++ \frac{\hbar^2\,l(l+1)}{2m\,r^2}\,R_n(r) + V(r)\,R_n(r) = E_n\,R_n(r)\,.
 \end{equation}
 
-Donde $\alpha_i$ es el i\'esimo B-spline de orden $k$. Armar la base requiere una secuencia de knot que dependen de los siguientes parametros: un conjunto de puntos de malla llamados secuencia de breakpoints definimos en $[0, r_{max}]$, el orden k de los polinomios por partes y la condiciones de continuidad en cada breakpoint. Todas esos parametros son elegidos las propiedades del problema f\'isico.
+La Ec. \ref{ec_radial} puede simplificarse haciendo la sustituci\'on
 
-En el presente caso, el pozo, en la que resolvemos el problema, se define dejando que la coordenada radial r var\'ie dentro del intervalo [0, rmax]. Este intervalo ahora se divide en segmentos cuyos extremos forman la secuencia de punto de interrupci\'on. Hay una libertad total en la elecci\'on de la malla de breakpoints. Una elecci\'on \'optima depender\'a del   tipo de resultado que nos interesa. 
-Para un momento angular fijo determinado $l$, los estados at\'omicos (energ\'ia y funci\'on de onda) que satisfacen \ref{chap3:equation3} se calculan resolviendo el sistema de N ecuaciones lineales obtenidas al sustituir \ref{chap3:equation4} en \ref{chap3:equation3} y proyect\'andose sobre $\alpha_i$. Escrito en forma de matriz, este procedimiento es equivalente a resolver el siguiente sistema de autovalores generalizado.
+\begin{equation}\label{sustitucion}
+\phi_n(r) = r\,R_n(r)\,,
+\end{equation} 
 
-\begin{equation}
-\boldsymbol{H_l} \cdotp \alpha = \boldsymbol{E} \boldsymbol{S} \cdotp \alpha
-\end{equation}
-Para $\boldsymbol{E}$ y \{$\alpha_i\}_{1}^N$, donde:
-\begin{equation}
-\boldsymbol{(H_l)_{ij}} = \frac{1}{2} \int_{r_{min}}^{r_{max}} \varphi_i(r) \frac{d^2}{dr^2} \varphi_j(r) dr + \frac{l}{l+1} \int_{r_{min}}^{r_{max}} \varphi_i(r) V(r) \varphi_j(r) dr
-\end{equation}
-\begin{equation}
-\boldsymbol{(S)_{ij}} = \int_{r_{min}}^{r_{max}} \varphi_i(r) \varphi_j(r) dr
+\noindent
+de esta forma la funci\'on $\phi_n(r)$ es soluci\'on de la ecuaci\'on radial 
+reducida
+
+\begin{equation}\label{ec_reducida}
+-\frac{1}{2} \frac{d^2 \phi_n}{dr^2} + \frac{l(l+1)}{2\,r^2} \phi_n(r) + V(r)\,\phi_n(r) = E_n\,\phi_n(r)\,,
 \end{equation}
 
-La matriz de solapamiento $S$ se origina del hecho de que los \textit{B-splines} no forman un conjunto ortonormal de funciones base. Todos los elementos de la matriz se calculan exactamente usando una cuadratura de Gauss. Una cuadratura \textit{Gaus Lengedre}($GL$) con $n$ puntos $GL$ calcula exactamente la integral de un polinomio de grado $2n + 1$ sobre un intervalo cerrado. Puesto que un B-spline de orden k es un polinomio particular de grado $k-1$ en cada segmento, se ve f\'acilmente que los integrandos del elemento $(S)_ ij$ y el t\'ermino cin\'etico del elemento $(H_l)_{ij}$ son polinomios con m\'aximo Grado $2k - 2$. La aplicaci\'on del procedimiento $GL$ en cada segmento conduce a una evaluaci\'on 
-num\'erica exacta de estas dos integrales. El caso de la centr\'ifuga y el t\'ermino potencial del elemento $(H_l)_{ij}$ es ligeramente diferente. Aqu\'i el integrando ya no es un polinomio de alg\'un orden sino m\'as bien una fracci\'on racional y la afirmaci\'on anterior no es v\'alida. Sin embargo, se puede demostrar que un peque\~no incremento en el n\'umero de puntos $GL$ da como resultado una convergencia inmediata a la precisi\'on de la flotante de la computadora. Por lo tanto, todos los elementos de la matriz se calculan impl\'icitamente.
+\noindent
+con las condiciones de contorno $\phi_n(r=0)=\phi_n(\infty) = 0$.
 
-Otra propiedad clave directamente relacionada con el uso de una base B-spline se deriva del hecho de que las B-splines son funciones compactas: una B-spline de orden $k$ difiere de cero solamente en $k$ segmentos sucesivos. Por lo tanto, cualquier operador local expresado en la base B-spline aparece como una matriz que tiene valores distintos de cero en una banda diagonal de ancho $2k - 1$. Adem\'as, el hamiltoniano, as\'i como la matriz de superposici\'on son matrices sim\'etricas. Resulta as\'i que, para un $l$ dado, en vez de de los $N^2$ elementos de matriz, s\'olo $Nk$ necesitan ser calculados y almacenados en memoria.
+La ecuaci\'on radial Ec. \ref{ec_reducida} se resuelve num\'ericamente en un subespacio suponiendo que 
+cualquier soluci\'on $\phi_n(r)$ puede ser aproximada por un conjunto finito de funciones. Como se explica en la 
+secci\'on \ref{RRMETHOD}, tal subespacio puede ser generado por la base de funciones B-spline, por lo tanto, 
+es natural expandir las soluciones en dicha base
 
-Resolver el auto-sistema es ahora sencillo si se tiene en cuenta el hecho de que la matriz de superposici\'on (o solapamiento) $S$ es definida positiva. El auto-sistema generalizado de banda sim\'etrica se puede transformar entonces en un auto-sistema regular con la misma estructura de banda. Una diagonalizaci\'on directa del nuevo sistema proporciona todas los auto valores (que ser\'ian las auto energ\'ias), pero este procedimiento no es capaz de recuperar las funciones propias correspondientes ya que la matriz de transformaci\'on (matriz $N^2$ completa) ha sido eliminada. Teniendo todos los valores propios, los vectores propios se calculan uno por uno en un segundo paso por iteraci\'on inversa cuando sea necesario. Este procedimiento nunca requiere m\'as de tres iteraciones para un error relativo del orden de la precisi\'on de la m\'aquina.
+\begin{equation}\label{combinacion_lineal}
+\phi_n(r) = \sum_{i=1}^{N} \alpha_i\,\varphi_i(r)\,,
+\end{equation}
+
+\noindent
+donde $\varphi_i(r)$ es el i-\'esimo B-spline de orden k. Armar la base requiere una secuencia de 
+knots que dependan de los siguientes par\'ametros: un conjunto de puntos de malla llamados 
+secuencia de breakpoints definidos en $[0,r_{max}]$, el orden $k$ de los polinomios y las condiciones 
+de continuidad en cada breakpoint. Todos estos par\'ametros se eligen a partir de las propiedades 
+del problema f\'isico.
+
+Para un determinado momento angular, $l$, los estados at\'omicos (energ\'ia y funci\'on de onda) 
+que satisfacen Ec. \ref{ec_reducida} se calculan resolviendo el sistema de $N$ ecuaciones lineales 
+obtenidas al sustituir Ec. \ref{combinacion_lineal} en Ec. \ref{ec_reducida} y proyectandose sobre 
+$\alpha_i$. Escrito en forma de matriz, este procedimiento es equivalente a resolver el siguiente
+sistema de autovalores generalizado
+
+\begin{equation}\label{ec_auval}
+H_l \vec{\alpha} = E\,S\,\vec{\alpha}\,,
+\end{equation}
+
+\noindent 
+para $E$ y $\lbrace\alpha_i\rbrace_1^N$, donde
+
+\begin{align}\label{elemento_matriz}
+(H_l)_{ij} &= -\frac{1}{2} \int_0^{r_{max}} \varphi_i(r) \frac{d^2}{dr^2}\varphi_j(r) \,dr \nonumber
+           + \frac{l(l+1)}{2}\int_0^{r_{max}} \frac{\varphi_i(r) \,\varphi_j(r)}{r^2} \,dr \\
+           & + \int_0^{r_{max}} \varphi_i(r)\,V(r)\,\varphi_j(r)\, dr \\
+(S)_{ij} &= \int_0^{r_{max}} \varphi_i(r)\,\varphi_j(r)\,dr
+\end{align}
+
 
 \subsection{Sistema de dos particula}
 
@@ -126,7 +164,8 @@ Luego podemos obtener una aproximaci\'on de la integral definida por medio del m
   \int_{r_1}^{r_2} f(x) dx \approx \frac{r_2 - r_1}{2} \sum_{i=1}^{n} w_i f(\frac{r_2-r_1}{2} x_i + \frac{r_1 + r_2}{2})
 \end{equation}
 
-Luego solo nos queda hacer la sumatoria con las correspondientes funciones para obtener las matrices como se puede ver en el algoritmo \ref{alg:calculomatrices}.
+Luego solo nos queda hacer la sumatoria con las correspondientes funciones para obtener las matrices como se puede ver en el algoritmo \ref{alg:calculomatrices}.\\
+
 
 \begin{algorithm}[H]
  \label{alg:calculomatrices}
@@ -144,6 +183,7 @@ Luego solo nos queda hacer la sumatoria con las correspondientes funciones para 
  }
  \caption{Calculo de matrices}
 \end{algorithm}
+
 
 \subsection{iteraccion}
 Esta funci\'on calcula el tensor de interacci\'on entre las dos particulas. Formalmente ser\'ia:
@@ -180,7 +220,7 @@ Donde $F(x_1)$ es:
   dx_2
 \end{equation}
 
-Por lo descripto en la secci\'on anterior podemos reducir el intervalo de integraci\'on a [$r_1,\ r_2$] y para su c\'alculo se utilizo la Cuadratura Gauss-Legendre. Luego solo hay que integrar de una manera anidada, primero la funcion $F$ que ser\'ia la integral sobre $x_2$ y luego integrar sobre $x_1$ como se puede ver en el algoritmo \ref{alg:interaccion}
+Por lo descripto en la secci\'on anterior podemos reducir el intervalo de integraci\'on a [$r_1,\ r_2$] y para su c\'alculo se utilizo la Cuadratura Gauss-Legendre. Luego solo hay que integrar de una manera anidada, primero la funcion $F$ que ser\'ia la integral sobre $x_2$ y luego integrar sobre $x_1$ como se puede ver en el algoritmo \ref{alg:interaccion}\\
 
 \begin{algorithm}[H]
  \label{alg:interaccion}
@@ -208,6 +248,8 @@ Por lo descripto en la secci\'on anterior podemos reducir el intervalo de integr
  \caption{interaccion}
 \end{algorithm}
 
+
+
 \subsection{sener}
 
 Esta funci\'on realiza la simetrizaci\'on del problema, de esta manera el problema queda reducido a calcular los autovalores y autovectores de un problema de autovalores generalizado.
@@ -232,3 +274,6 @@ Si bien la parte mas importantes del metodo ha sido explicada anteriormente, cab
 Esta rutina devuelve los arrays x[1..n] y w[1..n] de longitud n, que contienen las abscisas y los pesos del Gauss-Legendre n de punto en cuadratura. Estos arrays son utilizados para la  aproximaci\'on de una integral definida de una funci\'on.
 ${\displaystyle \int _{-1}^{1}f(x)\,dx\approx \sum _{i=1}^{n}w_{i}f(x_{i})}$
 El arreglo $x$ y $w$ son calculados para el intervalo [0, 1] y luego se los escala para las diferentes limites.
+
+% Chen and co-workers [34, 58]
+% http://folk.uio.no/simenkva/workshop/files/Nepstad.pdf

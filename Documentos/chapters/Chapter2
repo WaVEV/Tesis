@@ -95,7 +95,7 @@ Cada B-spline es una funci\'on compuesta por diferentes piezas de polinomios en 
 Rara vez estas condiciones son necesarias:
 
 \begin{enumerate}
- \item Asociemos a bps $ \xi_j, j = 2, \ldots, l $, una segunda secuencia de enteros no negativos $ v_j, j = 2, \ldots, l, v_j \geq 0 $, que definen la condici\'on de continuidad $ C {v_j-1} $ en el bsp $ \xi_j $ asociado. Con el fin bsp $ \xi_1 $ y $ \xi_{l + 1} $ asociamos $ v_1 = v_ {l + 1} = 0 $, es decir, no necesitamos ninguna continuidad. Esto es natural ya que s\'olo estamos interesados en el intervalo [a, b]. Otras restricciones pueden ser dictadas por condiciones de frontera en los extremos, y son f\'acilmente implementadas como veremos. Por lo tanto, en el ejemplo tenemos {$ v_j $} = \{0,2,2,2,2,0 \}
+ \item Asociemos a bps $ \xi_j, j = 2, \ldots, l $, una segunda secuencia de enteros no negativos $ v_j, j = 2, \ldots, l, v_j \geq 0 $, que definen la condici\'on de continuidad $ C^{v_j-1} $ en el bsp $ \xi_j $ asociado. Con el fin bsp $ \xi_1 $ y $ \xi_{l + 1} $ asociamos $ v_1 = v_ {l + 1} = 0 $, es decir, no necesitamos ninguna continuidad. Esto es natural ya que s\'olo estamos interesados en el intervalo [a, b]. Otras restricciones pueden ser dictadas por condiciones de frontera en los extremos, y son f\'acilmente implementadas como veremos. Por lo tanto, en el ejemplo tenemos {$ v_j $} = \{0,2,2,2,2,0 \}
  \item Finalmente llamemos a nodos otra secuencia de puntos {$ t_i $} en orden ascendente, no necesariamente distinta, asociada con $ \xi_j $ y $ v_j $ como sigue:
      \begin{displaymath}
          $$
@@ -109,25 +109,11 @@ Rara vez estas condiciones son necesarias:
      \end{displaymath}
 \end{enumerate}
 
-Donde $ \mu_j $ es la multiplicidad de los nudos $ t_i $ a $ \xi_j $ y est\'a dada por $ \mu_j = k - v_j $ .Actualmente s\'olo la multiplicidad en el bps interno es importante, y siempre elegiremos la multiplicidad m\'axima $ \mu_1 = \mu_ {l + 1} = k $ en los extremos.
+Donde $ \mu_j $ es la multiplicidad de los knots $ t_i $ a $ \xi_j $ y est\'a dada por $ \mu_j = k - v_j $ .Actualmente s\'olo la multiplicidad en el bps interno es importante, y siempre elegiremos la multiplicidad m\'axima $ \mu_1 = \mu_ {l + 1} = k $ en los extremos.
 
-La opci\'on m\'as com\'un para la multiplicidad de nudos en bps internos es la unidad, correspondiente a
+La opci\'on m\'as com\'un para la multiplicidad de knots en bps internos es la unidad, correspondiente a
 m\'axima continuidad, que es $ C ^ {k-2} $. Esta elecci\'on se emplear\'a, a menos que se indique lo contrario. Con esta elecci\'on el n\'umero de funciones B-spline $n$ est\'a dado por:
 $$ n = l + k - 1 $$
-
-La continuidad puede relajarse en las bps internas aumentando la multiplicidad de nudos asociada.
-Cualquier funci\'on expresada como una combinaci\'on lineal del $B_i$ se llamar\'a una funci\'on polin\'omica por partes (\textit{funci\'on pp}) sobre [a, b].
-$f = \sum_{i=1}^n c_i B_i$
-y $ f $ es la funci\'on m\'as general hecha de $l$ piezas polinomiales de
-$ K $, una para cada subintervalo $ I_j $ unida en el interior bps con continuidad $ C ^ {v_j-1} $. Note que no tiene sentido pedir m\'as de $ C ^ {k-2} $ continuidad, ya que de otro modo $f$ se reduce a
-Un \'unico polinomio sobre todo $I$, por lo que cierta discontinuidad es la esencia de las $funciones\ pp$. Sobre el
-Por otra parte es raro emplear discontinuidad en las derivadas m\'as bajas o en la funci\'on misma. Si
-Este es el caso, por ejemplo sin restricciones de continuidad, $ f\ \in\ C^1 $, hay que tener cuidado para 
-considerar que $ f (\xi ^ {-} _ j) = f (\xi^{+}_j) $; La funci\'on tiene diferentes l\'imites izquierdo y derecho en 
-los bps. Para $f$ y $D^rf$ definidos \'unicamente sobre todos los $ I $. Sin embargo, una consideraci\'on cuidadosa 
-de las discontinuidades no se limitan a los derivados m\'as altos que los realmente necesarios, lo que siempre 
-ocurre en aplicaciones. Definimos la derivada $r$ de una \textit{funci\'on pp}, $ D ^ {r} f $, como la funci\'on pp de orden
-$ K - r $ que tiene la misma secuencia $ \xi $ y est\'a escrito en t\'erminos de $ D^{r}p_{j} $ polinomios.
 
 \subsection{La base de B-splines}
 \label{chapter2:bsplines}
@@ -136,7 +122,7 @@ Tal que $t_i <t_{i+k}$.
 Las propiedades importantes, son las siguientes.
 
 \begin{enumerate}
-  \item B(x) es una pp-funci\'on de orden $k$ sobre [$t_i$, $t_{i + k}$]
+  \item $B(x)$ es una pp-funci\'on de orden $k$ sobre [$t_i$, $t_{i + k}$]
   \item $B(x) > 0$ para $x$ $\in$ ($t_i$, $t_{i+k}$).
   \item $B(x) = 0$ para $x$ $\not \in$ [$t_i$, $t_{i+k}$].
 \end{enumerate}
@@ -148,8 +134,8 @@ Los B-splines est\'an dise\~nados para tener un soporte m\'inimo. Algunas propie
   \item En la expansi\'on de una funci\'on arbitraria. 
   $$ f(s) = \sum_{j=1}^{n}c_jB_j(x)\ = \sum_{j=i-k+1}^{i} c_jB_j(x)\ para\ x\ \in\ [t_i, t_{i+1}] $$ 
   Donde siempre contribuyen $k$ t\'erminos, por lo que un n\'umero m\'inimo de operaciones son necesarias.
-  \item Como los B-splines no son negativos con soporte m\'inimo, los coeficientes de expansi\'on de una funci\'on arbitraria $f$ est\'an pr\'oximos a los valores de funci\'on en los $knots$. Esto significa que las oscilaciones en los coeficientes se evitan, los errores de cancelaci\'on son m\'inimos y num\'ericamente estables.
-  \item Cada intervalo $I_j = [\xi_j, \xi_{j+1}] = [t_i, t_{i + 1}]$ se caracteriza por un par de nudos consecutivos
+  \item Como los B-splines son no negativos con soporte m\'inimo, los coeficientes de expansi\'on de una funci\'on arbitraria $f$ est\'an pr\'oximos a los valores de funci\'on en los $knots$. Esto significa que las oscilaciones en los coeficientes se evitan, los errores de cancelaci\'on son m\'inimos y num\'ericamente estables.
+  \item Cada intervalo $I_j = [\xi_j, \xi_{j+1}] = [t_i, t_{i + 1}]$ se caracteriza por un par de knots consecutivos
       $t_i <t_{i + 1}$. $t_i$ se llama el knot izquierdo del intervalo $I_j$, y determina los \'indices de $B_i$
       contribuyendo sobre $I_j$, estos son $B_{i-k+1}$,\ldots, $B_i$.
   \item Est\'an normalizados como $\sum_i B_i(x) = 1$ sobre [$t_k$, $t_n$].
