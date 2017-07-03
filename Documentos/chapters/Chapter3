@@ -2,9 +2,10 @@
 \chapter*{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}\label{methodimp}
 \addcontentsline{toc}{chapter}{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}
 \markboth{}{} % encabezado
-En esta secci\'on explicaremos como se implement\'o el m\'etodo para una y dos particulas, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en \ref{RRMETHOD}, para ello detallar\'a el pipeline.
+En esta secci\'on explicaremos como es la primera implementaci\'on del m\'etodo para una y dos particulas, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en \ref{RRMETHOD}.
 
 \section{Introduci\'on}
+\label{intro:numerica}
 En mec\'anica cu\'antica el estado de una part\'icula est\'a dado por una funcio\'on de onda,
 $|\Psi(\vec{r})\rangle$, la cual puede escribirse como combinaci\'on lineal de los autoestados del sistema
 $|\psi_n(\vec{r})\rangle$.
@@ -90,190 +91,240 @@ para $E$ y $\lbrace\alpha_i\rbrace_1^N$, donde
 (H_l)_{ij} &= -\frac{1}{2} \int_0^{r_{max}} \varphi_i(r) \frac{d^2}{dr^2}\varphi_j(r) \,dr \nonumber
            + \frac{l(l+1)}{2}\int_0^{r_{max}} \frac{\varphi_i(r) \,\varphi_j(r)}{r^2} \,dr \\
            & + \int_0^{r_{max}} \varphi_i(r)\,V(r)\,\varphi_j(r)\, dr \\
-(S)_{ij} &= \int_0^{r_{max}} \varphi_i(r)\,\varphi_j(r)\,dr
+(S)_{ij} &= \int_0^{r_{max}} \varphi_i(r)\,\varphi_j(r)\,dr \label{solapamiento}
 \end{align}
+
+La matriz de solapamiento $S$ se origina del hecho de que los B-splines no forman
+un conjunto ortonormal de funciones base. Todos los elementos de las distintas matrices
+en las ecuaciones \ref{elemento_matriz} se calculan
+num\'erica usando una cuadratura de {\it Gauss Lengedre} (GL). Si se consideran $n$ puntos
+para evaluar la cuadratura (tambi\'en conocida como cuadratura de orden $n$), es posible 
+calcular en forma exacta integrales de polinomios de grado menor o igual a $2n-1$ en 
+un intervalo cerrado. Puesto que un B-spline de orden k es un polinomio particular de grado 
+$k-1$ en cada segmento, se ve f\'acilmente que los integrandos del elemento $(S)_{ij}$ y el 
+primer t\'ermino de la matriz $H_l$ son polinomios con m\'aximo grado $2k-2$. 
+La aplicaci\'on del procedimiento GL en cada segmento conduce a una evaluaci\'on num\'erica 
+exacta de estas dos integrales. El caso de la energ\'ia cin\'etica angular y el t\'ermino 
+del potencial, segundo y tercer t\'erminos de $H_l$ en Ec. \ref{elemento_matriz} 
+respectivamente, son es ligeramente diferentes. Aqu\'i el integrando ya no es un polinomio 
+de alg\'un grado sino m\'as bien una fracci\'on racional y la afirmaci\'on anterior no es 
+v\'alida. Sin embargo, se puede demostrar que un peque\~no incremento en el n\'umero de 
+puntos de la cuadratura da como resultado una convergencia inmediata a la precisi\'on del
+punto flotante de la computadora. Por lo tanto, todos los elementos de la matriz se 
+calculan de esta forma.
+
+Otra propiedad clave directamente relacionada con el uso de la base B-spline deriva del hecho de que 
+los B-splines son funciones compactas: un B-spline de orden $k$ difiere de cero solamente en $k$ segmentos 
+sucesivos. Por lo tanto, cualquier operador local
+expresado en la base B-spline aparece como una matriz que tiene valores distintos de cero
+en una banda diagonal de ancho $2k-1$. Adem\'as, el Hamiltoniano, as\'i como la matriz
+de superposici\'on son matrices sim\'etricas. Resulta as\'i que, para un dado lo, en vez de 
+$N^2$ elementos de matriz s\'olo se necesitan calcular y almacenar $Nk$ elementos en la memoria.
+
+Resolver el sistema es ahora sencillo si se tiene en cuenta el hecho de que la matriz de superposici\'on 
+(o solapamiento) $S$ es definida positiva. El sistema generalizado de banda sim\'etrica se puede 
+transformar entonces en un sistema regular con la misma estructura de banda. Una diagonalizaci\'on 
+directa del nuevo sistema proporciona todas los autovalores (que ser\'ian las autoenerg\'ias), 
+pero este procedimiento no es capaz de recuperar las funciones propias correspondientes ya 
+que la matriz de transformaci\'on (matriz $N^2$ completa) ha sido eliminada. Teniendo todos 
+los valores propios, los vectores propios se calculan uno por uno en un segundo paso por 
+iteraci\'on inversa cuando sea necesario. Este procedimiento nunca requiere m\'as de tres 
+iteraciones para un error relativo del orden la precisi\'on de la m\'aquina.
 
 
 \subsection{Sistema de dos particula}
 
+Para considerar un sistema de dos part\'iculas es necesario escribir un operador 
+Hamiltoniano que act\'ue sobre las variables de ambas part\'iculas, en este caso, 
+el operador es
 
-
-\section{Variables del Programa}
-En estas secci\'on  hablaremos de la implementaci\'on de las matrices del metodo en nuestro programa y de los parametros del tama\~no del problema. Cuales son, su dimensi\'on y que objeto representan.
-
-
-\begin{enumerate}
-    \item ${KORD}$ orden de los B-splines, el grado es ${kord-1}$
-    \item ${L_{INT}}$ numero de intervalos en el que se divide al intervalo [$R_{MIN}$, $R_{MAX}$]
-    \item $R_{MIN}$ y $R_{MAX}$ R m\'inimo y m\'aximo (respectivamente) donde empieza y termina el intervalo para la integraci\'on.
-    \item ${INT}_G$ grado de integraci\'on por cuadratura
-    \item Matriz $s$ de solapamiento del sistema por una particula, es una matriz de banda sim\'etrica de tama\~no KORD.
-    \item Matriz $v_0$ de Potencial, es una matriz de banda sim\'etrica de tama\~no KORD.
-    \item Matriz $ke$ de Energ\'ia cinetica, es una matriz de banda sim\'etrica de tama\~no KORD.
-    \item $f$ Es la integral $\int_{-\infty}^{+\infty} {B_j(x_2) V_{int} B_l(x_2) dx_2}$, es una matriz de banda de tama\~no KORD.
-    \item Matriz $Vef$ potencial de un pozo con dos particulas, tiene de dimensi\'on $R^4$ pero los elementos del conjunto ${Vef_{i, j, k, l} | \norm{i - j} \geq KORD\ o\ \norm{k - l} \geq KORD}$ son ceros.
-    \item Hamiltoniano $hsim$, es una matriz dispersa y sim\'etrica.
-    \item Matriz $ms$ solapamiento del sistema sim\'etrico de dos particulas.
-    \item Matriz $mv$ potencial de un sistema sim\'etrico.
-\end{enumerate}
-
-\section{Pipeline}
-En estas secci\'on detallaremos las funciones del programa y como se enlazan para llevar a cabo el m\'etodo.
-El Pipeline esta dado de la siguiente manera:
-
-
-\begin{enumerate}[label=\Alph*]
-    %\item[0] $gauleg$: Teniendo en cuenta los l\'imites inferior y superior de la integraci\'on x1 y x2, y dada n, esta rutina devuelve los arrays x [1..n] y w[1..n] de longitud n, que contienen las abscisas y los pesos del Gauss-Legendre n de punto en cuadratura.
-    %\item[0] $bder$: derivada del spline en el punto.
-    %\item[0] $bsplvb$: Calcula los bsplines no ceros en un punto.
-
-    \item[1] $calculo\_matrices$: Calcula las matrices $s$, $ke$ y $v_0$.
-    \item[2] $iteraccion$: Calcula la $V_{ef}$
-    \item[3] $sener$: simetrizaci\'on del sistema, esta funcion calcula $h_{sim}$, $ms$ y $mv$
-    \item[4] $eigen$: resuelve el problema de autovectores y autovalores generalizado.
-\end{enumerate}
-
-\subsection{Calucluo\_matrices}
-Esta funci\'on calcula las matrices de solapamiento $s$, la matriz de potencial $v_e$ y la matriz de energ\'ia $ke$ para el sistema de una particula. Sus formulas son las siguientes
-\begin{equation}
-S_{i,j} = \prointerno{\varphi_i}{\varphi_j} = \int_{-\infty}^{+\infty}\varphi_i(x)\varphi_j(x)dx
+\begin{equation}\label{hamiltoniano2p}
+\mathcal{H}_{2p} = \mathcal{H}_{1p}^{(1)} + \mathcal{H}_{1p}^{(2)} + U(\vec{r}_1,\vec{r}_2)\,,
 \end{equation}
 
-\begin{equation}
- Ke_{i,j} =  \prointernot{\varphi_i}{\frac{\partial^2}{\partial x^2}}{\varphi_j} = \int_{-\infty}^{\infty}\varphi_i(x) \frac{\partial^2\varphi_j}{\partial x^2} dx = \varphi_i(x) \frac{\partial \varphi_j}{dx}\Big|_{-\infty}^{\infty} - \int_{-\infty}^{\infty} \frac{\partial\varphi_i}{\partial x} \frac{\partial\varphi_j}{\partial x} dx 
+\noindent donde $\mathcal{H}_{1p}^{(i)}$ es el operador Hamiltoniano que act\'ua sobre 
+la part\'icula $i$ ($i = 1, 2$) dado en la ecuaci\'on \ref{hamiltoniano} y $U(\vec{r}_1,\vec{r}_2)$
+es el operador que representa la interacci\'on entre las part\'iculas y en general es una 
+funci\'on que depende del modulo de la diferencia entre $\vec{r}_1$ y $\vec{r}_2$, en otras 
+palabras s\'olo depende de la distancia entre las part\'iculas, es decir
+$U(\vec{r}_1,\vec{r}_2) = U(|\vec{r}_1-\vec{r}_2|)$.
+
+Para este sistema, la equaci\'on diferencial que se tiene que resolver es
+
+\begin{equation}\label{eq:scho-2p}
+\mathcal{H}_{2p} \psi_n(\vec{r}_1,\vec{r}_2) = E_n^{2p} \psi_n(\vec{r}_1,\vec{r}_2)\,,
 \end{equation}
 
-Como $ \displaystyle\lim_{x \to {+\infty \atop -\infty} } \varphi_i(x) = 0 $
+\noindent donde $\psi_n(r_1,r_2)$ es la funci\'on de onda del sistema de dos part\'iculas, 
+en particular, como las part\'iculas son cu\'anticas, la funci\'on de onda tiene que 
+satisfacer condiciones de simetr\'ia (adem\'as de las condiciones de contorno). Estas 
+condiciones de contorno pueden ser que la funci\'on de onda sea sim\'etrica al 
+intercambio de coordenada, $\psi(\vec{r}_2,\vec{r}_1) = \psi(\vec{r}_1,\vec{r}_2)$, o bien
+antisim\'etrica al intercambio de coordenadas, $\psi(\vec{r}_2,\vec{r}_1) = -\psi(\vec{r}_1,\vec{r}_2)$.
 
-\begin{equation}
- Ke_{i,j} =  - \int_{-\infty}^{\infty} \frac{\partial\varphi_i}{\partial x} \frac{\partial\varphi_j}{\partial x^2} dx
+Para el resolver el problema usando el m\'etodo variacional de Rayleigh-Ritz
+es necesario elegir una base de funciones para el calculo de las matrices y pasar 
+de una ecuaci\'on diferencial a una ecuaci\'on de autovalores y autovectores, y es 
+recomendable que dicho conjunto de funciones cumpla con las condiciones de 
+simetr\'ia del problema, como estamos interesados en el caso de 
+funciones de onda sim\'etricas elegimos como base una combinaci\'on de 
+B-splines que sean sim\'etricas
+
+\begin{equation}\label{base-2p}
+\chi_{i,j}(r_1,r_2) = \left\lbrace \begin{array}{ccc}
+                      \varphi_i(r_1)\,\varphi_j(r_2) & \mbox{si} & i=j \\
+                      \frac{\varphi_i(r_1)\,\varphi_j(r_2)+\varphi_i(r_2)\,\varphi_j(r_1)}{\sqrt{2}} & \mbox{si} & i\neq j
+                      \end{array} \right.\,,
 \end{equation}
 
-\begin{equation}
- V_{0i,j} = \prointernot{\varphi_i}{V(x)}{\varphi_j} = \int_{-\infty}^{\infty} \varphi_i(x) V(x) \varphi_j(x)dx
+\noindent donde $\varphi_i(r)$ es el i-\'esimo B-spline de orden $k$.
+Las funciones definidas en Ec. \ref{base-2p} cumple con la condici\'on de 
+simetr\'ia $\chi_{i,j}(r_2,r_1) = \chi_{i,j}(r_1,r_2)$ para todo par de valores $i,j$. 
+Para el c\'alculo de las matrices involucradas es mas simple, primero 
+calcular dichas matrices usando la base 
+
+\begin{equation}\label{base-2p-2}
+\hat{\chi}_{i,j}(r_1,r_2) = \varphi_i(r_1)\,\varphi_j(r_2)\,,
 \end{equation}
 
-Como el potencial $V(r) \simeq 0 $ si r $\notin [r_1, r_2]$ para un cierto $r_1, r_2$ luego las anteriores integrales las podemos escribir
-\begin{equation}
-\int_{\infty}^{\infty} f(x) dx \approx \int_{r_1}^{r_2} f(x) dx
+\noindent y luego hacer el cambio de variable a la base sim\'etrica de la ecuaci\'on \ref{base-2p}.
+En esta base la matriz del operador Hamiltoniano queda
+
+\begin{equation}\label{mat-hamiltoniano-2p}
+\begin{split}
+H_{i,i';j,j'} &= \langle \hat{\chi}_{i,j} |\mathcal{H}_{2p}|\hat{\chi}_{i',j'}\rangle \\
+              &= (H_l)_{i,i'}\,S_{j,j'} + S_{i,i'}\,(H_l)_{j,j'} + U_{i,i';j,j'}\,,
+\end{split}
 \end{equation}
 
-Luego podemos obtener una aproximaci\'on de la integral definida por medio del metodo $Cuadratura\ de\ Gauss$ reescalando los intervalos.
+\noindent donde las matrices $(H_l)$ y $S$ estan dadas por las integrales en 
+la ecuaci\'on \ref{elemento_matriz}, mientras que la matriz de la interaci\'on entre 
+las part\'iculas est\'a dada por
 
-\begin{equation}
-  \int_{r_1}^{r_2} f(x) dx \approx \frac{r_2 - r_1}{2} \sum_{i=1}^{n} w_i f(\frac{r_2-r_1}{2} x_i + \frac{r_1 + r_2}{2})
+\begin{equation}\label{matriz_interaccion}
+\begin{split}
+U_{i,i';j,j'} &= \langle \chi_{i,j} |U(r_1,r_2)|\chi_{i',j'}\rangle \\
+              &=  \int_0^{r_{max}} \left(\int_0^{r_{max}} \varphi_i(r_1)\, \varphi_j(r_2)\,
+                  U(r_1,r_2)\, \varphi_{i'}(r_1)\, \varphi_{j'}(r_2)\, dr_2\right)\, dr_1\,.
+\end{split}
 \end{equation}
 
-Luego solo nos queda hacer la sumatoria con las correspondientes funciones para obtener las matrices como se puede ver en el algoritmo \ref{alg:calculomatrices}.\\
+\noindent En general, la interacci\'on entre las part\'iculas es una funci\'on que depende
+de la distancia entre las mismas, $|\vec{r}_1-\vec{r}_2|$, por lo tanto el c\'alculo 
+de la integral en Ec. \ref{matriz_interaccion} puede ser bastante complicado. Una forma
+de calcular dichas integrales y que adem\'as se puede aplicar a un gran n\'umero de 
+problemas es separar el integrando sobre la variable $r_2$ en dos, es decir, podemos 
+definir las funciones
 
+\begin{equation}
+\begin{split}
+f_{j,j'}(r_1) &= \int_0^{r_1} \varphi_j(r_2)\,U(r_1,r_2)\,\varphi_{j'}(r_2)\,dr_2 \,, \\
+g_{j,j'}(r_1) &= \int_{r_1}^{r_{max}} \varphi_j(r_2)\,U(r_1,r_2)\,\varphi_{j'}(r_2)\,dr_2 \,,
+\end{split}
+\end{equation}
 
-\begin{algorithm}[H]
+\noindent las cuales son integrales de una sola variable y por lo tanto pueden ser 
+calculadas aplicando el mismo m\'etodo que se usa para las dem\'as matrices. Luego, 
+para evaluar los elementos de matriz de $U(r_1,r_2)$ hay que calcular una nueva 
+integral, que es de la forma
+
+\begin{equation}\label{matriz_interaccion-2}
+U_{i,i';j,j'} = \int_0^{r_{max}} \varphi_i(r_1)\,f_{j,j'}(r_1)\,\varphi_{i'}(r_1)\,dr_1 + 
+                \int_0^{r_{max}} \varphi_i(r_1)\,g_{j,j'}(r_1)\,\varphi_{i'}(r_1)\,dr_1\,.
+\end{equation}
+
+\section{Implementaci\'on n\'umerica}
+Este m\'etodo, tanto para una part\'icula como para dos, tiene dos partes bien diferenciadas una es construir el sistema representado en \ref{ec_auval} o \ref{eq:scho-2p} y la otra parte es resolver dicho sistema, para la resoluci\'on del sistema se utilizaron bibliotecas de terceros \cite{LAPACK, ARPACK} y para armar el sistema hay que calcular las matrices involucradas, este c\'alculo se esta expresado en las formulas \ref{elemento_matriz} y \ref{mat-hamiltoniano-2p} para una part\'icula y dos respectivamente, las itegrales relacionadas se aproximaron con el m\'etodo {\it Gauss Legendre}.
+
+Llamemos $v_0$ al tercer t\'ermino de la derecha la ecuacion \ref{elemento_matriz} y $ke$ los dos primeros t\'erminos de \ref{elemento_matriz} y $s$ representa la matriz {\it S} en \ref{solapamiento}.
+Llamaremos $INT\_G$ el grado de cuadratura, $L\_INT$ la cantidad de intervalos, este parametro define el tama\~no y por tanto la precici\'on del c\'alculo.
+
+\subsection{Primera implementaci\'on para una part\'icula}
+Para el armado de las matrices se puden diferenciar dos procesos o {\it bloques} correlativos, el primero realiza un c\'alculo auxiliar y el segundo c\'alcula las matrices de la ecuaci\'on \ref{elemento_matriz} y \ref{solapamiento} con {\it Cuadratura Gaussiana}.
+En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots de los B-splines con una distribuci\'on uniforme, las absisas y pesos de la cuadratura de {\it Gaus-Legendre} para cada {\it punto de integracion}, estos puntos son $L\_INT$ intervalos tomados uniformemente entre los l\'imites $r_{min}$ y $r_{max}$ de las integrales de la ecuaci\'on \ref{elemento_matriz}.
+
+\begin{algorithm}[!htb]
+ \label{alg:knot_pesos}
+ %\KwData{this text}
+ \KwResult{C\'alculo auxiliar $x$, $w$, $t$ y $k$}
+ $dr = \frac{(r_{max} - r_{min})}{L\_INT}$\\
+ $nk = L\_INT+2*KORD-1$\\
+ \For{$i$ $\in$ $intervalos$}{
+    $ri = r_{min} + i * dr$\\
+    $rf = ri + dr$\\
+    $x[i] = absisas\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [ri, rf]$\\
+    $w[i] = pesos\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [ri, rf]$\\
+ }
+ $t[0] = r_{min}$\\
+ $k[0] = 0$\\
+ \For{$i$ $\in$ $[1, KORD-1]$}{
+    $t[i] = t[i-1]$\\
+    $k[i] = k[i-1]$\\
+ }
+
+ \For{$i$ $\in$ $[KORD:KORD+L\_INT]$}{
+    $t[i] = t[i-1] + dr$\\
+    $k[i] = k[i-1] + 1$\\
+ }
+
+ \For{$i$ $\in$ $[KORD+L\_INT:nk]$}{
+    $t[i] = t[i-1]$\\
+    $k[i] = k[i-1]$\\
+ }
+ \caption{C\'alculo auxiliar}
+\end{algorithm}
+
+En el segundo bloque (ver algoritmo \ref{alg:calculomatrices}) se c\'alcula las matrices de solapamiento $s$, la matriz de potencial $v_e$ y la matriz de energ\'ia $ke$.
+
+\begin{algorithm}[!htb]
  \label{alg:calculomatrices}
  %\KwData{this text}
  \KwResult{C\'alculo de las matrices $s$, $v_0$ y $ke$ }
- \For{$bk$ $\in$ $intervalos$}{
-  $sp$ = C\'alcular los b-splines en el intervalo bk\;
-  \For{$i$ $\in$ $bk$ to $bk + kord$}{
-    \For{$j$ $\in$ $bk$ to $bk + kord$}{
-      $s_{ij}$ = integral por Gauss-Legendre de $\varphi_i(x)\varphi_j(x)$ usando $sp$\;
-      $ke_{ij}$ = integral por Gauss-Legendre de $\frac{\partial\varphi_i}{\partial x} \frac{\partial\varphi_j}{\partial x^2} $ usando $sp$\;
-      $v_{0i,j}$ = integral por Gauss-Legendre de $V(x)$ usando $sp$\;
+ $nb = l + KORD - 3$  \Comment{tama\~no de la base} \\
+ $ma = 0.5*lmax*(lmax+1)$ \Comment{{\it lmax} es el momento angular} \\
+ \For{$i$ $\in$ $[KORD-1, KORD+L\_INT-1)$}{
+    \For{$j$ $\in$ $[0, INT\_G)$}{
+
+      $rr = x[k[i], j]$\\
+      $sp$ = evaluar los b-splines en el punto $rr$\\
+
+      \For{$m$ $\in$ $[0, KORD)$}{
+        $im = i - KORD + m$\\
+        \If{$0 \le im < nb$}{
+          \For{$n$ $\in$ $[0, KORD-1]$}{
+            $in = i - KORD + n$\\
+            \If{$0 \le in < nb$}{
+              $s_{ij}$ += sp[m] * sp[n] * w[k[i], j]\\
+              $ke_{ij}$ += $\frac {ma * sp[m] * sp[n] * w[k[i], j]} {rr*rr} $\\
+              \If{$r_{min} < rr < r_{max}$}{
+                $v_{0i,j}$ += sp[m] * sp[n] * w[k[i], j]\\
+              }
+            }
+          }
+        }
+      }
+    }
+ }
+ \For{$i$ $\in$ $[0, KORD+L\_INT-1)$}{
+  \For{$m$ $\in$ $[i - KORD + 1, i]$}{
+    \If{$0 \le m < nb$}{
+      \For{$n$ $\in$ $[m, i]$}{
+        \If{$0 \le n < nb$}{
+          \For{$j$ $\in$ $[0, INT\_G)$}{
+            $rr = x[k[i], j]$\\
+            $bm = derivada\ del\ b-spline\ en\ el\ punto\ rr\ en\ el\ indice\ m$\\
+            $bn = derivada\ del\ b-spline\ en\ el\ punto\ rr\ en\ el\ indice\ n$\\
+            $ke_{ij}$ += $\frac {0.5 * w[k[i], j] * bm * bn} {me} $ 
+            \Comment{{\it me} es la masa de la part\'icula}\\
+            
+          }
+        }
+      }
     }
   }
  }
  \caption{Calculo de matrices}
 \end{algorithm}
 
+\subsection{Primera implementaci\'on para dos part\'iculas}
 
-\subsection{iteraccion}
-Esta funci\'on calcula el tensor de interacci\'on entre las dos particulas. Formalmente ser\'ia:
-
-\begin{equation}
- Vef_{i,j,k,l} =  \prointernot{\varphi_i} {V(x_1, x_2)} {\varphi_j} = 
- \int_{-\infty}^{\infty}
-  \int_{-\infty}^{\infty}
-    V(x_1, x_2) \varphi_i(x_1) \varphi_j(x_2) \varphi_k(x_1) \varphi_l(x_2)
-    dx_2
-  dx_1
-\end{equation}
-\begin{equation}
-  \int_{-\infty}^{\infty}
-    \varphi_i(x_1) \int_{-\infty}^{\infty}
-      V(x_1, x_2)  \varphi_j(x_2) \varphi_l(x_2)
-    dx_2\ \varphi_k(x_1)\ 
-  dx_1
-\end{equation}
-
-\begin{equation}
-  \int_{-\infty}^{\infty}
-    \varphi_i(x_1) 
-      F(x_1) 
-    \varphi_k(x_1)\ 
-  dx_1
-\end{equation}
-
-Donde $F(x_1)$ es:
-
-\begin{equation}
-  \int_{-\infty}^{\infty}
-    V(x_1, x_2)  \varphi_j(x_2) \varphi_l(x_2)
-  dx_2
-\end{equation}
-
-Por lo descripto en la secci\'on anterior podemos reducir el intervalo de integraci\'on a [$r_1,\ r_2$] y para su c\'alculo se utilizo la Cuadratura Gauss-Legendre. Luego solo hay que integrar de una manera anidada, primero la funcion $F$ que ser\'ia la integral sobre $x_2$ y luego integrar sobre $x_1$ como se puede ver en el algoritmo \ref{alg:interaccion}\\
-
-\begin{algorithm}[H]
- \label{alg:interaccion}
- %\KwData{this text}
- \KwResult{C\'alculo del tensor $Vef$ }
- \For{$bk_1$ $\in$ $intervalos$}{
-  $x_1$ = punto de la cuadratura en el intervalo $bk_1$\;
-  \For{$bk_2$ $\in$ $intervalos$}{
-    $sp$ = C\'alcular los b-splines en el intervalo $bk_2$\;
-    \For{$i$ $\in$ $bk$ to $bk + kord$}{
-      \For{$j$ $\in$ $bk$ to $bk + kord$}{
-        $V_{margin}$ = $v(x_1)$\;
-        $F_{ij}$ = integral por Gauss-Legendre de $\varphi_i(x) V_{margin} \varphi_j(x)$ usando $sp$\;
-      }
-    }
-
-  }
-  $sp$ = C\'alcular los b-splines en el intervalo $bk_2$\;
-  \For{$i$ $\in$ $bk$ to $bk + kord$}{
-    \For{$j$ $\in$ $bk$ to $bk + kord$}{
-      $Vef_{ijlk}$ = integral por Gauss-Legendre de $\varphi_i(x) F(x) \varphi_j(x)$ usando $sp$\;
-    }
-  }
- }
- \caption{interaccion}
-\end{algorithm}
-
-
-
-\subsection{sener}
-
-Esta funci\'on realiza la simetrizaci\'on del problema, de esta manera el problema queda reducido a calcular los autovalores y autovectores de un problema de autovalores generalizado.
-
-$$
-\mid \widetilde{\varphi}_{ij}(x_1, x_2) \rangle =
-\begin{cases}
-\mid {\varphi}_{ij}(x_1, x_2) \rangle & i = j\\
-\frac{\mid {\varphi}_{ij}(x_1, x_2) \rangle + \mid {\varphi}_{ji}(x_1, x_2) \rangle} {\sqrt{2}} & i \neq j
-\end{cases}
-$$
-
-\subsection{eigen}
-
-Como ya lo mensionamos anteriormente para la resoluci\'on del sistema $Ax = \lambda Bx$ usaremos el paquete ARPACK++, que es un empaquetador del paquete ARPACK escrito en Fortran, este paquete proporciona rutinas para encontrar r\'apidamente autovalores y autovectores de matrices grandes y dispersas implementado el metodo de Arnoldi explicado en la secci\'on \ref{capter2:arnoldi}.
-
-
-\section{Funciones auxiliares}
-Si bien la parte mas importantes del metodo ha sido explicada anteriormente, cabe detallar las funciones auxiliares que son:
-
-\subsection{gauleg}
-Esta rutina devuelve los arrays x[1..n] y w[1..n] de longitud n, que contienen las abscisas y los pesos del Gauss-Legendre n de punto en cuadratura. Estos arrays son utilizados para la  aproximaci\'on de una integral definida de una funci\'on.
-${\displaystyle \int _{-1}^{1}f(x)\,dx\approx \sum _{i=1}^{n}w_{i}f(x_{i})}$
-El arreglo $x$ y $w$ son calculados para el intervalo [0, 1] y luego se los escala para las diferentes limites.
-
-% Chen and co-workers [34, 58]
-% http://folk.uio.no/simenkva/workshop/files/Nepstad.pdf

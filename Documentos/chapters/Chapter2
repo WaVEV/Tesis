@@ -147,238 +147,6 @@ Esto da el algoritmo empleado para la evaluaci\'on pr\'actica de las B-splines: 
 
 \end{enumerate}
 
-
-\section{Estructura de representacion de matrices dispersas}
-
-En esta secci\'on explicaremos las estructuras de representaciones de matrices.
-
-A medida que este problema particular crece las matrices se vuelven mas grandes y al mismo tiempo el porcentaje de no-ceros de la matriz decrese.
-Un sistema linear grande de la forma $\mathcal{A}x = b$ puede ser mas eficientemente resuelto si los elementos que son ceros de $\mathcal{A}$ no son guardados. Los esquemas de almacenamiento dispersos asignan almacenamiento contiguo en memoria para los elementos distintos de cero de la matriz y tal vez un n\'umero limitado de ceros. Esto, por supuesto, requiere un esquema para saber d\'onde encajan los elementos en la matriz completa
-
-Hay muchos m\'etodos para almacenar los datos (v\'ease por ejemplo Saad \cite{SPARSKIT} y Eijkhout \cite{LAPACK}). Aqu\'i discutiremos tres m\'etodos: \textit{almacenamiento de filas y columnas comprimidas}, \textit{almacenamiento de filas comprimidas en bloques}, \textit{almacenamiento en diagonal} y \textit{almacenamiento diagonal recortado}
-
-\subsection{Almacenamiento de filas y columnas comprimidas}\label{CCS}
-
-
-Los formatos CRS y CCS (sus siglas en \'ingles de Compressed Row Storage y Compressed Column Storage) son los m\'as generales: no hacen ninguna suposici\'on sobre la estructura de dispersi\'on de la matriz y no almacenan elementos innecesarios. Por otra parte, no son muy eficientes, necesitando un paso de direccionamiento indirecto para cada operaci\'on escalar individual en un producto vectorial matricial o soluci\'on precondicionadora.
-
-Este formato pone los elementos no ceros de las filas en memoria contigua. Suponiendo que tenemos una matriz dispersa no sim\'etrica $\mathcal{A}$, creamos 3 arreglos: uno que tiene el tipo de los elementos de $\mathcal{A}$ (flotantes simples, flotantes dobles, enteros, etc.) \textit{val}, y otros dos con tipo enteros \textit{col\_ind, row\_ptr}. El arreglo \textit{val} guarda los valores de los elementos no ceros de la matriz $\mathcal{A}$ de manera lineal por cada fila teniendo primero los elementos no ceros de la fila 1 luego los de la 2 etc. 
-El arreglo \textit{col\_ind} guarda a que columna pertenece cada elemento de del arreglo \textit{val} y \textit{row\_ptr} guarda intervalos de inicio y fin de cada fila en del arreglo \textit{val}. Esto es: 
-
-$$val_{k} = \mathcal{A}_{i,j} \implica col\_ind_{k} = j $$
-El arreglo \textit{row\_ptr} guarda la ubicaci\'on de \textit{val} donde empieza la fila. Esto es:
-$$val_{k} = \mathcal{A}_{i,j} \implica row\_ptr_{i} \leq k < row\_ptr_{i+1} $$
-Por convenci\'on definimos $row\_ptr_{n+1} = nnz + 1$. Donde $nnz$ es la cantidad de numeros no ceros de la matriz $\mathcal{A}$. La memoria necesaria para este enfoque es \orderof($nnz$ + $n$)
-
-Ejemplo: considere la siguiente matriz:
-
-\begin{equation}
-\mathcal{A} =
-\left(
-\begin{array}{cccccc}
- 
-10& 0& 0& 0& -2& 0 \\
-
-3& 9& 0& 0& 0& 3 \\
-   
-0& 7& 8& 7& 0& 0 \\
-
-3& 0& 8& 7& 5& 0 \\
-   
-0& 8& 0& 9& 9& 13 \\
-    
-0& 4& 0& 0& 2& -1 \\
-\end{array}
-\right)
-\end{equation}
-
-En formato CRS tendria esta forma
-\begin{equation}
-val = 
-\left(
-\begin{array}{ccccccccccccccccccc}
-10& -2& 3& 9& 3 & 7& 8& 7& 3& 8& 7& 5& 8& 9& 9& 13 & 4& 2& -1 
-\end{array}
-\right)
-\end{equation}
-
-\begin{equation}
-col\_ind = 
-\left(
-\begin{array}{ccccccccccccccccccc}
-0 & 4 & 0 & 1 & 5 & 1 & 2 & 3 & 0 & 2 & 3 & 4 & 1 & 3 & 4 & 5 & 1 & 4 & 5
-\end{array}
-\right)
-\end{equation}
-
-
-\begin{equation}
-row\_ptr = 
-\left(
-\begin{array}{ccccccc}
-1 & 3 & 6 & 9 & 13 & 17 & 20
-\end{array}
-\right)
-\end{equation}
-
-
-
-
-El almacenamiento de columnas comprimidas es an\'alogo
-
-\subsection{Almacenamiento de filas comprimidas en bloques.}
-
-El formato BCRS (sus siglas en \'ingles de Block Compressed Row Storage) es \'util si la matriz rala se compone de bloques densos cuadrados de no nulos con alg\'un patr\'on regular, podemos modificar el formato CRS (o CCS) para explotar tales patrones de bloque. Las matrices de bloque t\'ipicamente surgen de la discretizaci\'on de ecuaciones diferenciales parciales en las que hay varios grados de libertad asociados con un punto. Luego, la partici\'on de la matriz en bloques peque\~nos con un tama\~no igual al n\'umero de grados de libertad, y tratar cada bloque como una matriz densa, a pesar de que puede tener algunos ceros.
-
-Sea \textit{$n_{b}$} es la dimensi\'on de cada bloque y \textit{nnzb} la cantidad de no ceros de cada bloque en la matriz $\mathcal{A}^{n,m}$, la cantidad de memoria es $\orderof($nnz$ $b$)$.
-
-\subsection{Almacenamiento en diagonal.}\label{CDS}
-
-
-El formato CDS (sus siglas en \'ingles de Compressed Diagonal Storage) es \'util si la matriz $\mathcal{A}$ es una matriz de banda donde el ancho de la banda es constante de fila en fila. Entonces podemos aprovechar esta estructura en el esquema de almacenamiento almacenando subdiagonales de la matriz en ubicaciones consecutivas. No s\'olo podemos eliminar el vector que identifica la columna y la fila (si lo miramos como un CRS), podemos empaquetar los elementos no nulos de tal manera que el producto vectorial sea m\'as eficiente. Este esquema de almacenamiento es particularmente \'util si la matriz surge de una discretizaci\'on de elementos finitos o diferencias finitas en una matriz de producto tensor.
-
-Decimos que la matriz $\mathcal{A}^{m,n}$ es $\emph{de banda}$ si hay enteros no negativos \textit{p},\textit{q} tal que 
-$\mathcal{A}_{i,j}$ $\neq$ 0 $\implica$ i{-}p $\leq$ j $\leq$ i{+}q. 
-En este caso podemos poner la matriz $\mathcal{A}$ en un arreglo \textit{val}(1:n, -p:q) (si no tenemos indices negativos se puede hacer un desplazamientos $p$ de indices) la declaraci\'on con dimensiones invertidas corresponde a \textit{LINPACK band format} \cite{LINPACK}
-
-Por lo general, los formatos de banda incluyen almacenar algunos ceros. El formato CDS puede incluso contener algunos elementos de matriz que no corresponden a elementos de matriz en absoluto. Consideremos la matriz no sim\'etrica definida por:
-
-\begin{equation}
-\mathcal{A} =
-\left(
-\begin{array}{cccccc}
- 
-10& -3& 0& 0& 0& 0\\
-3&   9& 6& 0& 0& 0 \\
-0&   7& 8& 7& 0& 0 \\
-0&   0& 8& 7& 5& 0 \\
-0&   0& 0& 9& 9& 13 \\
-0&   0& 0& 0& 2& -1 \\
-\end{array}
-\right)
-\end{equation}
-
-Usando el formato CDS, alojamos la matriz $\mathcal{A}$ en un arreglo \textit{$cdsA^{6, 3}$} donde las columnas estan indexadas desde -1 usando el mapeo $val_{i, j}$ = $a_{i, i+j}$
-
-\begin{tabular}{ l || c | c | c | c | c | c}
-  val(:, -1) & 0 & 3 & 7 & 8 & 9 & 2 \\
-  val(:, 0) & 10 & 9 & 8 & 7 & 9 & -1 \\
-  val(:, 1) & -3 & 6 & 7 & 5 & 13 & 0 \\
-\end{tabular}
-
-Notar que los dos ceros no corresponden a un elemento existente de la matriz.
-
-Una generalizaci\'on del formato CDS m\'as adecuada para manipular matrices dispersas generales en supercomputadoras vectoriales es discutido por Melhem en \cite{MELHEM}. Esta variante de CDS utiliza una estructura de datos de banda para almacenar la matriz. Esta estructura es m\'as eficiente en el almacenamiento en el caso de variar el ancho de banda, pero hace que el producto de  matriz por vector sea ligeramente m\'as caro, ya que implica una operaci\'on de recopilaci\'on.
-
-Como est\'a definido en \cite{MELHEM}, una l\'inea en $\mathcal{A}^{n,m}$ es un conjunto de posiciones 
-S = $\{(i, \theta(i)): i \in I \subseteq I_{n} \}$ donde $I_{n}$ = ${1, ..., n}$ y $\theta$ es una funci\'on estrictamente creciente. Espec\'ificamente: 
-
-
-$$(i, \theta(i)), (j, \theta(j)) \in S \implica (i < j \implica \theta(i) < \theta(j)) $$
-
-Cuando se computa el producto matriz-vector $ y = \mathcal{A}x $, cada (i, $\theta_{k}(i)$) de $\mathcal{A}$ se multiplica por $x_{\theta_{k}(i)}$ y es acumulado en $y_{i}$.
-
-\subsection{Almacenamiento diagonal recortado.}
-
-El formato JDS (sus siglas en ingles de Jagged Diagonal Storage) puede ser \'util para la implementaci\'on de m\'etodos iterativos en procesadores paralelos y vectoriales (v\'ease Saad \cite{JDS}). Al igual que el formato Diagonal Comprimido, da una longitud de vector esencialmente del tama\~no de la matriz. Es m\'as eficiente en cuanto a espacio que CDS a costa de una operaci\'on de recopilaci\'on / dispersi\'on.
-
-Una forma simplificada de JDS, llamada almacenamiento de ITPACK o almacenamiento Purdue, se puede describir como sigue:
-
-\begin{equation}
-\left(
-\begin{array}{cccccc}
- 
-10& -3& 0& 1& 0& 0\\
-0&   9& 6& 0& -2& 0 \\
-3&   0& 8& 7& 0& 0 \\
-0&   6& 0& 7& 5& 0 \\
-0&   0& 0& 0& 9& 13 \\
-0&   0& 0& 0& 5& -1 \\
-\end{array}
-\right)
-\implica
-\left(
-\begin{array}{cccccc}
- 
-10& -3& 1&  &  & \\
-9& 6& -2& &  & \\
-3& 8& 7& &  & \\
-6& 7& 5& &  & \\
-9& 13 & &  & \\
-5& -1 & &  &\\
-\end{array}
-\right)
-\end{equation}
-
-Luego las columnas se almacenan consecutivamente. Todas las filas se rellenan con ceros a la derecha para darles la misma longitud. Correspondiente al arreglo de elementos de matriz \textit{val}(:, :), un arreglo de \'indices de columna, $col\_ind$ (:, :) tambi\'en se almacena.
-
-Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventaja, especialmente si el ancho de banda de la matriz var\'ia fuertemente. Por lo tanto, en el formato CRS, reordenamos las filas de la matriz de forma decreciente de acuerdo con el n\'umero de elementos no ceros de una fila. Las diagonales comprimidas y permutadas se almacenan entonces en una matriz lineal. La nueva estructura de datos se denomina diagonales dentadas.
-
-
-
-\begin{table}[htdp]
-    
-    \centering
-    \begin{tabular}{ | l || c | c | c | c | c | c |}
-      \hline
-      val(:, 1) & 10 & 9 & 3 & 6 & 9 & 5 \\ \hline 
-      val(:, 2) & -3 & 6 & 8 & 7 & 13 & -1 \\ \hline
-      val(:, 3) & 1 & -2 & 7 & 5 & 0 & 0 \\ \hline
-      val(:, 4) & 0 & 0 & 0 & 4 & 0 & 0 \\ \hline 
-    \end{tabular}
-    \caption{}
-\end{table}
-
-\begin{table}[htdp]
-    
-    \centering
-    \begin{tabular}{| l || c | c | c | c | c | c |}
-        \hline
-      col\_ind(:, 1) & 1 & 2 & 1 & 2 & 5 & 5 \\ \hline
-      col\_ind(:, 2) & 2 & 3 & 3 & 4 & 6 & 6 \\ \hline
-      col\_ind(:, 3) & 4 & 5 & 4 & 5 & 0 & 0 \\ \hline
-      col\_ind(:, 4) & 0 & 0 & 0 & 6 & 0 & 0 \\ \hline
-    \end{tabular}
-    \caption{}
-\end{table}
-
-\begin{table}[!b]
-    
-    \begin{tabular}{ | l || c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c |}
-        \hline
-      jdiag & 6 & 9 & 3 & 10 & 9 & 5; & 7 & 6 & 8 & -3 & 13 & -1; & 5 & -2 & 7 & 1 & 4; \\ \hline
-      col\_ind & 2 & 2 & 1 & 1 & 5 & 5; & 4 & 3 & 3 & 2 & 6 & 6; & 5 & 5 & 4 & 4 & 6; \\ \hline
-    \end{tabular}
-    \caption{}
-\end{table}
-
-\begin{table}[!b]
-    \centering
-    \begin{tabular}{ | l || c | c | c | c | c | c |}
-        \hline
-        perm & 4 & 2 & 3 & 1 & 5 & 6 \\ \hline
-    \end{tabular}
-    \caption{}
-\end{table}
-
-\begin{table}[!b]
-    \centering
-    \begin{tabular}{ | l || c | c | c | c | }
-        \hline
-      perm & 1 & 7 & 13 & 17 \\ \hline
-    \end{tabular}
-    \caption{}
-\end{table}
-
-
-El n\'umero de diagonales irregulares es igual al n\'umero de no ceros en la primera fila, es decir, el mayor n\'umero de no ceros en cualquier fila de $\mathcal{A}$. La estructura de datos para representar la matriz por lo tanto consiste en un arreglo de permutaci\'on \textit{perm} (1: n) que reordena las filas, un arreglo de punto flotante $jdiag (:)$ que contiene las diagonales dentadas en sucesi\'on, un arreglo de enteros \textit{col\_ind} (:) que contiene los \'indices de columna correspondientes, y finalmente un arreglo de punteros (\textit{jd\_ptr} (:)) cuyos elementos apuntan al comienzo de cada diagonal dentada. Las ventajas de JDS para las multiplicaciones matriciales son discutidas por Saad en \cite{JDS}.
-
-
-El formato JDS para la matriz anterior en el uso de los arreglos lineales {$perm$, $jdiag$, $col\_ind$, $jd\_ptr$} se d\'a a continuaci\'on (diagonales irregulares est\'an separados por punto y coma).
-
-
-
-
 \section{Problema de autovalores y autovectores}
 
 Como vimos anteriormente este m\'etodo consiste en escribir una representaci\'on matricial de la ecuaci\'on diferencial, a partir de un conjunto de funciones, y luego calcular los autovalores y autovectores de dicha matriz, se buscan los autovalores mas peque\~nos para lograr eso se utiliz\'o paquete ARPACK.
@@ -752,6 +520,230 @@ A U_k = U_k T_k,
 \end{displaymath}
 
 Y nos referimos a esto como una descomposici\'on parcial de Schur de $ A $. Dado que hay una descomposici\'on de Schur con los autovalores de $ A $ que aparecen en la diagonal en cualquier orden, siempre hay una descomposici\'on parcial de Schur de $ A $ con los elementos diagonales de $ T_k $ que consisten en cualquier subconjunto especificado de $ k $ autovalores de $ A $. Adem\'as, $ \mbox{span} (U_k) $ es un subespacio invariante de $ A $ para estos autovalores.
+
+\section{Estructura de representacion de matrices dispersas}
+
+En esta secci\'on explicaremos las estructuras de representaciones de matrices.
+
+A medida que este problema particular crece las matrices se vuelven mas grandes y al mismo tiempo el porcentaje de no-ceros de la matriz decrese.
+Un sistema linear grande de la forma $\mathcal{A}x = b$ puede ser mas eficientemente resuelto si los elementos que son ceros de $\mathcal{A}$ no son guardados. Los esquemas de almacenamiento dispersos asignan almacenamiento contiguo en memoria para los elementos distintos de cero de la matriz y tal vez un n\'umero limitado de ceros. Esto, por supuesto, requiere un esquema para saber d\'onde encajan los elementos en la matriz completa
+
+Hay muchos m\'etodos para almacenar los datos (v\'ease por ejemplo Saad \cite{SPARSKIT} y Eijkhout \cite{LAPACK}). Aqu\'i discutiremos tres m\'etodos: \textit{almacenamiento de filas y columnas comprimidas}, \textit{almacenamiento de filas comprimidas en bloques}, \textit{almacenamiento en diagonal} y \textit{almacenamiento diagonal recortado}
+
+\subsection{Almacenamiento de filas y columnas comprimidas}\label{CCS}
+
+
+Los formatos CRS y CCS (sus siglas en \'ingles de Compressed Row Storage y Compressed Column Storage) son los m\'as generales: no hacen ninguna suposici\'on sobre la estructura de dispersi\'on de la matriz y no almacenan elementos innecesarios. Por otra parte, no son muy eficientes, necesitando un paso de direccionamiento indirecto para cada operaci\'on escalar individual en un producto vectorial matricial o soluci\'on precondicionadora.
+
+Este formato pone los elementos no ceros de las filas en memoria contigua. Suponiendo que tenemos una matriz dispersa no sim\'etrica $\mathcal{A}$, creamos 3 arreglos: uno que tiene el tipo de los elementos de $\mathcal{A}$ (flotantes simples, flotantes dobles, enteros, etc.) \textit{val}, y otros dos con tipo enteros \textit{col\_ind, row\_ptr}. El arreglo \textit{val} guarda los valores de los elementos no ceros de la matriz $\mathcal{A}$ de manera lineal por cada fila teniendo primero los elementos no ceros de la fila 1 luego los de la 2 etc. 
+El arreglo \textit{col\_ind} guarda a que columna pertenece cada elemento de del arreglo \textit{val} y \textit{row\_ptr} guarda intervalos de inicio y fin de cada fila en del arreglo \textit{val}. Esto es: 
+
+$$val_{k} = \mathcal{A}_{i,j} \implica col\_ind_{k} = j $$
+El arreglo \textit{row\_ptr} guarda la ubicaci\'on de \textit{val} donde empieza la fila. Esto es:
+$$val_{k} = \mathcal{A}_{i,j} \implica row\_ptr_{i} \leq k < row\_ptr_{i+1} $$
+Por convenci\'on definimos $row\_ptr_{n+1} = nnz + 1$. Donde $nnz$ es la cantidad de numeros no ceros de la matriz $\mathcal{A}$. La memoria necesaria para este enfoque es \orderof($nnz$ + $n$)
+
+Ejemplo: considere la siguiente matriz:
+
+\begin{equation}
+\mathcal{A} =
+\left(
+\begin{array}{cccccc}
+ 
+10& 0& 0& 0& -2& 0 \\
+
+3& 9& 0& 0& 0& 3 \\
+   
+0& 7& 8& 7& 0& 0 \\
+
+3& 0& 8& 7& 5& 0 \\
+   
+0& 8& 0& 9& 9& 13 \\
+    
+0& 4& 0& 0& 2& -1 \\
+\end{array}
+\right)
+\end{equation}
+
+En formato CRS tendria esta forma
+\begin{equation}
+val = 
+\left(
+\begin{array}{ccccccccccccccccccc}
+10& -2& 3& 9& 3 & 7& 8& 7& 3& 8& 7& 5& 8& 9& 9& 13 & 4& 2& -1 
+\end{array}
+\right)
+\end{equation}
+
+\begin{equation}
+col\_ind = 
+\left(
+\begin{array}{ccccccccccccccccccc}
+0 & 4 & 0 & 1 & 5 & 1 & 2 & 3 & 0 & 2 & 3 & 4 & 1 & 3 & 4 & 5 & 1 & 4 & 5
+\end{array}
+\right)
+\end{equation}
+
+
+\begin{equation}
+row\_ptr = 
+\left(
+\begin{array}{ccccccc}
+1 & 3 & 6 & 9 & 13 & 17 & 20
+\end{array}
+\right)
+\end{equation}
+
+
+
+
+El almacenamiento de columnas comprimidas es an\'alogo
+
+\subsection{Almacenamiento de filas comprimidas en bloques.}
+
+El formato BCRS (sus siglas en \'ingles de Block Compressed Row Storage) es \'util si la matriz rala se compone de bloques densos cuadrados de no nulos con alg\'un patr\'on regular, podemos modificar el formato CRS (o CCS) para explotar tales patrones de bloque. Las matrices de bloque t\'ipicamente surgen de la discretizaci\'on de ecuaciones diferenciales parciales en las que hay varios grados de libertad asociados con un punto. Luego, la partici\'on de la matriz en bloques peque\~nos con un tama\~no igual al n\'umero de grados de libertad, y tratar cada bloque como una matriz densa, a pesar de que puede tener algunos ceros.
+
+Sea \textit{$n_{b}$} es la dimensi\'on de cada bloque y \textit{nnzb} la cantidad de no ceros de cada bloque en la matriz $\mathcal{A}^{n,m}$, la cantidad de memoria es $\orderof($nnz$ $b$)$.
+
+\subsection{Almacenamiento en diagonal.}\label{CDS}
+
+
+El formato CDS (sus siglas en \'ingles de Compressed Diagonal Storage) es \'util si la matriz $\mathcal{A}$ es una matriz de banda donde el ancho de la banda es constante de fila en fila. Entonces podemos aprovechar esta estructura en el esquema de almacenamiento almacenando subdiagonales de la matriz en ubicaciones consecutivas. No s\'olo podemos eliminar el vector que identifica la columna y la fila (si lo miramos como un CRS), podemos empaquetar los elementos no nulos de tal manera que el producto vectorial sea m\'as eficiente. Este esquema de almacenamiento es particularmente \'util si la matriz surge de una discretizaci\'on de elementos finitos o diferencias finitas en una matriz de producto tensor.
+
+Decimos que la matriz $\mathcal{A}^{m,n}$ es $\emph{de banda}$ si hay enteros no negativos \textit{p},\textit{q} tal que 
+$\mathcal{A}_{i,j}$ $\neq$ 0 $\implica$ i{-}p $\leq$ j $\leq$ i{+}q. 
+En este caso podemos poner la matriz $\mathcal{A}$ en un arreglo \textit{val}(1:n, -p:q) (si no tenemos indices negativos se puede hacer un desplazamientos $p$ de indices) la declaraci\'on con dimensiones invertidas corresponde a \textit{LINPACK band format} \cite{LINPACK}
+
+Por lo general, los formatos de banda incluyen almacenar algunos ceros. El formato CDS puede incluso contener algunos elementos de matriz que no corresponden a elementos de matriz en absoluto. Consideremos la matriz no sim\'etrica definida por:
+
+\begin{equation}
+\mathcal{A} =
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 0& 0& 0& 0\\
+3&   9& 6& 0& 0& 0 \\
+0&   7& 8& 7& 0& 0 \\
+0&   0& 8& 7& 5& 0 \\
+0&   0& 0& 9& 9& 13 \\
+0&   0& 0& 0& 2& -1 \\
+\end{array}
+\right)
+\end{equation}
+
+Usando el formato CDS, alojamos la matriz $\mathcal{A}$ en un arreglo \textit{$cdsA^{6, 3}$} donde las columnas estan indexadas desde -1 usando el mapeo $val_{i, j}$ = $a_{i, i+j}$
+
+\begin{tabular}{ l || c | c | c | c | c | c}
+  val(:, -1) & 0 & 3 & 7 & 8 & 9 & 2 \\
+  val(:, 0) & 10 & 9 & 8 & 7 & 9 & -1 \\
+  val(:, 1) & -3 & 6 & 7 & 5 & 13 & 0 \\
+\end{tabular}
+
+Notar que los dos ceros no corresponden a un elemento existente de la matriz.
+
+Una generalizaci\'on del formato CDS m\'as adecuada para manipular matrices dispersas generales en supercomputadoras vectoriales es discutido por Melhem en \cite{MELHEM}. Esta variante de CDS utiliza una estructura de datos de banda para almacenar la matriz. Esta estructura es m\'as eficiente en el almacenamiento en el caso de variar el ancho de banda, pero hace que el producto de  matriz por vector sea ligeramente m\'as caro, ya que implica una operaci\'on de recopilaci\'on.
+
+Como est\'a definido en \cite{MELHEM}, una l\'inea en $\mathcal{A}^{n,m}$ es un conjunto de posiciones 
+S = $\{(i, \theta(i)): i \in I \subseteq I_{n} \}$ donde $I_{n}$ = ${1, ..., n}$ y $\theta$ es una funci\'on estrictamente creciente. Espec\'ificamente: 
+
+
+$$(i, \theta(i)), (j, \theta(j)) \in S \implica (i < j \implica \theta(i) < \theta(j)) $$
+
+Cuando se computa el producto matriz-vector $ y = \mathcal{A}x $, cada (i, $\theta_{k}(i)$) de $\mathcal{A}$ se multiplica por $x_{\theta_{k}(i)}$ y es acumulado en $y_{i}$.
+
+\subsection{Almacenamiento diagonal recortado.}
+
+El formato JDS (sus siglas en ingles de Jagged Diagonal Storage) puede ser \'util para la implementaci\'on de m\'etodos iterativos en procesadores paralelos y vectoriales (v\'ease Saad \cite{JDS}). Al igual que el formato Diagonal Comprimido, da una longitud de vector esencialmente del tama\~no de la matriz. Es m\'as eficiente en cuanto a espacio que CDS a costa de una operaci\'on de recopilaci\'on / dispersi\'on.
+
+Una forma simplificada de JDS, llamada almacenamiento de ITPACK o almacenamiento Purdue, se puede describir como sigue:
+
+\begin{equation}
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 0& 1& 0& 0\\
+0&   9& 6& 0& -2& 0 \\
+3&   0& 8& 7& 0& 0 \\
+0&   6& 0& 7& 5& 0 \\
+0&   0& 0& 0& 9& 13 \\
+0&   0& 0& 0& 5& -1 \\
+\end{array}
+\right)
+\implica
+\left(
+\begin{array}{cccccc}
+ 
+10& -3& 1&  &  & \\
+9& 6& -2& &  & \\
+3& 8& 7& &  & \\
+6& 7& 5& &  & \\
+9& 13 & &  & \\
+5& -1 & &  &\\
+\end{array}
+\right)
+\end{equation}
+
+Luego las columnas se almacenan consecutivamente. Todas las filas se rellenan con ceros a la derecha para darles la misma longitud. Correspondiente al arreglo de elementos de matriz \textit{val}(:, :), un arreglo de \'indices de columna, $col\_ind$ (:, :) tambi\'en se almacena.
+
+Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventaja, especialmente si el ancho de banda de la matriz var\'ia fuertemente. Por lo tanto, en el formato CRS, reordenamos las filas de la matriz de forma decreciente de acuerdo con el n\'umero de elementos no ceros de una fila. Las diagonales comprimidas y permutadas se almacenan entonces en una matriz lineal. La nueva estructura de datos se denomina diagonales dentadas.
+
+
+
+\begin{table}[htdp]
+    
+    \centering
+    \begin{tabular}{ | l || c | c | c | c | c | c |}
+      \hline
+      val(:, 1) & 10 & 9 & 3 & 6 & 9 & 5 \\ \hline 
+      val(:, 2) & -3 & 6 & 8 & 7 & 13 & -1 \\ \hline
+      val(:, 3) & 1 & -2 & 7 & 5 & 0 & 0 \\ \hline
+      val(:, 4) & 0 & 0 & 0 & 4 & 0 & 0 \\ \hline 
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[htdp]
+    
+    \centering
+    \begin{tabular}{| l || c | c | c | c | c | c |}
+        \hline
+      col\_ind(:, 1) & 1 & 2 & 1 & 2 & 5 & 5 \\ \hline
+      col\_ind(:, 2) & 2 & 3 & 3 & 4 & 6 & 6 \\ \hline
+      col\_ind(:, 3) & 4 & 5 & 4 & 5 & 0 & 0 \\ \hline
+      col\_ind(:, 4) & 0 & 0 & 0 & 6 & 0 & 0 \\ \hline
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[!b]
+    
+    \begin{tabular}{ | l || c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c | c |}
+        \hline
+      jdiag & 6 & 9 & 3 & 10 & 9 & 5; & 7 & 6 & 8 & -3 & 13 & -1; & 5 & -2 & 7 & 1 & 4; \\ \hline
+      col\_ind & 2 & 2 & 1 & 1 & 5 & 5; & 4 & 3 & 3 & 2 & 6 & 6; & 5 & 5 & 4 & 4 & 6; \\ \hline
+    \end{tabular}
+    \caption{}
+\end{table}
+
+\begin{table}[htdp]
+  
+    \centering
+    \begin{tabular}{ | l || c | c | c | c | c | c |}
+        \hline
+        perm & 4 & 2 & 3 & 1 & 5 & 6 \\ \hline
+    \end{tabular}\\
+    \begin{tabular}{ | l || c | c | c | c | }
+        \hline
+      jd\_ptr & 1 & 7 & 13 & 17 \\ \hline
+    \end{tabular}
+    \caption{\label{perm2}}
+\end{table}
+
+
+El n\'umero de diagonales irregulares es igual al n\'umero de no ceros en la primera fila, es decir, el mayor n\'umero de no ceros en cualquier fila de $\mathcal{A}$. La estructura de datos para representar la matriz por lo tanto consiste en un arreglo de permutaci\'on \textit{perm} (1: n) que reordena las filas, un arreglo de punto flotante $jdiag (:)$ que contiene las diagonales dentadas en sucesi\'on, un arreglo de enteros \textit{col\_ind} (:) que contiene los \'indices de columna correspondientes, y finalmente un arreglo de punteros (\textit{jd\_ptr} (:)) cuyos elementos apuntan al comienzo de cada diagonal dentada. Las ventajas de JDS para las multiplicaciones matriciales son discutidas por Saad en \cite{JDS}.
+
+El formato JDS para la matriz anterior en el uso de los arreglos lineales {$perm$, $jdiag$, $col\_ind$, $jd\_ptr$} se d\'a en los cuadros \ref{perm2}.
+
 
 \section{Concluciones}
 
