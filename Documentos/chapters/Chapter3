@@ -103,23 +103,9 @@ calcular en forma exacta integrales de polinomios de grado menor o igual a $2n-1
 un intervalo cerrado. Puesto que un B-spline de orden k es un polinomio particular de grado 
 $k-1$ en cada segmento, se ve f\'acilmente que los integrandos del elemento $(S)_{ij}$ y el 
 primer t\'ermino de la matriz $H_l$ son polinomios con m\'aximo grado $2k-2$. 
-La aplicaci\'on del procedimiento GL en cada segmento conduce a una evaluaci\'on num\'erica 
-exacta de estas dos integrales. El caso de la energ\'ia cin\'etica angular y el t\'ermino 
-del potencial, segundo y tercer t\'erminos de $H_l$ en Ec. \ref{elemento_matriz} 
-respectivamente, son es ligeramente diferentes. Aqu\'i el integrando ya no es un polinomio 
-de alg\'un grado sino m\'as bien una fracci\'on racional y la afirmaci\'on anterior no es 
-v\'alida. Sin embargo, se puede demostrar que un peque\~no incremento en el n\'umero de 
-puntos de la cuadratura da como resultado una convergencia inmediata a la precisi\'on del
-punto flotante de la computadora. Por lo tanto, todos los elementos de la matriz se 
-calculan de esta forma.
+La aplicaci\'on del procedimiento GL en cada segmento conduce a una evaluaci\'on num\'erica exacta de estas dos integrales. El caso de la energ\'ia cin\'etica angular y el t\'ermino del potencial, segundo y tercer t\'erminos de $H_l$ en Ec. \ref{elemento_matriz} respectivamente son ligeramente diferentes. Aqu\'i el integrando ya no es un polinomio de alg\'un grado sino m\'as bien una fracci\'on racional y la afirmaci\'on anterior no es v\'alida. Sin embargo, se puede demostrar que un peque\~no incremento en el n\'umero de puntos de la cuadratura da como resultado una convergencia inmediata a la precisi\'on del punto flotante de la computadora. Por lo tanto, todos los elementos de la matriz se calculan de esta forma.
 
-Otra propiedad clave directamente relacionada con el uso de la base B-spline deriva del hecho de que 
-los B-splines son funciones compactas: un B-spline de orden $k$ difiere de cero solamente en $k$ segmentos 
-sucesivos. Por lo tanto, cualquier operador local
-expresado en la base B-spline aparece como una matriz que tiene valores distintos de cero
-en una banda diagonal de ancho $2k-1$. Adem\'as, el Hamiltoniano, as\'i como la matriz
-de superposici\'on son matrices sim\'etricas. Resulta as\'i que, para un dado lo, en vez de 
-$N^2$ elementos de matriz s\'olo se necesitan calcular y almacenar $Nk$ elementos en la memoria.
+Otra propiedad clave directamente relacionada con el uso de la base B-spline deriva del hecho de que los B-splines son funciones compactas: un B-spline de orden $k$ difiere de cero solamente en $k$ segmentos sucesivos. Por lo tanto, cualquier operador local expresado en la base B-spline aparece como una matriz que tiene valores distintos de cero en una banda diagonal de ancho $2k-1$. Adem\'as, el Hamiltoniano, as\'i como la matriz de superposici\'on son matrices sim\'etricas. Resulta as\'i que, para un dado lo, en vez de $N^2$ elementos de matriz s\'olo se necesitan calcular y almacenar $Nk$ elementos en la memoria.
 
 Resolver el sistema es ahora sencillo si se tiene en cuenta el hecho de que la matriz de superposici\'on 
 (o solapamiento) $S$ es definida positiva. El sistema generalizado de banda sim\'etrica se puede 
@@ -280,7 +266,7 @@ En el segundo bloque (ver algoritmo \ref{alg:calculomatrices}) se c\'alcula las 
  \label{alg:calculomatrices}
  %\KwData{this text}
  \KwResult{C\'alculo de las matrices $s$, $v_0$ y $ke$ }
- $nb = l + KORD - 3$  \Comment{tama\~no de la base} \\
+ $nb = L\_INT + KORD - 3$  \Comment{tama\~no de la base} \\
  $ma = 0.5*lmax*(lmax+1)$ \Comment{{\it lmax} es el momento angular} \\
  \For{$i$ $\in$ $[KORD-1, KORD+L\_INT-1)$}{
     \For{$j$ $\in$ $[0, INT\_G)$}{
@@ -328,3 +314,61 @@ En el segundo bloque (ver algoritmo \ref{alg:calculomatrices}) se c\'alcula las 
 
 \subsection{Primera implementaci\'on para dos part\'iculas}
 
+El armado de las matrices para dos part\'iculas se puede ver en tres partes: la primera es c\'alcular las matrices $H$ y $S$ del problema de una part\'icula como fu\'e descripto m\'as arriba, la segunda es calcular la interacci\'on $U$ y con ella calcular $H_{i,i';j,j'}$ y luego armar el sistema con una simetrizaci\'on.
+
+La Interacci\'on se describe en el algoritmo \ref{alg:interaccion}. En este proceso se realizan dos integraciones anidadas
+
+\begin{algorithm}[!htb]
+ \label{alg:interaccion}
+ \KwResult{C\'alculo de la interacci\'on $Vef$}
+ 
+ $Vef = 0$ \Comment{Tensor de dimensi\'on $N^4$, que representa $H_{i,i';j,j'}$}
+ $nb = L\_INT + KORD - 3$  \Comment{tama\~no de la base} \\
+ \For{$i$ $\in$ $[KORD-1, KORD+L\_INT-1)$}{
+    \For{$j$ $\in$ $[0, INT\_G)$}{
+      $rr_1 = x[k[i], j]$\\
+      $w_1 = w[k[i], j]$\\
+      $f = 0$ \Comment{Matriz $N^2$}\\
+      $g = 0$ \Comment{Matriz $N^2$}\\
+      
+      \For{$i^{\prime}$ $\in$ $[KORD-1, KORD+L\_INT-1)$}{
+        \For{$j^{\prime}$ $\in$ $[0, INT\_G)$}{
+          $rr_2 = x[k[i^{\prime}], j^{\prime}]$\\
+          $sp$ = evaluar los b-splines en el punto $rr_2$\\
+          \For{$m$ $\in$ $[0, KORD)$}{
+            $im = i^{\prime} - KORD + m$\\
+            \If{$0 \le im < nb$}{
+              \For{$n$ $\in$ $[0, KORD)$}{
+                $in = i^{\prime} - KORD + n$\\
+                \If{$0 \le in < nb$}{
+                  \If{$rr_2 \le rr_1$}{
+                    $f_{ij}$ += $sp[m] * sp[n] * w_2 / rr_1$\\
+                  }\Else{
+                    $g_{ij}$ += $sp[m] * sp[n] * w_2 / rr_2$\\
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      $sp$ = evaluar los b-splines en el punto $rr_1$\\
+      \For{$m$ $\in$ $[0, KORD)$}{
+        $im = i^{\prime} - KORD + m$\\
+        \If{$0 \le im < nb$}{
+          \For{$m^{\prime}$ $\in$ $[1, KORD)$}{
+            $im^{\prime} = i - KORD + m^{\prime} - 1$\\
+            \If{$0 \le im^{\prime} < nb$}{
+              \For{$n$ $\in$ $[1, nb)$}{
+                \For{$n^{\prime}$ $\in$ $[1, nb)$}{
+                  $Vef_{im,n;im^{\prime}, n^{\prime}} += sp[m]*sp[m^{\prime}]*w_1*(f_{n, np} + g_{n, np})/ \sqrt{s_{n,n}*s_{np,np}}$\\
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+ \caption{Interacci\'on}
+\end{algorithm}
