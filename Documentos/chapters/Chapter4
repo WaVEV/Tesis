@@ -1,55 +1,144 @@
-\chapter*{Modelo Computacional SIMD}\label{Modelo Computacional SIMD}
+\chapter*{Modelos Computacional CPU y GPU}\label{Modelo Computacional SIMD}
 \addcontentsline{toc}{chapter}{Modelo Computacional SIMD} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 
-En esta secci\'on explicaremos el uso  GPU en el \'ambito de la programaci\'on de alto desempe\~no (HPC). Daremos las razones que motivaron su uso y como fueron evolucionando las diferentes arquitecturas.
+En esta secci\'on explicaremos las nociones preliminares necesarias sobre las arquitecturas de la CPU y GPU que se utilizar\'on a la hora de la optimizaci\'on y relacionadas con computaci\'on de alto desempe\~no. No nos detendremos detallando caracteristicas que no son de vital importancia en este trabajo.
+
+\section{CPU}
+
+Sobre la arquitectura de CPU explicaremos su jerarqu\'ia de memoria, sus tiempos de accesos en t\'erminos de ciclos.
+
+La unidad central de procesamiento (o CPU por sus siglas en ingl\'es: central processing unit), es el hardware dentro de la computadora que realiza las operaciones b\'asicas aritm\'eticas, l\'ogicas y de entrada/salida.
+
+La secuencia cl\'asica de una instrucci\'on es la siguiente: Buscar la instrucci\'on en la memoria, Decodificar la instrucci\'on, Ejecutar la instrucci\'on y Almacenar resultados. Los dos primeros pasos se conocen como ciclo de b\'usqueda. El ciclo de b\'usqueda procesa la instrucci\'on que contiene el c\'odigo de operaci\'on y el operando. Los pasos 3 y 4 del ciclo de instrucci\'on se conocen como ciclo de ejecuci\'on.
+
+\subsection{Jerarqu\'ia de memorias}
+La jerarqu\'ia de memoria es la organizaci\'on piramidal de la memoria en niveles que tienen las computadoras. Aqu\'i solo abordaremos las distintas memorias representadas en la figura \ref{img:memory_herarchy}.
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \leavevmode
+
+    \includegraphics[]{CPUjerarquia.png}
+
+    \caption{Diagrama piramidal de la jerarqu\'ia de memoria}
+    \label{img:memory_herarchy}
+  \end{center}
+\end{figure}
 
 
-\section{Introducci\'on}
+\subsubsection{Registros}
 
-Todos usamos la computadora, pero muchas veces no somos conscientes de la tecnolog\'ia que hay en ellos. 
-M\'aquinas incre\'ibles que nos permiten disfrutar del ocio con videojuegos de gr\'aficos muy cercanos a la realidad. 
-Para estas tareas el trabajo de la GPU (o placas de video) es fundamental.
+Los registros est\'an en la cima de la jerarqu\'ia de memoria, y son la manera m\'as r\'apida que tiene el sistema de almacenar datos.
+Los registros son una memoria de alta velocidad y poca capacidad, esta integrada en el microprocesador y permite guardar y acceder a valores muy usados, por lo general en operaciones matem\'aticas.
+Los registros se miden por lo general por el n\'umero de bits que almacena.
+Tipos de registros:
 
-Hoy nos adentraremos en el mundo de las placas gr\'aficas, de la arquitecturas de las GPU y de sus diferencias con otro procesador, el CPU. 
-Porque las tarjetas gr\'aficas son esenciales en la inform\'atica actual y son parte b\'asica de lo que para muchos es importante de cara al futuro: 
-GPGPU, o el procesamiento de datos mediante GPU.
+\begin{enumerate}
+    \item De datos: usados para guardar n\'umeros enteros.
+    \item De memoria: usados para guardar exclusivamente direcciones de memoria. 
+    \item De prop\'osito general: pueden guardar tanto datos como direcciones. 
+    \item De punto flotante: usados para guardar datos en formato de flotante.
+    \item De prop\'osito espec\'ifico: guardan informaci\'on espec\'ifica del estado del sistema.
+    \item Constante: tiene valores creados por el hardware de solo lectura.
+\end{enumerate}
 
-\section{La era pre-GPU}
 
-Las cosas han cambiado mucho desde que las computadoras empezaron a implantarse en nuestros hogares, all\'a por la d\'ecada de los 80. El hardware se sustenta sobre las mismas bases de la arquitectura von Neumann, si bien \'esta ha evolucionado de forma muy notable y los sistemas actuales son ahora mucho m\'as complejos.
+\subsubsection{Memoria Cach\'e}
+Es una memoria r\'apida y peque\~na, situada entre la memoria principal y el microprocesador, especialmente dise\~nada para contener informaci\'on que se utiliza con frecuencia en un proceso con el fin de evitar accesos a otras memorias, reduciendo considerablemente el tiempo de acceso al ser m\'as r\'apida que el resto de la memoria principal.
 
-El tr\'io de componentes que plante\'o John von Neumann eran tres: ALU, memoria y entrada/salida, refiri\'endose a mecanismos que procesan, almacenan y reciben/env\'ian la informaci\'on, respectivamente. Interpretando la arquitectura en un equipo actual equivaldr\'ia a tener s\'olo un procesador, un disco, un teclado y una pantalla. 
-Evidentemente un sistema moderno est\'a formado por muchos m\'as elementos, y entre ellos la GPU se ha convertido en uno de los actuales componentes fundamentales.
+\begin{figure}[!htbp]
+  \begin{center}
+    \leavevmode
 
-\section{Los \'origenes}
+    \includegraphics[]{cache.png}
 
-En los primeros ordenadores el procesador central -- CPU, central processing unit -- era el encargado de gestionar y procesar todo tipo de informaci\'on. Desde los datos que el usuario quer\'ia operar hasta por supuesto el sistema operativo, y con \'el su interfaz.
+    \caption{Mapeo de RAM a cach\'e}
+    \label{img:matstyle}
+  \end{center}
+\end{figure}
 
-Si bien aquellos primeros sistemas utilizaban interfaces basadas en texto, con la llegada de las primeras interfaces gr\'aficas el nivel de exigencia creci\'o no s\'olo en el propio sistema operativo, si no tambi\'en en muchas de las aplicaciones que empezaban a surgir por la \'epoca. Programas CAD o videojuegos, por ejemplo, requer\'ian muchos m\'as recursos para funcionar correctamente.
+La memoria cach\'e es una memoria en la que se almacena un serie de datos para su r\'apido acceso. La memoria cach\'e de un microprocesador es de tipo vol\'atil (del tipo RAM), pero de una gran velocidad.
+Su objetivo es almacenar una serie de instrucciones y datos a los que el microprocesador accede continuamente, con el fin de que estos accesos sean instant\'aneos. Estas instrucciones y datos son aquellas a las que el procesador necesita estar accediendo de forma continua, por lo que para el rendimiento del procesador es imprescindible que este acceso sea lo m\'as r\'apido y fluido posible.
 
-Llegados a este punto, los dise\~nadores de sistemas se basaron en un componente que ya exist\'ia para evolucionarlo y hacerlo crecer. Los coprocesadores matem\'aticos o FPU -- floating-point unit -- eran utilizados en muchos sistemas para acelerar el procesamiento de datos. Pueden entenderse como un segundo procesador, si bien algunas de las diferencias respecto de las CPU son muy claras: no pueden tener acceso a los datos directamente o ejecutan un juego de instrucciones mucho m\'as sencillo pensado para tratar datos en flotante.
+Cuando la CPU necesita una palabra de memoria, se revisa la cach\'e. Si se encuentra la palabra en cache, se lee de ah\'i mismo. Si la palabra direccionada de la CPU no se encuentra en cach\'e, se accede a la memoria principal para leer la palabra. Despu\'es, se transfiere un bloque de palabras que contiene la palabra que se buscaba, de la memoria principal a la memoria cach\'e. El tama\~no de bloque puede variar de una palabra a cerca de 16 palabras adyacentes a la que se accedi\'o. De esta manera, se trasfieren algunos datos la  cach\'e para que las futuras referencias a memoria encuentren la palabra requerida en la memoria cach\'e
 
-Las exigencias continuaron creciendo, y los sistemas de la \'epoca dispon\'ian de CPU y una FPU optativa que termin\'o convirti\'endose en fundamental: los coprocesadores matem\'aticos evolucionaron hacia las GPU, al ser el componente m\'as eficiente a la hora de procesar y determinar el aspecto gr\'afico de todo tipo de software.
+Hay tres tipos diferentes de memoria cach\'e para microprocesadores:
 
-\section{M\'as unidades de proceso que CPU, pero m\'as sencillas: la arquitectura de las GPU}
+\begin{enumerate}
+    \item Cach\'e de primer nivel (L1): Integrada en el n\'ucleo del microprocesador, trabajando a la misma velocidad que este. La cantidad de memoria cach\'e L1 var\'ia de un microprocesador a otro. Esta memoria suele a su vez estar dividida en dos partes dedicadas, una para instrucciones y otra para datos.
+    \item Cach\'e de segundo nivel (L2): Integrada en el microprocesador, no directamente en el n\'ucleo, es algo m\'as lenta que la cach\'e L1. La cach\'e L2 suele ser mayor que la cach\'e L1. Utilizaci\'on est\'a m\'as encaminada a programas que al sistema.
+    \item Cach\'e de tercer nivel (L3): Es un tipo de memoria cach\'e m\'as lenta que la L2. En un principio esta cach\'e estaba incorporada a la placa base, no al microprocesador, y su velocidad de acceso era bastante m\'as lenta que una cach\'e de nivel 2 o 1, ya que si bien sigue siendo una memoria de una gran rapidez (muy superior a la RAM, y mucho m\'as en la \'epoca en la que se utilizaba), depende de la comunicaci\'on entre el microprocesador y la placa base.
+    
+\end{enumerate}
 
-Los coprocesadores primero y las tarjetas gr\'aficas despu\'es plantearon una arquitectura hardware muy diferente de las utilizadas en las CPU.
+La memoria cach\'e est\'a estructurado por celdas, donde cada celda almacena un byte. La entidad b\'asica de almacenamiento la conforman las filas, llamados tambi\'en l\'ineas de cach\'e. Cuando se copia o se escribe informaci\'on de la RAM por cada movimiento siempre cubre una l\'inea de cach\'e. La memoria cach\'e tiene incorporado un espacio de almacenamiento llamado Tag RAM, que indica a qu\'e parte de la RAM se halla asociada cada l\'inea de cach\'e, es decir, traduce una direcci\'on de RAM en una l\'inea de cach\'e concreta.
 
-En una GPU tambi\'en tendremos unidades de proceso (tradicionalmente Unified Shaders o Stream Processors), memoria (que hace las veces de memoria RAM, como un sistema de almacenamiento temporal para apoyar al procesamiento de los datos) y entrada/salida. Las GPU tambi\'en tienen sus propias bibliotecas para que los desarrolladores programen el software.
+\subsubsection{Memoria RAM}
 
-Estos Unified Shaders son los que procesan la informaci\'on gr\'afica, y a priori cuantos m\'as tengamos ser\'a mejor para la capacidad de proceso de la GPU. Este factor es importante en videojuegos, pero fundamental para uno de los usos que m\'as est\'an creciendo en los \'ultimos a\~nos: GPGPU, General-purpose computing on graphics processing units.
+La memoria de acceso aleatorio, o memoria de acceso directo (Random Access Memory).
+Se compone de uno o m\'as chips y se utiliza como memoria de trabajo para programas y datos. Es un tipo de memoria temporal que pierde sus datos cuando se queda sin energ\'ia (al apagar la computadora), por lo cual es una memoria vol\'atil. Se trata de una memoria de semiconductor en la que se puede tanto leer como escribir informaci\'on. Se utiliza normalmente como memoria temporal para almacenar resultados intermedios y datos similares no permanentes.
+Se dicen {\it de acceso aleatorio} o {\it de acceso directo} porque los diferentes accesos son independientes entre s\'i.
+Las RAMs se dividen en:
+\begin{enumerate}
+    \item Est\'aticas: mantiene su contenido inalterado mientras est\'e alimentada.
+    \item Din\'amica: la lectura es destructiva, es decir que la informaci\'on se pierde al leerla, para evitarlo hay que restaurar la informaci\'on contenida en sus celdas, operaci\'on denominada refresco.
+\end{enumerate}
 
-\section{GPGPU presente}
+\subsubsection{Disco Duro}
 
-Los sistemas crecen, pero lo hacen debido a lo que tanto los desarrolladores como los usuarios finales van exigiendo. Los videojuegos y su calidad gr\'afica son la prueba m\'as palpable de este incremento en las capacidades de proceso, pero el uso que le damos a las GPU tambi\'en ha cambiado para adaptarse a otras posibilidades.
+El disco duro (hard disk) es una unidad de almacenamiento magn\'etico de la informaci\'on. Es un disco met\'alico (normalmente de aluminio) recubierto con una capa de material magnetizable por sus dos caras (usualmente n\'iquel).
+El disco duro magn\'etico est\'a dividido en pistas conc\'entricas. Cada pista se divide en igual n\'umero de bloques radiales denominados sectores. La capacidad de almacenamiento en bytes por cada pista es variable, dependiendo del tama\~no de la misma y de la densidad de grabaci\'on. En todas las pistas de un mismo disco (desde las exteriores hasta las interiores) cabe la misma cantidad de informaci\'on, lo que se consigue grabando con mayor densidad en las pistas interiores y menor densidad en las pistas exteriores.
+
+Otro tipo de disco aparte del magnetico y de uso masivo es la unidad de estado s\'olido, dispositivo de estado s\'olido o SSD (acr\'onimo ingl\'es de Solid-State Drive) es un tipo de dispositivo de almacenamiento de datos que utiliza memoria no vol\'atil, como la memoria flash, para almacenar datos, en lugar de los platos o discos magn\'eticos de las unidades de discos duros (HDD) convencionales.
+
+En comparaci\'on con los discos duros tradicionales, las unidades de estado s\'olido son menos sensibles a los golpes al no tener partes m\'oviles, son pr\'acticamente inaudibles, y poseen un menor tiempo de acceso y de latencia, lo que se traduce en una mejora del rendimiento exponencial en los tiempos de carga de los sistemas operativos. En contrapartida, su vida \'util es muy inferior, ya que tienen un n\'umero limitado de ciclos de escritura, pudiendo producirse la p\'erdida absoluta de los datos de forma inesperada e irrecuperable. Los SSD hacen uso de la misma interfaz SATA que los discos duros, por lo que son f\'acilmente intercambiables sin tener que recurrir a adaptadores o tarjetas de expansi\'on para compatibilizarlos con el equipo.
+
+\subsubsection{Memoria virtual}
+
+Es un concepto que permite al software usar m\'as memoria principal que la que realmente posee.
+Muchas aplicaciones requieren el acceso a m\'as informaci\'on (c\'odigo y datos) que la que se puede mantener en memoria f\'isica. Esto es as\'i sobre todo cuando el sistema operativo permite m\'ultiples procesos y aplicaciones ejecut\'andose simult\'aneamente. Una soluci\'on al problema de necesitar mayor cantidad de memoria de la que se posee consiste en que las aplicaciones mantengan parte de su informaci\'on en disco, movi\'endola a la memoria principal cuando sea necesario.
+Aunque la memoria virtual podr\'ia estar implementada por el software del sistema operativo, en la pr\'actica casi siempre se usa una combinaci\'on de hardware y software, dado el esfuerzo extra que implicar\'ia para el microprocesador.
+
+Cuando se usa Memoria Virtual, o cuando una direcci\'on es le\'ida o escrita por la CPU, una parte del hardware dentro de la computadora traduce las direcciones de memoria generadas por el software (direcciones virtuales) en:
+
+\begin{enumerate}
+    \item La direcci\'on real de memoria (la direcci\'on de memoria f\'isica): la referencia a la memoria es completada, como si la memoria virtual no  hubiera estado involucrada: el software accede donde deb\'ia y sigue ejecutando normalmente.
+    \item Una indicaci\'on de que la direcci\'on de memoria deseada no se encuentra en memoria principal (llamado excepci\'on de memoria virtual): el sistema operativo es invocado para manejar la situaci\'on y permitir que el programa siga ejecutando o aborte seg\'un sea el caso.
+\end{enumerate}
+
+La memoria virtual es una t\'ecnica para proporcionar la simulaci\'on de un espacio de memoria mucho mayor que la memoria f\'isica de una m\'aquina. Esta {\it ilusi\'on} permite que los programas se ejecuten sin tener en cuenta el tama\~no exacto de la memoria f\'isica.
+La ilusi\'on de la memoria virtual est\'a soportada por el mecanismo de traducci\'on de memoria, junto con una gran cantidad de almacenamiento r\'apido en disco duro. As\'i en cualquier momento el espacio de direcciones virtual hace un seguimiento de tal forma que una peque\~na parte de \'el, est\'a en memoria real y el resto almacenado en el disco, y puede ser referenciado f\'acilmente.
+
+
+\subsection{Memorias RAM vs Cach\'es}
+
+A medida que la velocidad de los procesadores aumenta el acceso a memoria es relativamente lento (en cuanto a cantidad de ciclos de CPU para hacer entrada salida). La soluci\'on al problema, de tener memoria relativamente lenta, es a\~nadir almacenamiento en memoria cach\'e y {\it prefetching}, la memoria cach\'e  proporciona un acceso r\'apido a datos utilizados frecuentemente, y el {\it prefetching} precarga datos en cache si el patr\'on de acceso es predecible.
+
+Cargar de cache toma algunos ciclos (depende de la jerarqu\'ia) y cargar desde memoria RAM toma cerca de 400 ciclos \ref{tabla_latencia}.
+Pero, si la CPU puede predecir los bloques de memoria que utilizar\'a ({\it prefeching}) entonces la perdida de ciclos por traer memoria desde RAM es mucho menor. Por lo tanto hacer c\'odigo amigable con la cach\'e es importante en las rutinas que son {\it CPU bound}.
+El uso de patrones de acceso a la memoria predecible y el funcionamiento en trozos de datos que son m\'as peque\~nos que la cach\'e de la CPU obtendr\'a la mayores beneficios de las cach\'es modernas.
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \leavevmode
+
+    \includegraphics[scale=0.5]{tabla_latencia.png}
+
+    \caption{Ejemplo de la Escala de tiempo de Latencias del Sistema \cite{latencia_grafico}}
+    \label{tabla_latencia}
+  \end{center}
+\end{figure}
+
+
+\section{GPGPU}
 
 GPGPU es el t\'ermino que se utiliza para designar las tareas de prop\'osito general, t\'ipicamente pensadas para ser procesadas en una CPU, pero que se aprovechan del potencial de la GPU para ejecutarse en ella. Dado que los procesadores gr\'aficos son mucho m\'as eficientes en cierto tipo de operaciones, los resultados se obtendr\'an m\'as r\'apidamente.
 
 El problema de la GPGPU es precisamente que no todas las tareas tienen que ser m\'as eficientes en una GPU. \'Estas est\'an especializadas en tareas altamente paralelizables cuyos algoritmos puedan subdividirse, procesarse por separado para luego unir los subresultados y tener el resultado final.
 
 
-\section{CUDA como modelos de programaci\'on escalable}
+\subsection{CUDA como modelos de programaci\'on escalable}
 
 Las arquitecturas de CPU de m\'ultiples n\'ucleos y GPU significaron que los chips 
 de procesadores convencionales fueran sistemas paralelos. M\'as a\'un, su paralelismo
@@ -92,7 +181,7 @@ f\'isica de multiprocesadores, como se ilustra en la Figura \ref{CUDA1}
 \end{figure}
 
 
-\subsection{Modelo de programaci\'on}
+\subsubsection{Modelo de programaci\'on}
 
 En esta Secci\'on presentaremos los conceptos principales el modelo de programaci\'on
 de CUDA C. CUDA C extiende el lenguaje est\'andar C, permitiendo al programador definir
@@ -103,7 +192,7 @@ en el momento de ejecutar el kernel. A cada hilo que ejecuta un kernel se le asi
 un identificador \'unico el cual es accesible por el hilo dentro del kernel. Estos identificadores
 siguen los lineamientos de la jerarqu\'ia de hilos analizada a continuaci\'on.
 
-\subsection*{Jerarqu\'ia de Hilos}
+\subsubsection*{Jerarqu\'ia de Hilos}
 
 Cada identificador de hilo puede ser visto como una 3-upla, por lo que cada hilo
 puede ser identificado utilizando un \'indice de una, dos o tres dimensiones. Formando as\'i
@@ -140,7 +229,7 @@ a trav\'es de memoria compartida y sincronizando su ejecuci\'on para coordinar e
 a esta memoria. Para que la cooperaci\'on sea eficiente, se requiere que el acceso a memoria
 compartida tenga baja latencia y la sincronizaci\'on no tenga una gran penalizaci\'on.
 
-\subsection*{Jerarqu\'ia de Memoria}
+\subsubsection*{Jerarqu\'ia de Memoria}
 
 Los hilos de CUDA pueden acceder a diferentes espacios de memoria durante su ejecuci\'on como
 se ilustra en la Figura \ref{CUDA3}. Cada hilo dispone de memoria local. Cada bloque de hilos
@@ -165,7 +254,7 @@ este tipo de memoria ya que no es utilizada en el trabajo.
 \end{figure}
 
 
-\subsection*{Programaci\'on Heterog\'enea}
+\subsubsection*{Programaci\'on Heterog\'enea}
 
 El modelo de programaci\'on de CUDA asume que los hilos de CUDA ejecutan en un dispositivo
 f\'isicamente separado que opera como un coprocesador del \textit{host} que esta ejecutando
@@ -182,7 +271,7 @@ el host.
 
 
 
-\section{Implementaci\'on del hardware CUDA GPGPU}
+\subsection{Implementaci\'on del hardware CUDA GPGPU}
 
 La arquitectura de NVIDA GPU est\'a construida alrededor de un arreglo de
 procesadores de flujo de m\'ultiples hilos o \textit{Streaming Multiprocessors (SMs)}.
@@ -198,7 +287,7 @@ Para manejar este n\'umero de hilos, estos utilizan una arquitectura llamada
 \textit{SIMT (Single Instruction, Multiple Thread)}
 
 
-\subsection{Arquitectura SIMT}
+\subsubsection{Arquitectura SIMT}
 
 Los multiprocesadores crean, manejan, planifican y ejecutan en paralelo grupos de 32 hilos,
 llamados \textit{warps}. Cada hilo de un warp comienzan juntas en el mismo punto del
@@ -229,7 +318,7 @@ estructura del c\'odigo para conseguir el rendimiento m\'aximo. La arquitectura 
 requiere de ciertos cuidados al acceder a la memoria y manejar la divergencia
 de los hilos, estos ser\'an analizados a m\'as adelante.
 
-\subsection{Caracter\'isticas del Hardware Multi-hilo}
+\subsubsection{Caracter\'isticas del Hardware Multi-hilo}
 
 El contexto de ejecuci\'on de cada warp (contadores de programa, registros, etc.) es mantenido
 en la memoria interna de cada multiprocesador lo largo de la vida del warp. Esto implica que cambiar
@@ -277,7 +366,7 @@ factores, pero determina cuan ocupado estar\'an los SM, permitiendo as\'i mejora
 el ocultamiento de latencia de accesos a memoria entre otras cosas.
 
 
-\section{T\'ecnicas de Rendimiento}
+\subsection{T\'ecnicas de Rendimiento}
 
 Para lograr conseguir el m\'aximo de rendimiento de la arquitectura GPU es necesario
 adaptar el problema para seguir algunos lineamentos de la arquitectura. En nuestro
