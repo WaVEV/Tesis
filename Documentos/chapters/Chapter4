@@ -1,4 +1,4 @@
-\chapter*{Modelos Computacional CPU y GPU}\label{Modelo Computacional SIMD}
+\chapter*{Modelos Computacional CPU y GPU}\label{ModeloComputacionalSIMD}
 \addcontentsline{toc}{chapter}{Modelo Computacional SIMD} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 
@@ -115,7 +115,7 @@ La ilusi\'on de la memoria virtual est\'a soportada por el mecanismo de traducci
 
 A medida que la velocidad de los procesadores aumenta el acceso a memoria es relativamente lento (en cuanto a cantidad de ciclos de CPU para hacer entrada salida). La soluci\'on al problema, de tener memoria relativamente lenta, es a\~nadir almacenamiento en memoria cach\'e y {\it prefetching}, la memoria cach\'e  proporciona un acceso r\'apido a datos utilizados frecuentemente, y el {\it prefetching} precarga datos en cache si el patr\'on de acceso es predecible.
 
-Cargar de cache toma algunos ciclos (depende de la jerarqu\'ia) y cargar desde memoria RAM toma cerca de 400 ciclos \ref{tabla_latencia}.
+Cargar de cache toma algunos ciclos (depende de la jerarqu\'ia) y cargar desde memoria RAM toma cerca de 400 ciclos como se puede ver en la tabla \ref{tabla_latencia}.
 Pero, si la CPU puede predecir los bloques de memoria que utilizar\'a ({\it prefeching}) entonces la perdida de ciclos por traer memoria desde RAM es mucho menor. Por lo tanto hacer c\'odigo amigable con la cach\'e es importante en las rutinas que son {\it CPU bound}.
 El uso de patrones de acceso a la memoria predecible y el funcionamiento en trozos de datos que son m\'as peque\~nos que la cach\'e de la CPU obtendr\'a la mayores beneficios de las cach\'es modernas.
 

@@ -318,6 +318,7 @@ Luego se integra de la misma manera con las dervidas de los B-splines (lineas \r
 \end{algorithm}
 
 \subsection{Primera implementaci\'on para dos part\'iculas}
+\label{imp2particulas}
 
 El armado de las matrices para dos part\'iculas se puede ver en tres partes ({\it o bloques}): la primera es c\'alcular las matrices $(H_l)$ y $S$ del problema de una part\'icula como fu\'e descripto m\'as arriba, la segunda es calcular la interacci\'on $U_{i,i';j,j'}$ y luego armar el sistema con una simetrizaci\'on.
 
