@@ -4,66 +4,77 @@
 \addcontentsline{toc}{chapter}{Optimizaci\'on} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 
-Este trabajo tiene como objetivo la optimizaci\'on de diferentes funciones y estructuras de datos de una implementaci\'on del m\'etodo variacional de Rayleigh-Ritz explicado en el cap\'itulo \ref{methodimp}, ya que esta implementaci\'on no escala lo suficiente. Necesitando gran cantidad de memoria y tiempo de procesamiento a medida que el tama\~no de problema crece.
-A lo largo de este cap\'itulo mostraremos las diferentes modificaciones algor\'itmicas y de estructuras de datos m\'as eficientes para lograr que el programa tome ordenes de tiempo y memoria menor, logrando una mejor escalabilidad.
+Este trabajo tiene como objetivo la optimizaci\'on de diferentes funciones y estructuras de datos de una implementaci\'on del m\'etodo variacional de Rayleigh-Ritz explicado en la secci\'on \ref{methodimp}, ya que esta implementaci\'on escala muy mal, necesitando gran cantidad de memoria y tiempo de procesamiento a medida que el tama\~no de problema crece.
+A lo largo de este Cap\'itulo mostraremos las diferentes modificaciones algor\'itmicas y de estructuras de datos m\'as eficientes para lograr que el programa tome \'ordenes de tiempo y memoria menor, logrando una mejor escalabilidad.
 
 \section{Optimizaci\'on en Memoria}
 
-La optimizaci\'on en cuanto a almacenamiento se da al intentar no almacenar ceros en la matrices (almacenar la m\'inima cantidad de ceros posibles sin desmerecer la eficiencia computacional de 
+La optimizaci\'on en cuanto a almacenamiento se da al evitar almacenar ceros en la matrices (almacenar la m\'inima cantidad de ceros posibles sin desmerecer la eficiencia computacional de 
 operaciones de matrices y vectores) y no almacenar datos que no requieren muchas operaciones para ser recalculados.
 
-Para esto se utiliz\'o estructuras de matrices dispersas y se reemplazaron arreglos por funciones que devuelven el mismo valor dado un \'indice. Se utiliz\'o dos tipos de estructuras CDS explicadas en \ref{CDS} y CCS explicadas en \ref{CCS}.
+Para esto se utiliz\'o estructuras de matrices dispersas y se reemplazaron arreglos por funciones que devuelven el mismo valor dado un \'indice. Se utiliz\'o dos tipos de estructuras: CDS explicadas en \ref{CDS} y CCS explicadas en \ref{CCS}.
 
 \subsection{Matrices de Banda}
-Las variables que estaban definidas en torno a la traza seg\'un la variable $KORD$ son $s, v_0, ke, f\ y\ g$ 
-donde todas son sim\'etricas salvo $f$ y $g$ por lo tanto se utilizo una estructura de matriz de banda. 
+Las matrices que estaban definidas en torno a la traza seg\'un la constante $KORD$ son $s, v_0, ke, f\ y\ g$ 
+donde todas son sim\'etricas salvo $f$ y $g$ por lo tanto se utiliz\'o una estructura de matriz de banda. 
 Estas matrices son comprimidas de un orden de $\orderof{((L_{INT} + KORD)^2)}$ a $\orderof{((L_{INT}+
   KORD) KORD)}$. La variable $Vef$ es un tensor de banda por lo tanto se puede usar una estructura 
  an\'aloga para almacenaje, por tanto es comprimida de un orden de $\orderof{((L_{INT} + KORD)^4)}$ a $\orderof{(( (L_{INT} + KORD) KORD)^2)}$
 
 \subsection{Matrices de Almacenamiento de Columnas Comprimidas}
-Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo en torno a la traza (ver \ref{img:matstyle}) se utiliz\'o este tipo de almacenamiento, que tambi\'en es provechoso para el m\'etodo de Arnoldi. Estas matrices est\'an comprimidas de un orden de $\orderof{(( L_{INT} + KORD)^4)}$ a $\orderof{(( L_{INT} + KORD)^2)}$
+Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo en torno a la traza (ver Figura \ref{img:matstyle}) se utiliz\'o este tipo de almacenamiento, que tambi\'en es provechoso para el m\'etodo de Arnoldi. Estas matrices est\'an comprimidas de un orden de $\orderof{(( L_{INT} + KORD)^4)}$ a $\orderof{(( L_{INT} + KORD)^2)}$
 
-\begin{figure}[!htbpp]
+\begin{figure}[!htbp]
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.3]{mat1.png}
+    \includegraphics[scale=0.6]{hsim20.eps}
 
-    \caption{Distribuci\'on de elementos distintos de cero de las matrices $hsim$, $ms$. $mv$ para $L\_INTERVALS=50$}
+    \caption{Distribuci\'on de elementos distintos de cero de las matrices $hsim$, $ms$, $mv$ para $L\_INTERVALS=20$}
     \label{img:matstyle}
   \end{center}
 \end{figure}
 
-\begin{figure}[!htbpp]
+\begin{figure}[!htbp]
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.4]{mat2.png}
+    \includegraphics[scale=0.4]{hsim50.eps}
 
-    \caption{Distribuci\'on de elementos distintos de cero de las matrices $hsim$, $ms$. $mv$ para $L\_INTERVALS=150$}
+    \caption{Distribuci\'on de elementos distintos de cero de las matrices $hsim$, $ms$, $mv$ para $L\_INTERVALS=50$}
     \label{img:matstyle2}
   \end{center}
 \end{figure}
 
-\begin{figure}[!htbpp]
+\begin{figure}[!htbp]
+  \label{fig:vefaaaaaaaaa}
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.3]{vef.png}
+    \includegraphics[scale=0.4]{vef.eps}
 
     \caption{Distribuci\'on de elementos distintos de cero de la matriz $Vef$}
     \label{img:matstylevef}
   \end{center}
 \end{figure}
 
-
-
-\begin{figure}[!htbpp]
+\begin{figure}[!htbp]
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.3]{ke,s,v0.png}
+    \includegraphics[scale=0.4]{matricita_vef.eps}
+
+    \caption{Zoom de uno de los puntos de $Vef$ ver Figura 5.3}
+    \label{img:matstylevef}
+  \end{center}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+  \begin{center}
+    \leavevmode
+
+    \includegraphics[scale=0.3]{smat.eps}
 
     \caption{Distribuci\'on de elementos distintos de cero de la matriz $s,\ ke$ y $v_0$}
     \label{img:matstyles}
@@ -74,17 +85,17 @@ Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo 
 
 \section{Optimizaci\'on en CPU}
 La optimizaci\'on m\'as grande se debi\'o al reducir el espacio de c\'alculo de los ciclos (reduciendo las iteraciones de los ciclos), tomando solo los valores no cero de la matriz, ya que estos pueden saberse de antemano. 
-Y como el cantidad de los elementos no nulos es en orden menor al tama\~no de los elementos nulos, esto permite una gran mejora en tiempo computacional, reduciendo complejidad.
-Otras optimizaciones han sido por cacheo de resultados, factorizaci\'on de c\'odigo, c\'alculo de valores en vez de ser almacenados.
+Y como la cantidad de los elementos no nulos es en orden menor al tama\~no de los elementos nulos, esto permite una gran mejora en tiempo computacional, reduciendo la complejidad.
+Otras optimizaciones han sido por cacheo de resultados, factorizaci\'on de c\'odigo y c\'alculo de valores en vez de ser almacenados.
 
 \subsection{Reducir el Espacio de C\'alculo}
 
-Para reducir el espacio de c\'alculos se ha modificado los espacio de iteraci\'on en los ciclos del programa en los cuales se calculaba la matriz, de esa manera intentar calcular la menor cantidad de ceros. Para ello se estudi\'o la estructura de cada matriz, como ya explicamos en la secci\'on anterior de optimizaci\'on de memoria, algunas matrices son de banda y otras son dispersas sin esta propiedad (o no se cumple como uno desea).
+Para reducir el espacio de c\'alculo se ha modificado los espacio de iteraci\'on en los ciclos del programa en los cuales se calculaba la matriz, para intentar calcular la menor cantidad de ceros. Para ello se estudi\'o la estructura de cada matriz, como ya explicamos en la secci\'on anterior de optimizaci\'on de memoria, algunas matrices son de banda y otras son dispersas sin esta propiedad o no se cumple como uno desea.
 
 
 \subsubsection{Funci\'on Intersecci\'on}
-En esta funci\'on se paso de tener un orden de \orderof{$(L_{INT}\ INT_G\ (L_{INT}\ INT_G\ KORD\ KORD))$} a 
- \orderof{$(L_{INT}\ INT_G\ (L_{INT}\ INT_G\ KORD\ KORD\ +\ KORD\ KORD\ L_{INT}\ KORD))$} en el algoritmo \ref{alg:interaccion_mejorado} podemos ver el cambio en el ciclo. S\'olo cambiando una linea.
+En esta funci\'on se pas\'o de tener un orden de \orderof{$(L_{INT}\ INT_G\ (L_{INT}\ INT_G\ KORD\ KORD))$} a 
+ \orderof{$(L_{INT}\ INT_G\ (L_{INT}\ INT_G\ KORD\ KORD\ +\ KORD\ KORD\ L_{INT}\ KORD))$} en el Algoritmo \ref{alg:interaccion_mejorado} podemos ver el cambio en el ciclo, s\'olo cambiando una linea.
 
 
  \begin{algorithm}[!htbp]
@@ -145,11 +156,11 @@ En esta funci\'on se paso de tener un orden de \orderof{$(L_{INT}\ INT_G\ (L_{IN
 \end{algorithm}
 
 \subsubsection{Funci\'on $t$ y $k$}
-Esta se calcula sin necesidad de memoria ya que es una funci\'on que tiene tres partes bien diferenciadas, donde la primera y la \'ultima son constantes y la segunda es lineal ver \ref{img:funciont}. Como vimos en el cap\'itulo \ref{ModeloComputacionalSIMD} cuando las cuentas son pocas y los datos para estas son de f\'acil acceso (est\'an impl\'icitos o recientemente usados) recalcular un valor es mejor que ir a buscarlo a memoria.
+Esta se calcula sin necesidad de memoria ya que es una funci\'on que tiene tres partes bien diferenciadas, donde la primera y la \'ultima son constantes y la segunda es lineal ver Figura \ref{img:funciont}. Como vimos en la subsecci\'on \ref{ModeloComputacionalSIMD} cuando las cuentas son pocas y los datos para estas son de f\'acil acceso (est\'an impl\'icitos o recientemente usados) recalcular un valor es mejor que ir a buscarlo a memoria.
 
 \subsubsection{Escalas de Gauss-Legendre}
 \label{escala-gauss}
-El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'on $KNOT\_PESOS$ \ref{alg:knot_pesos} sin embargo este m\'etodo  puede ser calculado una sola vez y luego ser escalado para cualquier intervalo [a,b], luego una optimizaci\'on tanto en memoria como en tiempo de ejecuci\'on es resolver las abscisas y pesos de $Gauss-Legendre$ para [0, 1] y realizar las funciones de escalado. Entonces podemos reemplazar el algoritmo \ref{alg:knot_pesos} con \ref{alg:gaussm} y luego para indexar los $w_i$ y $x_i$ con las siguientes funciones \ref{algo:index_w} y \ref{algo:index_x}
+El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'on $KNOT\_PESOS$ (ver Algoritmo \ref{alg:knot_pesos}) sin embargo este m\'etodo  puede ser calculado una sola vez y luego ser escalado para cualquier intervalo [a,b], luego una optimizaci\'on tanto en memoria como en tiempo de ejecuci\'on es resolver las abscisas y pesos de $Gauss-Legendre$ para [-1, 1] y realizar las funciones de escalado. Entonces podemos reemplazar el Algoritmo \ref{alg:knot_pesos} con el Algoritmo \ref{alg:gaussm} y luego para indexar los $w_i$ y $x_i$ con las siguientes funciones descriptas en los Algoritmos \ref{algo:index_w} y \ref{algo:index_x}
 
 
 \begin{algorithm}[!htb]
@@ -196,7 +207,7 @@ El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'o
 En esta funci\'on se pas\'o de tener un orden de \orderof(${(L_{INT} + KORD)^4}$) a 
 
 \noindent
-\orderof(${(L\_INTERVALS + KORD)^2 KORD^2}$). En el algoritmo \ref{alg:sener_mejorado} est\'an resaltadas las lineas donde se realiz\'o la reducci\'on en cuanto a iteraciones. Se han agregado dos variables extras $jump_1, jump_2$ estas son los saltos que se deben dar, al no recorrer todo el ciclo secuencialmente hay que ir saltando a los valores no nulos ya que las matrices que este algoritmo forma tiene la estructura mostrada en la imagen \ref{img:matstyle}.
+\orderof(${(L\_INTERVALS + KORD)^2 KORD^2}$). En el Algoritmo \ref{alg:sener_mejorado} est\'an resaltadas las lineas donde se realiz\'o la reducci\'on en cuanto a iteraciones. Se han agregado dos variables extras $jump_1, jump_2$ estas son los saltos que se deben dar, al no recorrer todo el ciclo secuencialmente hay que ir saltando a los valores no nulos ya que las matrices que este algoritmo forma tiene la estructura mostrada en la Figura \ref{img:matstyle}.
 
 \begin{algorithm}[!htbp]
  \label{alg:sener_mejorado}
@@ -245,12 +256,12 @@ En esta funci\'on se pas\'o de tener un orden de \orderof(${(L_{INT} + KORD)^4}$
 \end{algorithm}
 
 \subsection{Factorizaci\'on de c\'odigo y cacheo de resultados}
-Esta optimizaci\'on se realiza de intercambiar la anidaci\'on de ciclos para evitar recalcular una funci\'on con los mismos par\'ametros.
+Esta optimizaci\'on consiste en intercambiar la anidaci\'on de ciclos para evitar recalcular una funci\'on con los mismos par\'ametros.
 
-Si bien anteriormente hablamos que reducir el uso de memoria por recalcular el valor de una funci\'on era conveniente, este no es el caso pues la funci\'on $bsplvb$ y $bder$ es mas costosa recalcular que buscar en ram, por ende conviene hacer cacheo de la funci\'on en vez de recalcular.
-Esta funci\'on se requiere calcular su valor repetidas veces en los procesos $interaccion$ y $calculo\ matrices$ y se abord\'o a la soluci\'on de su c\'alculo memorizando los resultados de la funci\'on, no fue posible factorizaci\'on.
+Si bien anteriormente hablamos que reducir el uso de memoria por recalcular el valor de una funci\'on era conveniente, este no es el caso pues la funci\'on $bsplvb$ y $bder$ es mas costosa recalcular que buscar en RAM, por ende conviene hacer cacheo de la funci\'on en vez de recalcular.
+Esta funci\'on requiere calcular su valor repetidas veces en los procesos $interaccion$ y $calculo\ matrices$ por lo tanto se memoriz\'o los resultados para luego accederlos mostr\'o ser una mejora.
 
-En el c\'odigo \ref{alg:calculomatrices_mejorado} podemos ver como el ciclo de $j$ se pasa unos niveles mas arriba en la anidaci\'on y como se calcula el vector $bders$ cacheando las funciones 
+En el Algoritmo \ref{alg:calculomatrices_mejorado} podemos ver como el ciclo de $j$ se pasa unos niveles mas arriba en la anidaci\'on y como se calcula el vector $bders$ cacheando las funciones 
 $bder$ para no recalcularlo en los ciclos siguientes.
 
 
@@ -310,34 +321,34 @@ $bder$ para no recalcularlo en los ciclos siguientes.
 
 \subsection{C\'alculo de Valores versus Almacenamiento}
 Cuando el c\'alculo del valor es sencillo es mejor calcularlo nuevamente en vez de ir a buscarlo a memoria, puesto que eso produce m\'as fallos de cach\'e y el acceso a memoria es 100 veces m\'as lento \cite{latencia_grafico}
-Tal es el caso de la funci\'on $t$, esta se calcula sin necesidad de memoria ya que es una funci\'on que tiene tres partes bien diferenciadas, donde la primera y la ultima son constantes y la segunda es lineal ver figura \ref{img:funciont}.
+Tal es el caso de la funci\'on $t$, esta se calcula sin necesidad de memoria ya que es una funci\'on que tiene tres partes bien diferenciadas, donde la primera y la ultima son constantes y la segunda es lineal ver Figura \ref{img:funciont}.
 
 
-\begin{figure}[!htbpp]
+\begin{figure}[h]
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.15]{funcionT.png}
+    \includegraphics[scale=0.50]{functionT.eps}
 
-    \caption{Funci\'on T Restringida para observar su forma}
+    \caption{Funci\'on $T$ Restringida para observar su forma}
     \label{img:funciont}
   \end{center}
 \end{figure}
 
 \section{Optimizaci\'on en GPU}
 \label{gpuoptim}
-Se implement\'o una versi\'on h\'ibrida (parte en GPU y parte en CPU) del m\'etodo $interaccion$, que es la funci\'on m\'as pesada.
+Se implement\'o una versi\'on h\'ibrida (parte en GPU y parte en CPU) del m\'etodo $interaccion$, que es la funci\'on m\'as computacional.
 
 La Ec. \ref{matriz_interaccion} se puede paralelizar usando dos kernels, uno para calcular la integral interior y otra para calcular la integral externa.
-Como vimos anteriormente en \ref{imp2particulas} para el calculo de la Ec. \ref{matriz_interaccion} se realiza el calculo de dos funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ del ciclo $i,i'$ detallada en la Ec. \ref{iteraccion_factoreo}. Entonces esta implementaci\'on en GPU se separ\'o en dos kernels, uno para calcular las funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ y otro kernel para calcular las integrales a estas dos funciones.
-El primer Kernel \ref{frag:f} utiliza $KORD^2$ n\'umero de hilos y $L_{INT}*INT_G$ cantidad de bloques. Y el segundo \ref{frag:vef} utiliza $KORD^{2}\ 2\ (KORD+1)$ cantidad de hilos y $L_{INT} + KORD - 3$ cantidad de bloques.
-Luego se necesita hacer cambios en el funci\'on interacci\'on, estos se ven reflejados en el algoritmo \ref{interaccion_GPU}.
+Como vimos anteriormente en la secci\'on \ref{imp2particulas} para el c\'alculo de la Ec. \ref{matriz_interaccion} se realiza el c\'alculo de dos funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ del ciclo $i,i'$ detallada en la Ec. \ref{iteraccion_factoreo}. Entonces esta implementaci\'on en GPU se separ\'o en dos kernels, uno para calcular las funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ y otro kernel para calcular las integrales a estas dos funciones; notar que esta idea no es diferente a la implementaci\'on secuencial, lo que viene a hacer la implementaci\'on en GPU es paralelizar el {\it los fors} involucrados en el calculo de la cuadratura {\it Gauss-Legendre} de ambas integraciones i.e. cada {\it id} de hilo y bloque representa una suma de la cuadratura.
+El primer kernel ver Algoritmo \ref{frag:f} utiliza $KORD^2$ n\'umero de hilos y $L_{INT}*INT_G$ cantidad de bloques. Y el segundo ver Algoritmo \ref{frag:vef} utiliza $KORD^{2}\ 2\ (KORD+1)$ cantidad de hilos y $L_{INT} + KORD - 3$ cantidad de bloques.
+Luego se necesita hacer cambios en el funci\'on interacci\'on, estos se ven reflejados en el Algoritmo \ref{interaccion_GPU}.
 
 
-En la funci\'on del algoritmo \ref{frag:f} se necesita el contexto (o {\it enviroment}) para calcular $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$, como las variables $rr_1,\ w_1$ entre otras, y tambi\'en el valor de los B-Splines en el punto (estos son precalculados en CPU) por ende estos datos son copiados a la memoria de la placa, luego son solo accedidos para lectura.
-En la funci\'on del algoritmo \ref{frag:Vef} as\'i como la anterior se necesita del contexto para calcular $Vef$.
+En la funci\'on del Algoritmo \ref{frag:f} se necesita el contexto (o {\it enviroment}) para calcular $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$, como las variables $rr_1,\ w_1$ entre otras, y tambi\'en el valor de los B-Splines en el punto (estos son precalculados en CPU) por ende estos datos son copiados a la memoria de la placa, luego son solo accedidos para lectura.
+En la funci\'on del Algoritmo \ref{frag:vef} as\'i como la anterior se necesita del contexto para calcular $Vef$.
 
-Luego de esto la funci\'on {\it integraci\'on} queda factorizada como se muestra en el algoritmo \ref{interaccion_GPU}
+Luego de esto, la funci\'on {\it integraci\'on} queda factorizada como se muestra en el algoritmo \ref{interaccion_GPU}
 
 
 
@@ -440,16 +451,16 @@ Para ello se aumentara el valor de la variable $L\_INTERVALS$ para generar probl
 
 Cada funci\'on se le medir\'a el tiempo individualmente, la memoria se tomar\'a el total del programa.
 
-No se medir\'a el tiempo que toma en resolver el problema de autovalores ni su memoria requerida, ya que la resuelve una biblioteca de terceros y depende mucho de que biblioteca o paquete que se use. Tambi\'en se puede exportar las matrices para ser luego resueltos con las herramientas que se desee. Las matrices exportadas van a estar en matrices comprimidas por columnas (CCS \ref{CCS}).
+No se medir\'a el tiempo que toma en resolver el problema de autovalores ni su memoria requerida, ya que la resuelve una biblioteca de terceros y depende mucho de que biblioteca o paquete que se use. Tambi\'en se puede exportar las matrices para ser luego resueltos con las herramientas que se desee. Las matrices exportadas van a estar en matrices comprimidas por columnas (CCS secci\'on \ref{CCS}).
 
 \section{Medici\'on de rendimiento en el procesamiento}
 Para las pruebas solo nos centraremos en la variable $L\_INTERVALS$ ya que las dem\'as variables no influyen en el tama\~no del problema, salvo $INT\_G$ y $KORD$ que usualmente no son demasiado grandes.
 Al comparar rendimiento, nos interesa el tiempo y la memoria que toma calcular el sistema a diagonalizar. 
 
-En la tabla \ref{table:env} detallamos el entorno utilizado para realizar las pruebas. 
+En el Cuadro \ref{table:env} detallamos el entorno utilizado para realizar las pruebas. 
 
 
-\begin{figure}[h]
+\begin{table}[h]
 \begin{center}
 \label{table:env}
 \small
@@ -460,11 +471,26 @@ En la tabla \ref{table:env} detallamos el entorno utilizado para realizar las pr
 
   Procesador & Intel(R) Core(TM) i7 CPU 980 @ 3.33GHz \\
   \hline
-  Memoria & 24 GB DDR3@  \\
+  Memoria & 24 GB DDR3@  1067 MT/S\\
   \hline
   Arquitectura & Nehalem \\
   \hline
+  Sistema Operativo & Debian GNU/Linux\\
+  \hline
+  Compilador & gcc version 7.2.0\\
+  \hline
+  Flags & -larpack -lblas -llapack -lgfortran -fopenmp -O3 \\
+  \hline
   \multicolumn{2}{|c|}{\textbf{GPU}} \\
+  \hline
+  Version CUDA & 7.5\\
+  \hline
+  Flags & -gencode arch=compute\_30,code=sm\_30\\
+  &-gencode arch=compute\_35,code=sm\_35\\
+  &-gencode arch=compute\_37,code=sm\_37\\
+  &-gencode arch=compute\_50,code=sm\_50\\
+  &-gencode arch=compute\_52,code=sm\_52\\
+  &-gencode arch=compute\_52,code=compute\_52 \\
   \hline
   Procesador &GTX 980 \\
   \hline
@@ -472,7 +498,7 @@ En la tabla \ref{table:env} detallamos el entorno utilizado para realizar las pr
   \hline
   Interfaz & PCI Express 2.0 \\
   \hline
-  Arquitectura & Maxwell \\
+  Arquitectura & \textbf{Maxwell} \\
   \hline
   Procesador & K40 \\
   \hline
@@ -486,13 +512,14 @@ En la tabla \ref{table:env} detallamos el entorno utilizado para realizar las pr
 \end{tabular}
 \end{center}
 \caption{Entorno}
-\end{figure}
+\end{table}
 
 \section{Medici\'on en el uso de Memoria}
 En el gr\'afico de la Figura \ref{graph:memoria} se puede ver como var\'ia la cantidad de memoria necesaria para el c\'alculo del sistema en la versi\'on no optimizada, se corta en el experimento en un $L\_INTERVALS=200$ pues en el experimento siguiente $L_INTERVALS=250$ supera la cantidad de memoria de la computadora utilizada por tanto su c\'omputo se demora enormemente.
 Lo destacable del Gr\'afico \ref{graph:memoria} es como el crecimiento de ambas curvas es de ordenes diferentes, lo cual no guardar los ceros (o la m\'inima cantidad posible) ofrece una notable escalabilidad en cuanto a memoria. Esto ocurre en matrices muy ralas, como lo son en este caso.
 
-\begin{figure}[!htbpp]
+\begin{figure}[h]
+  \renewcommand\figurename{Gr\'agico}
   \begin{center}
     \leavevmode
 
@@ -514,17 +541,18 @@ Como dijimos anteriormente el proceso del m\'etodo se puede separar en cuatro pa
 \end{enumerate}
 
 \subsection{Optimizaciones de una Part\'icula.}
-Como ya se dijo en \ref{una_particula} este proceso consta de dos partes una est\'a figurada en el algoritmo \ref{alg:knot_pesos} y la otra en el algoritmo \ref{alg:calculomatrices}.
-Como podemos ver en el gr\'afico \ref{graph:una_particula} como se fueron aplicando las diferentes forma de optimizaci\'on. Notar que el gr\'afico tiene el tiempo que cuesta calcular la funci\'on auxiliar $KNOT\_PESOS$.
-El primer cambio fue no alojar memoria din\'amicamente, sino que pedirla en tiempo de compilaci\'on, esto ser\'ia declararlas globalmente con un tama\~no sabido de antemano. El segundo cambio consisti\'o en una peque\~na factorizaci\'on de c\'odigo para llamar menos cantidad de veces a la funci\'on que calcula el valor del B-spline en un punto dado. El tercer cambio fue la eliminaci\'on de la funci\'on $KNOT\_PESOS$ como se explic\'o en \ref{escala-gauss}, (notar que es como una resta entre la linea de $KNOT\_PESOS$ y la anterior).
-Luego se aplic\'o simetr\'ia para calcular la mitad de la matriz solamente. Y por \'ultimo la implementaci\'on de una {\it Lookup table} para cacheo de las derivadas de los B-splines en el punto.
+Como ya se dijo en la subsecci\'on \ref{una_particula} este proceso consta de dos partes una se muestra en el Algoritmo \ref{alg:knot_pesos} y la otra en el Algoritmo \ref{alg:calculomatrices}.
+Como podemos ver en el Gr\'afico \ref{graph:una_particula} como se fueron aplicando las diferentes forma de optimizaci\'on. Notar que el gr\'afico tiene el tiempo que cuesta calcular la funci\'on auxiliar $KNOT\_PESOS$.
+El primer cambio fue no pedir memoria din\'amicamente, sino que lo pedir\'a el sistema operativo, esto ser\'ia declararlas globalmente con un tama\~no sabido de antemano. El segundo cambio consisti\'o en una peque\~na factorizaci\'on de c\'odigo para llamar menos cantidad de veces a la funci\'on que calcula el valor del B-spline en un punto dado. El tercer cambio fue la eliminaci\'on de la funci\'on $KNOT\_PESOS$ como se explic\'o en \ref{escala-gauss}, (notar que es como una resta entre la linea de $KNOT\_PESOS$ y la anterior).
+Luego se aplic\'o simetr\'ia para calcular la mitad de la matriz solamente. Y por \'ultimo la implementaci\'on de una {\it lookup table} para cacheo de las derivadas de los B-splines en el punto. En el Cuadro \ref{table:speedup1par} se muestra el {\it speed up} para cada valor de {\it L\_INTERVALS} logrando un m\'aximo de 34.7x.
 
 
-\begin{figure}[!htbpp]
+\begin{figure}[h]
+  \renewcommand\figurename{Gr\'agico}
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.4]{unaparticula.png}
+    \includegraphics[scale=0.4]{unaparticula.eps}
 
     \caption{Mediciones del pico de memoria}
     \label{graph:una_particula}
@@ -532,13 +560,43 @@ Luego se aplic\'o simetr\'ia para calcular la mitad de la matriz solamente. Y po
 \end{figure}
 
 
+\begin{table}[h]
+\begin{center}
+\label{table:speedup1par}
+\small
+\begin{tabular}{ |c|c|c|c| }
+  \hline
+  L\_INTERVALS & Tiempo No Optimizado & Tiempo Optimizado & Speed Up \\
+  \hline
+  40 & 0.185 & 0.008 & 21.944\\
+  50 & 0.225 & 0.009 & 25.051\\
+  80 & 0.370 & 0.014 & 26.874\\
+  100 & 0.457 & 0.015 & 30.524\\
+  150 & 0.682 & 0.022 & 30.535\\
+  200 & 0.918 & 0.026 & 34.652\\
+  250 & 1.177 & 0.037 & 32.090\\
+  300 & 1.368 & 0.042 & 32.908\\
+  350 & 1.632 & 0.050 & 32.498\\
+  400 & 1.832 & 0.050 & 36.648\\
+  450 & 2.124 & 0.064 & 33.020\\
+  500 & 2.335 & 0.071 & 33.087\\
+  550 & 2.554 & 0.077 & 33.038\\
+  600 & 2.778 & 0.080 & 34.703\\
+  650 & 3.067 & 0.091 & 33.782\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Speed Up No Optimizado vs Optimizado}
+\end{table}
+
 \subsection{Optimizaciones de dos Part\'iculas}
-Como se explic\'o anteriormente este proceso cuenta con 3 partes \ref{imp2particulas}, una es calcular el {\it problema de una part\'icula}, la otra es calcular la {\it interacci\'on} y la tercera realizar el proceso {\it sener}. Las optimizaciones en este problema fuer\'on las mismas que se realizaron en el problema de una part\'icula, dado que las dos funciones que pertenecen exclusivamente al problema de dos part\'iculas utilizan las matrices calculadas en el de una, luego las distribuciones de los valores no nulos esta acoplado, esto hace que las mismas ideas del proceso con una part\'icula se puedan aplicar al de dos de manera directa.
+Como se explic\'o anteriormente este proceso cuenta con 3 partes ver secci\'on \ref{imp2particulas}, una es calcular el {\it problema de una part\'icula}, la otra es calcular la {\it interacci\'on} y la tercera realizar el proceso {\it sener}. Las optimizaciones en este problema fueron las mismas que se realizaron en el problema de una part\'icula, dado que las dos funciones que pertenecen exclusivamente al problema de dos part\'iculas utilizan las matrices calculadas en el de una part\'icula, luego las distribuciones de los valores no nulos est\'an acoplados, esto hace que las mismas ideas del proceso con una part\'icula se puedan aplicar al de dos de manera directa.
 As\'i mismo como las estructuras de datos (matrices a generar) est\'an acopladas se realiz\'o la reimplementaci\'on del m\'etodo con las optimizaciones antes vistas. No hay pasos intermedios de mejoras, sino una sola mejora en base al c\'odigo optimizado del problema de una part\'icula.
 Como se vi\'o el orden algor\'itmico es menor, esto es consecuencia de no computar los ceros que en cantidad son de orden mayor a la cantidad de no-ceros. Haber cambiado las estructuras de datos implic\'o bajar uno o dos ordenes (depende de la funci\'on).
 
 
-\begin{figure}[!htbpp]
+\begin{figure}[h]
+  \renewcommand\figurename{Gr\'agico}
   \begin{center}
     \leavevmode
 
@@ -551,10 +609,11 @@ Como se vi\'o el orden algor\'itmico es menor, esto es consecuencia de no comput
 
 \subsection{Optimizaci\'on usando GPU}
 
-La optimizaci\'on en GPU se realiz\'o en el m\'etodo $interaccion$ como fue presentado en \ref{gpuoptim}, los resultados que podemos ver en el Gr\'afico \ref{graph:cpu_vs_gpu}. Se ha conseguido una velocidad hasta 12.8x superior a la mejor implementaci\'on en CPU. Podemos ver que la Placa de video {\it GTX 980} se comport\'o mejor que la {\it K40} dado que tiene mejor rendimiento en las operaciones \cite{?????}
+La optimizaci\'on en GPU se realiz\'o en el m\'etodo $interaccion$ como fue presentado en la secci\'on \ref{gpuoptim}, los resultados que podemos ver en el Gr\'afico \ref{graph:cpu_vs_gpu}. Se ha conseguido una velocidad hasta 12.9x, como se puede ver en el Cuadro \ref{table:speedupgpu}, superior a la mejor implementaci\'on en CPU. Podemos ver que la Placa de video {\it GTX 980} se comport\'o mejor que la {\it K40} dado que tiene mejor rendimiento en las operaciones de punto flotante de simple precici\'on.
 
 
-\begin{figure}[!htbpp]
+\begin{figure}[h]
+  \renewcommand\figurename{Gr\'agico}
   \begin{center}
     \leavevmode
  
@@ -565,3 +624,34 @@ La optimizaci\'on en GPU se realiz\'o en el m\'etodo $interaccion$ como fue pres
     \label{graph:cpu_vs_gpu}
   \end{center}
 \end{figure}
+
+
+\begin{table}[h]
+\begin{center}
+\label{table:speedupgpu}
+\small
+\begin{tabular}{ |c|c|c|c|c|c| }
+  \hline
+  L\_INTERVALS & Tiempo CPU &   Tiempo   & Speed Up & Tiempo K40 & Speed Up \\
+               &            &   GTX980   &  GTX980  &            &    K40\\
+  \hline
+  40 & 3.350 & 4.212 & 0.795 & 2.866 & 1.169\\
+  50 & 5.265 & 4.024 & 1.308 & 3.205 & 1.643\\
+  80 & 13.553 & 5.494 & 2.467 & 4.410 & 3.073\\
+  100 & 21.201 & 4.288 & 4.944 & 5.164 & 4.106\\
+  150 & 48.133 & 4.809 & 10.009 & 8.552 & 5.628\\
+  200 & 85.695 & 6.169 & 13.891 & 13.550 & 6.325\\
+  250 & 133.899 & 7.936 & 16.871 & 20.167 & 6.639\\
+  300 & 192.871 & 11.364 & 16.972 & 28.515 & 6.764\\
+  350 & 262.632 & 16.948 & 15.497 & 38.551 & 6.813\\
+  400 & 343.160 & 27.332 & 12.555 & 49.341 & 6.955\\
+  450 & 434.191 & 34.075 & 12.742 & 62.108 & 6.991\\
+  500 & 536.205 & 41.716 & 12.854 & 76.332 & 7.025\\
+  550 & 648.931 & 50.266 & 12.910 & 92.064 & 7.049\\
+  600 & 772.392 & 59.990 & 12.875 & 108.469 & 7.121\\
+  650 & 906.392 & 70.547 & 12.848 & 126.974 & 7.138\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Speed Up No Optimizado vs Optimizado}
+\end{table}

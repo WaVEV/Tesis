@@ -218,13 +218,13 @@ U_{i,i';j,j'} = \int_0^{r_{max}} \varphi_i(r_1)\,f_{j,j'}(r_1)\,\varphi_{i'}(r_1
 \end{equation}
 
 \section{Implementaci\'on n\'umerica}
-Este m\'etodo, tanto para una part\'icula como para dos, tiene dos partes bien diferenciadas una es construir el sistema representado en las EC \ref{ec_auval} o \ref{eq:scho-2p} y la otra parte es resolver dicho sistema. Para la resoluci\'on del sistema se utilizaron bibliotecas de terceros \cite{LAPACK, ARPACK} y para armar el sistema hay que calcular las matrices involucradas, este c\'alculo est\'a expresado en las f\'ormulas \ref{elemento_matriz} y \ref{mat-hamiltoniano-2p} para una part\'icula y dos respectivamente, las itegrales relacionadas se aproximaron con el m\'etodo {\it Gauss Legendre}.
+Este m\'etodo, tanto para una part\'icula como para dos, tiene dos partes bien diferenciadas una es construir el sistema representado en las EC \ref{ec_auval} o \ref{eq:scho-2p} y la otra parte es resolver dicho sistema. Para la resoluci\'on del sistema se utilizaron bibliotecas de terceros \cite{LAPACK, ARPACK} y para armar el sistema hay que calcular las matrices involucradas, este c\'alculo est\'a expresado en las f\'ormulas \ref{elemento_matriz} y \ref{mat-hamiltoniano-2p} para para una y dos part\'iculas respectivamente, las itegrales relacionadas se aproximaron con el m\'etodo {\it Gauss Legendre}.
 
 Llamemos $v_0$ al tercer t\'ermino de la derecha la Ec. \ref{elemento_matriz} y $ke$ los dos primeros t\'erminos de \ref{elemento_matriz} y $s$ representa la matriz {\it S} en \ref{solapamiento}.
 Llamaremos $INT\_G$ el grado de cuadratura, $L\_INT$ la cantidad de intervalos, este par\'ametro define el tama\~no y por tanto la presici\'on del c\'alculo.
 
 \subsection{Primera implementaci\'on para una part\'icula}\label{una_particula}
-Para el armado de las matrices se puden diferenciar dos procesos o {\it bloques} secuenciales, el primero realiza un c\'alculo auxiliar y el segundo c\'alcula las matrices de la Ec. \ref{elemento_matriz} y \ref{solapamiento} con {\it Cuadratura Gaussiana}.
+Para el armado de las matrices se puden diferenciar dos procesos o {\it bloques} secuenciales, el primero realiza un c\'alculo auxiliar y el segundo calcula las matrices de la Ec. \ref{elemento_matriz} y \ref{solapamiento} con {\it Cuadratura Gaussiana}.
 
 En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots de los B-splines con una distribuci\'on uniforme (ver lineas \ref{knot_pesos:breakpoints:ini} hasta \ref{knot_pesos:breakpoints:fin}), las abscisas y pesos de la cuadratura de {\it Gauss-Legendre} para cada {\it punto de integraci\'on}, estos puntos son $L\_INT$ intervalos tomados uniformemente entre los l\'imites $r_{min}$ y $r_{max}$ de las integrales de la Ec. \ref{elemento_matriz} (ver lineas \ref{gaus:legendre_abs:ini} hasta \ref{gaus:legendre_abs:fin}).
 
@@ -260,7 +260,7 @@ En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots d
  \caption{C\'alculo auxiliar}
 \end{algorithm}
 
-En el segundo bloque (ver algoritmo \ref{alg:calculomatrices}) se c\'alcula las matrices de solapamiento $s$, la matriz de potencial $v_e$ y la matriz de energ\'ia $ke$. Las integrales de cada punto de la matriz se 
+En el segundo bloque (ver algoritmo \ref{alg:calculomatrices}) se calculan las matrices de solapamiento $s$, la matriz de potencial $v_e$ y la matriz de energ\'ia $ke$. Las integrales de cada punto de la matriz se 
 realizan con la cuadratura de {\it Gauss-Legendre} sobre B-splines, esto se puede ver en las lineas 
 \ref{calculomatrices:b-spline_integal:ini} hasta \ref{calculomatrices:b-spline_integal:fin}, notar que en la linea \ref{b-spline_eval} calculamos el valor de la funci\'on en ese punto (las dependencias del mismo se dan en el \'indice son $j$ e $i$) y luego realizamos la operaci\'on con los pesos correspondiente a cada parte de la matriz, cada valor de B-spline tiene un cierto peso dado por la cuadratura seg\'un la posici\'on de la matriz.
 
@@ -320,7 +320,7 @@ Luego se integra de la misma manera con las dervidas de los B-splines (lineas \r
 \subsection{Primera implementaci\'on para dos part\'iculas}
 \label{imp2particulas}
 
-El armado de las matrices para dos part\'iculas se puede ver en tres partes ({\it o bloques}): la primera es c\'alcular las matrices $(H_l)$ y $S$ del problema de una part\'icula como fu\'e descripto m\'as arriba, la segunda es calcular la interacci\'on $U_{i,i';j,j'}$ y luego armar el sistema con una simetrizaci\'on.
+El armado de las matrices para dos part\'iculas se puede ver en tres partes ({\it o bloques}): la primera es calcular las matrices $(H_l)$ y $S$ del problema de una part\'icula como fu\'e descripto m\'as arriba, la segunda es calcular la interacci\'on $U_{i,i';j,j'}$ y luego armar las matrices en una base simetrica seg\'un Ec. \ref{base-2p}.
 
 La Interacci\'on ({\it segunda parte}) se describe en el algoritmo \ref{alg:interaccion}. 
 En esta rutina se realiza el c\'alculo del tensor de la Ec. \ref{matriz_interaccion}, integrando con {\it Gauss-Legendre}, el tensor $U_{i,i';j,j'}$ es calculado parcialmente en cada vuelta del ciclo de la linea \ref{ciclo_integracion_vef}, entonces s\'olo se le calculan las funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ del ciclo $i,i'$ (ver Ec. \ref{iteraccion_factoreo}), como estas funciones son computadas con el m\'etodo de {\it Gauss-Lengre} en las lineas \ref{calculo_U:ini} hasta \ref{calculo_U:fin} se realiza un efoque similar al explicado en la secci\'on \ref{una_particula} s\'olo hay que tener cuidado con los limites de integraci\'on. Luego se realiza el resto de la integraci\'on en las lineas \ref{seungda_integracion:ini} hasta \ref{seungda_integracion:fin} con el m\'etodo de {\it Gauss-Legendre} tomando como funci\'on $U_{i,i'} = \sqrt{s_{i,i} * s_{i',i'}}$.

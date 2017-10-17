@@ -10,7 +10,7 @@ Sobre la arquitectura de CPU explicaremos su jerarqu\'ia de memoria, sus tiempos
 
 La unidad central de procesamiento (o CPU por sus siglas en ingl\'es: central processing unit), es el hardware dentro de la computadora que realiza las operaciones b\'asicas aritm\'eticas, l\'ogicas y de entrada/salida.
 
-La secuencia cl\'asica de una instrucci\'on es la siguiente: Buscar la instrucci\'on en la memoria, Decodificar la instrucci\'on, Ejecutar la instrucci\'on y Almacenar resultados. Los dos primeros pasos se conocen como ciclo de b\'usqueda. El ciclo de b\'usqueda procesa la instrucci\'on que contiene el c\'odigo de operaci\'on y el operando. Los pasos 3 y 4 del ciclo de instrucci\'on se conocen como ciclo de ejecuci\'on.
+La secuencia cl\'asica de una instrucci\'on es la siguiente: buscar la instrucci\'on en la memoria, Decodificar la instrucci\'on, Ejecutar la instrucci\'on y Almacenar resultados. Los dos primeros pasos se conocen como ciclo de b\'usqueda. El ciclo de b\'usqueda procesa la instrucci\'on que contiene el c\'odigo de operaci\'on y el operando. Los pasos 3 y 4 del ciclo de instrucci\'on se conocen como ciclo de ejecuci\'on.
 
 \subsection{Jerarqu\'ia de memorias}
 La jerarqu\'ia de memoria es la organizaci\'on piramidal de la memoria en niveles que tienen las computadoras. Aqu\'i solo abordaremos las distintas memorias representadas en la figura \ref{img:memory_herarchy}.

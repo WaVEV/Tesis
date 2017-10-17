@@ -689,7 +689,7 @@ Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventa
 
 
 
-\begin{table}[htdp]
+\begin{table}[htp]
     
     \centering
     \begin{tabular}{ | l || c | c | c | c | c | c |}
@@ -702,7 +702,7 @@ Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventa
     \caption{}
 \end{table}
 
-\begin{table}[htdp]
+\begin{table}[htp]
     
     \centering
     \begin{tabular}{| l || c | c | c | c | c | c |}
@@ -725,7 +725,7 @@ Est\'a claro que los ceros de relleno en esta estructura pueden ser una desventa
     \caption{}
 \end{table}
 
-\begin{table}[htdp]
+\begin{table}[htp]
   
     \centering
     \begin{tabular}{ | l || c | c | c | c | c | c |}
