@@ -28,7 +28,7 @@ Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo 
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.6]{hsim20.eps}
+    \includegraphics[width=0.8\linewidth]{hsim20.eps}
 
     \caption{Distribuci\'on de elementos distintos de cero de las matrices $hsim$, $ms$, $mv$ para $L\_INTERVALS=20$}
     \label{img:matstyle}
@@ -39,7 +39,7 @@ Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo 
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.4]{hsim50.eps}
+    \includegraphics[width=0.8\linewidth]{hsim50.eps}
 
     \caption{Distribuci\'on de elementos distintos de cero de las matrices $hsim$, $ms$, $mv$ para $L\_INTERVALS=50$}
     \label{img:matstyle2}
@@ -47,11 +47,11 @@ Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo 
 \end{figure}
 
 \begin{figure}[!htbp]
-  \label{fig:vefaaaaaaaaa}
+  \label{fig:vef}
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.4]{vef.eps}
+    \includegraphics[width=0.8\linewidth]{vef.eps}
 
     \caption{Distribuci\'on de elementos distintos de cero de la matriz $Vef$}
     \label{img:matstylevef}
@@ -62,7 +62,7 @@ Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo 
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.4]{matricita_vef.eps}
+    \includegraphics[width=0.8\linewidth]{matricita_vef.eps}
 
     \caption{Zoom de uno de los puntos de $Vef$ ver Figura 5.3}
     \label{img:matstylevef}
@@ -74,7 +74,7 @@ Para las matrices $hsim,\ ms,\ mv$ que no necesariamente est\'an definidas solo 
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.3]{smat.eps}
+    \includegraphics[width=0.8\linewidth]{smat.eps}
 
     \caption{Distribuci\'on de elementos distintos de cero de la matriz $s,\ ke$ y $v_0$}
     \label{img:matstyles}
@@ -160,15 +160,17 @@ Esta se calcula sin necesidad de memoria ya que es una funci\'on que tiene tres 
 
 \subsubsection{Escalas de Gauss-Legendre}
 \label{escala-gauss}
-El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'on $KNOT\_PESOS$ (ver Algoritmo \ref{alg:knot_pesos}) sin embargo este m\'etodo  puede ser calculado una sola vez y luego ser escalado para cualquier intervalo [a,b], luego una optimizaci\'on tanto en memoria como en tiempo de ejecuci\'on es resolver las abscisas y pesos de $Gauss-Legendre$ para [-1, 1] y realizar las funciones de escalado. Entonces podemos reemplazar el Algoritmo \ref{alg:knot_pesos} con el Algoritmo \ref{alg:gaussm} y luego para indexar los $w_i$ y $x_i$ con las siguientes funciones descriptas en los Algoritmos \ref{algo:index_w} y \ref{algo:index_x}
+El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'on $KNOT\_PESOS$ (ver Algoritmo \ref{alg:knot_pesos}) sin embargo este m\'etodo  puede ser calculado una sola vez y luego ser escalado para cualquier intervalo [a,b], luego una optimizaci\'on tanto en memoria como en tiempo de ejecuci\'on es resolver las abscisas y pesos de $Gauss-Legendre$ para [-1, 1] y realizar las funciones de escalado. Entonces podemos reemplazar el Algoritmo \ref{alg:knot_pesos} con el Algoritmo \ref{alg:gaussm} y luego para indexar los $w^{-1, 1}_i$ y $x^{-1, 1}_i$ con las siguientes funciones descriptas en los Algoritmos \ref{algo:index_w} y \ref{algo:index_x}.
+
+El algoritmo funciona de la siguiente manera: supongamos que queremos las abscisas y pesos del intervalo $[a, b]$ tenemos que correr {\it INT\_G} veces los Algoritmos \ref{algo:index_w} y \ref{algo:index_x}, pues estos los calculan para un cierto $j$ en particular, luego para cada $j \in [0, INT\_G]$  se identifica su intervalo dado por las variables $x_1 y x_2$ (en este caso en particular son uniformes, pero podr\'ian ser exponenciales) luego se calcula el centro del intervalo y su radio y se escala.
 
 
 \begin{algorithm}[!htb]
  \label{alg:gaussm}
  %\KwData{this text}
- \KwResult{C\'alculo auxiliar $x_{0,1}$, $w_{0,1}$}
- $x_{0,1} = absisas\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [0, 1]$\\
- $w_{0,1} = pesos\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [0, 1]$\\
+ \KwResult{C\'alculo auxiliar $x_{-1,1}$, $w_{-1,1}$}
+ $x^{-1,1} = abscisas\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [-1, 1]$\\
+ $w^{-1,1} = pesos\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [-1, 1]$\\
  \caption{C\'alculo auxiliar}
 \end{algorithm}
 
@@ -182,9 +184,9 @@ El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'o
  $x_m = 0.5*(x_2 + x_1)$\\
  $x_l = 0.5*(x_2 - x_1)$\\
  \uIf{$j \geq frac{INT\_G + 1}{2}$}{
-    \Return $x_m + x_j * x_l$
+    \Return $x_m + x^{-1, 1}_j * x_l$
  }\Else{
-    \Return $x_m - x_j * x_l$
+    \Return $x_m - x^{-1, 1}_j * x_l$
  }
  \caption{Valor del abscisas la cuadratura entre del $i-esimo$ intervalo}
 \end{algorithm}
@@ -199,7 +201,7 @@ El m\'etodo de $Gauss-Legendre$ es calculado $L\_INTERVALS$ veces en la funci\'o
  $x_2 = x_1 + dr$\\
  $x_l = 0.5*(x_2 - x_1)$\\
  
- \Return $\frac{2 x_l}{w_j}$
+ \Return $\frac{2 x_l}{w^{-1, 1}_j}$
  \caption{Valor del peso la cuadratura entre del $i-esimo$ intervalo}
 \end{algorithm}
 
@@ -328,7 +330,7 @@ Tal es el caso de la funci\'on $t$, esta se calcula sin necesidad de memoria ya 
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.50]{functionT.eps}
+    \includegraphics[width=0.8\linewidth]{functionT.eps}
 
     \caption{Funci\'on $T$ Restringida para observar su forma}
     \label{img:funciont}
@@ -339,7 +341,8 @@ Tal es el caso de la funci\'on $t$, esta se calcula sin necesidad de memoria ya 
 \label{gpuoptim}
 Se implement\'o una versi\'on h\'ibrida (parte en GPU y parte en CPU) del m\'etodo $interaccion$, que es la funci\'on m\'as computacional.
 
-La Ec. \ref{matriz_interaccion} se puede paralelizar usando dos kernels, uno para calcular la integral interior y otra para calcular la integral externa.
+La Ec. \ref{matriz_interaccion} se puede paralelizar, dado que es una integral y esta se reduce por medio del m\'etodo de Gauss-Legendre a una sumatoria donde cada termino es independiente.
+Luego usando dos kernels, uno para calcular la integral interior y otra para calcular la integral externa.
 Como vimos anteriormente en la secci\'on \ref{imp2particulas} para el c\'alculo de la Ec. \ref{matriz_interaccion} se realiza el c\'alculo de dos funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ del ciclo $i,i'$ detallada en la Ec. \ref{iteraccion_factoreo}. Entonces esta implementaci\'on en GPU se separ\'o en dos kernels, uno para calcular las funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ y otro kernel para calcular las integrales a estas dos funciones; notar que esta idea no es diferente a la implementaci\'on secuencial, lo que viene a hacer la implementaci\'on en GPU es paralelizar el {\it los fors} involucrados en el calculo de la cuadratura {\it Gauss-Legendre} de ambas integraciones i.e. cada {\it id} de hilo y bloque representa una suma de la cuadratura.
 El primer kernel ver Algoritmo \ref{frag:f} utiliza $KORD^2$ n\'umero de hilos y $L_{INT}*INT_G$ cantidad de bloques. Y el segundo ver Algoritmo \ref{frag:vef} utiliza $KORD^{2}\ 2\ (KORD+1)$ cantidad de hilos y $L_{INT} + KORD - 3$ cantidad de bloques.
 Luego se necesita hacer cambios en el funci\'on interacci\'on, estos se ven reflejados en el Algoritmo \ref{interaccion_GPU}.
@@ -523,7 +526,7 @@ Lo destacable del Gr\'afico \ref{graph:memoria} es como el crecimiento de ambas 
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.8]{memoria.eps}
+    \includegraphics[width=0.8\linewidth]{memoria.eps}
 
     \caption{Mediciones del pico de memoria}
     \label{graph:memoria}
@@ -552,7 +555,7 @@ Luego se aplic\'o simetr\'ia para calcular la mitad de la matriz solamente. Y po
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.4]{unaparticula.eps}
+    \includegraphics[width=0.8\linewidth]{unaparticula.eps}
 
     \caption{Mediciones del pico de memoria}
     \label{graph:una_particula}
@@ -600,7 +603,7 @@ Como se vi\'o el orden algor\'itmico es menor, esto es consecuencia de no comput
   \begin{center}
     \leavevmode
 
-    \includegraphics[scale=0.5]{optimizado2.eps}
+    \includegraphics[width=0.8\linewidth]{optimizado2.eps}
 
     \caption{Mediciones de tiempo de las diferentes funciones}
     \label{graph:c_vs_fortran}
@@ -617,7 +620,7 @@ La optimizaci\'on en GPU se realiz\'o en el m\'etodo $interaccion$ como fue pres
   \begin{center}
     \leavevmode
  
-    \includegraphics[scale=0.4]{cpu_vs_gpu.eps}
+    \includegraphics[width=0.8\linewidth]{cpu_vs_gpu.eps}
 
     \caption{Comparaci\'on entre CPU y GPU}
 
