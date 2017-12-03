@@ -19,7 +19,7 @@ La jerarqu\'ia de memoria es la organizaci\'on piramidal de la memoria en nivele
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{CPUjerarquia.png}
+    \includegraphics[width=0.4\linewidth]{CPUjerarquia.eps}
 
     \caption{Diagrama piramidal de la jerarqu\'ia de memoria}
     \label{img:memory_herarchy}
@@ -51,7 +51,7 @@ Es una memoria r\'apida y peque\~na, situada entre la memoria principal y el mic
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{cache.png}
+    \includegraphics[width=0.4\linewidth]{cache.eps}
 
     \caption{Mapeo de RAM a cach\'e}
     \label{img:matstyle}
@@ -123,7 +123,7 @@ El uso de patrones de acceso a la memoria predecible y el funcionamiento en troz
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{tabla_latencia.png}
+    \includegraphics[width=0.4\linewidth]{tabla_latencia.eps}
 
     \caption{Ejemplo de la Escala de tiempo de Latencias del Sistema \cite{latencia_grafico}}
     \label{tabla_latencia}
@@ -173,7 +173,7 @@ f\'isica de multiprocesadores, como se ilustra en la Figura \ref{CUDA1}
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{automatic-scalability.png}
+    \includegraphics[width=0.4\linewidth]{automatic-scalability.eps}
 
     \caption{Escalabilidad Autom\'atica}
     \label{CUDA1}
@@ -212,7 +212,7 @@ en el sistema.
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{grid-of-thread-blocks.png}
+    \includegraphics[width=0.4\linewidth]{grid-of-thread-blocks.eps}
 
     \caption{Grilla de bloques de hilos}
     \label{CUDA2}
@@ -246,7 +246,7 @@ este tipo de memoria ya que no es utilizada en el trabajo.
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{memory-hierarchy.png}
+    \includegraphics[width=0.4\linewidth]{memory-hierarchy.eps}
 
     \caption{Jerarqu\'ia de memoria}
     \label{CUDA3}

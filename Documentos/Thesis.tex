@@ -21,7 +21,7 @@
 \usepackage{titlesec}
 \usepackage{algorithmicx}
 \usepackage[capposition=bottom]{floatrow}
-\graphicspath{ {img/} }
+\graphicspath{ {/home/emanuel/Tesis/Tesis/Documentos/img/} }
 \usepackage[linesnumbered, spanish]{algorithm2e}
 \lstset{ %
 language=Python,                % choose the language of the code
@@ -59,7 +59,6 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 \newcommand{\implica}{\Rightarrow}
 
 
-
 \makeatletter
 \newif\if@borderstar
 \def\bordermatrix{\@ifnextchar*{%
@@ -88,6 +87,11 @@ $\kern\wd\@ne\kern -\@tempdima\left\@firstoftwo#1%
 \SetKwRepeat{Do}{do}{while}
 \providecommand{\abs}[1]{\lvert#1\rvert}
 
+\bibliographystyle{plain}
+
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+
 \begin{document}
 
 \begin{titlepage}
@@ -104,7 +108,7 @@ DEPARTAMENTO DE COMPUTACI\'ON \\
 \end{large}
 \vspace*{0.2in}
 \begin{Large}
-\textbf{TITULO} \\
+\textbf{Optimizaci\'on del c\'omputo para la resoluci\'on del problema de una y dos part\'iculas en un pozo de potencial usando B-splines} \\
 \end{Large}
 \vspace*{0.3in}
 \begin{large}
@@ -115,8 +119,8 @@ Tesis realizada por Emanuel Emilio Lupi para la Licenciatura en Ciencias de la C
 \vspace*{0.1in}
 \begin{large}
 Dirigida por: \\
-Doctor\\
-Licenciado\\
+Doctor Nicol\'as Wolovick\\
+Licenciado Mariano Garagiola\\
 \vspace*{0.1in}
 \end{large}
 \end{center}
@@ -136,9 +140,8 @@ cualquier logro de mi vida por formarme como persona, por el amor y el apoyo inc
 
 \item A mis directores Nicol\'as y Mariano por la calidez humana y la gran ayuda que siempre me prestaron a lo largo del proyecto.
 
-\item A mis amigos y compa\~neros Juan, Kevin, Fernando, Franco, Emiliano, Maxi, Eric, H\'ector, El\'ias, Pablo, Ezequiel, Agust\'in, Leandro, Emanuel, Joaqu\'in, Fede, Gonza, Alan, Agus, Demetrio y tantos mas.
+\item A mis amigos y compa\~neros Juan, Kevin, Fernando, Franco, Emiliano, Maxi, Eric, H\'ector, El\'ias, Pablo, Ezequiel, Agust\'in, Leandro, Emanuel, Joaqu\'in, Federico, Gonzalo, Alan, Joaco, Giovanni, Marco, Demetrio, Marcelo y tantos mas.
 
-\item Al Ingeniero Marcelo Cometto por darme la posibilidad de crecer profesionalmente y confiar en mi.
 \end{itemize}
 
 \chapter*{\hspace{0.65cm}Resumen} % si no queremos que a\~nada la palabra "Capitulo"
@@ -304,15 +307,12 @@ En este trabajo se recibi\'o una implementaci\'on del m\'etodo variacional de Ra
 
 \end{thebibliography}
 
+%\bibliographystyle{Classes/CUEDbiblio}
+%\bibliographystyle{Classes/jmb}
+%\bibliographystyle{Classes/jmb} % bibliography style
 
+%\renewcommand{\bibname}{References} % changes default name Bibliography to References
+\bibdata{Thesis}
+%\bibliography{./References} % References file
 
 \end{document}
-
-
-%http://www.netlib.org/utk/people/JackDongarra/etemplates/node215.html
-
-% http://www.netlib.org/utk/people/JackDongarra/etemplates/node203.html
-
-
-
-

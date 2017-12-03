@@ -4,6 +4,6 @@
 
 En este trabajo se present\'o una manera de optimizar una implementacion del m\'etodo variacional de Rayleigh-Ritz con una y dos part\'iculas.
 Para su optimizaci\'on se emple\'o: matrices ralas, factorizaci\'on de c\'odigo, cacheo de funciones y luego una mejora en GPU.
-Para la optimizaci\'on se estudi\'o la estructura de los diferentes tensores como tambi\'en sus restricciones, sus ventajas y que operaciones se iban a realizar, con esta informaci\'on puedo elegir una estructura de datos m\'as eficiente y espec\'ifica, luego de elegir la estructura de datos se debe adaptar el c\'odigo para hacer un buen uso de las mismas.
-Luego de las optimizaciones para CPU se procede a la optimizaci\'on en GPU del c\'odigo optimizado para CPU.
+Para la optimizaci\'on se estudi\'o la estructura de los diferentes tensores como tambi\'en sus restricciones, sus ventajas y que operaciones se iban a realizar, con esta informaci\'on puedo elegir una estructura de datos m\'as eficiente y espec\'ifica, entonces se debe adaptar el c\'odigo para hacer un buen uso de las estructuras a elegidas.
+Luego de las optimizaciones para CPU se procede a la optimizaci\'on en GPU tomando como base el c\'odigo optimizado para CPU.
 Por otro lado este trabajo muestra que la elecci\'on de mejores estructuras de datos y mejorar el orden de los algoritmos es lo primero que se debe hacer a la hora de la optimizaci\'on, luego se hacen las otras mejoras (uso de GPU, clusters, etc).
