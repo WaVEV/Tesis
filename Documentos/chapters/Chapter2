@@ -45,7 +45,7 @@ S_{jk} = \sum^{n}_{j} \sum^{n}_{k} {\partial \over \partial c_{i}}
 \sum^{n}_{j} \sum^{n}_{k} (c_{k}{\partial c_j\over \partial c_{i}}
 + c_{j} {\partial c_k\over \partial c_{i}} ) S_{jk}
 \end{displaymath}
-y como los $c_{i}$ son variables independientes, tan solo para $c_{j}=c_{i}$ se verifica que  ${\partial c_i\over \partial c_i} =
+y como los $c_{i}$ son variables independientes, tan s\'olo para $c_{j}=c_{i}$ se verifica que  ${\partial c_i\over \partial c_i} =
 1$, mientras que el resto ser\'a igual a cero, o sea:  ${\partial
 c_j\over \partial c_i} = \delta _{ij}$, luego
 \begin{displaymath}
@@ -317,7 +317,7 @@ El m\'etodo de Arnoldi es un m\'etodo de proyecci\'on ortogonal sobre un subspac
 
 \end{algorithm}
 
-El algorimo \ref{alg:arnoldi} se detendr\'a si el vector $\displaystyle w$ tiene norma 0 (desaparece).  Los vectores $ v_1, v_2, \ldots, v_m $ forman un sistema ortonormal por construcci\'on y se llaman vectores de Arnoldi. Un argumento de inducci\'on f\'acil demuestra que este sistema es una base del subespacio de Krylov $K^m(A, v) $.
+El algoritmo \ref{alg:arnoldi} se detendr\'a si el vector $\displaystyle w$ tiene norma 0 (desaparece).  Los vectores $ v_1, v_2, \ldots, v_m $ forman un sistema ortonormal por construcci\'on y se llaman vectores de Arnoldi. Un argumento de inducci\'on f\'acil demuestra que este sistema es una base del subespacio de Krylov $K^m(A, v) $.
 
 A continuaci\'on se considera una relaci\'on fundamental entre las cantidades generadas por el algoritmo. La siguiente igualdad se deriva f\'acilmente:
 
@@ -339,14 +339,14 @@ Si denotamos por $ V_m $ la matriz $ n \times m $ con vectores columna $ v_1,
 \displaystyle V_m^{\ast} A V_m \textstyle = \displaystyle H_m.
 \end{equation}
 
-La ecuaci\'on \ref{eq:VmTAVm} viene de \ref{eq:AVm} multiplicando las dos partes de la ecuacion \ref{eq:AVm} por $ V_m^{\ast}$ y usando la ortonormalidad de $\{ v_1, \ldots,v_m \} $.
+La ecuaci\'on \ref{eq:VmTAVm} viene de \ref{eq:AVm} multiplicando las dos partes de la ecuaci\'on \ref{eq:AVm} por $ V_m^{\ast}$ y usando la ortonormalidad de $\{ v_1, \ldots,v_m \} $.
 
 Como se observ\'o anteriormente, el algoritmo se descompone cuando la norma de $ w $  desaparece en un cierto paso $ j $. Esto ocurre si y s\'olo si el vector de partida $ v $ es una combinaci\'on de $ j $ vectores propios (es decir, el polinomio m\'inimo de $ v_1 $ es de grado $ j $). Adem\'as, el subespacio $ K_j $ es entonces invariante y los autovalores y autovectores aproximados son exactos. \cite{booksaad}
 
-Los autovalores aproximados $ \lambda_i^{m} $ dados por el proceso de proyecci\'on sobre $ K_m $ son los valores propios de la matriz de Hessenberg $ H_m $. Estos son conocidos como valores de Ritz. Un autovector aproximado de Ritz asociado con un valor de Ritz $ \lambda_i ^ {m} $ es definido por $ u_i ^ {m} = V_m y_i ^ {m} $, donde $
+Los autovalores aproximados $ \lambda_i^{m} $ dados por el proceso de proyecci\'on sobre $ K_m $ son los valores propios de la matriz de Hessenberg $ H_m $. \'Estos son conocidos como valores de Ritz. Un autovector aproximado de Ritz asociado con un valor de Ritz $ \lambda_i ^ {m} $ es definido por $ u_i ^ {m} = V_m y_i ^ {m} $, donde $
 Y_i ^ {m} $ es un vector propio asociado con el autovalor $ \lambda_i ^ {m} $. Un n\'umero de los valores propios del Ritz, t\'ipicamente una peque\~na fracci\'on de $ m $, generalmente constituyen buenas aproximaciones para los valores propios correspondientes $ \lambda_i $ de $ A $, y la calidad de la aproximaci\'on usualmente mejorar\'a a medida que $ m $ aumenta.
 
-El algoritmo original consiste en aumentar $ m $ hasta que todos los autovalores deseados de $ A $ se encuentren. Para matrices grandes, esto resulta costoso tanto en t\'erminos de c\'alculo como de almacenamiento. En t\'erminos de almacenamiento, necesitamos mantener $ m $ vectores de longitud $ n $ m\'as una matriz de Hessenberg de $ m^2 $ elementos, un total aproximado de $ n m + m ^ 2/2 $ elementos.
+El algoritmo original consiste en aumentar $ m $ hasta que todos los autovalores deseados de $ A $ se encuentren. Para matrices grandes, \'esto resulta costoso tanto en t\'erminos de c\'alculo como de almacenamiento. En t\'erminos de almacenamiento, necesitamos mantener $ m $ vectores de longitud $ n $ m\'as una matriz de Hessenberg de $ m^2 $ elementos, un total aproximado de $ n m + m ^ 2/2 $ elementos.
  Para los costos aritm\'eticos, necesitamos multiplicar $ v_j $ por $ A $, al costo de $ 2 \times N_z $, donde $ N_z $ es el n\'umero de elementos no nulos en $ A $, y luego ortogonalizar el resultado contra $ j $ vectores al costo de $ 4 (j + 1) n, $ que aumenta con el paso n\'umero $ j $. Por lo tanto, un procedimiento de Arnoldi de $ m $-dimensionales cuesta $ \approx n m + m ^ 2/2 $ en almacenamiento y $ \approx N_z + 2 n m ^ 2 $ en operaciones aritm\'eticas.
 
 Obtener la norma residual, para un par Ritz, a medida que el algoritmo progresa es bastante eficiente. Sea $Y_y $ un autovector de $ H_m $ asociado al autovalor $ \lambda_i ^ {m} $, y sea $ u_i ^ {m} $ el autovector aproximado de Ritz $ u_i ^ {m} = V_m y_i ^ {m} $. Tenemos la relaci\'on.
@@ -366,11 +366,11 @@ Y_i ^ {m} $ multiplicado por $ h_ {m + 1, m} $. Las normas residuales no son sie
 
 La descripci\'on del procedimiento de Arnoldi dado anteriormente se bas\'o en el proceso modificado de Gram-Schmidt. Otros algoritmos de ortogonalizaci\'on podr\'ian ser utilizados. Una mejora es recuperar la ortogonalidad cuando sea necesario. Cada vez que se calcula el vector final obtenido al final del segundo bucle en el algoritmo anterior, se realiza una prueba para comparar su norma con la norma del $ w $ inicial (que es $ \Vert A v_j \Vert_2 $). Si la reducci\'on cae por debajo de un determinado umbral (una indicaci\'on de que puede haber ocurrido una cancelaci\'on severa), se realiza una segunda ortogonalizaci\'on. Se sabe por un resultado de Kahan que m\'as de dos ortogonalizaciones son superfluas (v\'ease, por ejemplo, Parlett \cite{Parlett})
 
-Una de las t\'ecnicas de ortogonalizaci\'on m\'as confiables, desde el punto de vista num\'erico, es el algoritmo Householder \cite{Householder}. Esto ha sido implementado para el procedimiento de Arnoldi por Walker \cite{Householder2}. El algoritmo Householder es num\'ericamente m\'as estable que las versiones de Gram-Schmidt o Gram-Schmidt modificado, pero tambi\'en es m\'as caro, requiriendo aproximadamente el mismo almacenamiento que el Gram-Schmidt modificado, pero aproximadamente el doble de operaciones. La ortogonalizaci\'on de Householder es una opci\'on razonable cuando se desarrollan paquetes de software confiables y de prop\'osito general donde la robustez es un criterio cr\'itico.
+Una de las t\'ecnicas de ortogonalizaci\'on m\'as confiables, desde el punto de vista num\'erico, es el algoritmo Householder \cite{Householder}. \'Esto ha sido implementado para el procedimiento de Arnoldi por Walker \cite{Householder2}. El algoritmo Householder es num\'ericamente m\'as estable que las versiones de Gram-Schmidt o Gram-Schmidt modificado, pero tambi\'en es m\'as caro, requiriendo aproximadamente el mismo almacenamiento que el Gram-Schmidt modificado, pero aproximadamente el doble de operaciones. La ortogonalizaci\'on de Householder es una opci\'on razonable cuando se desarrollan paquetes de software confiables y de prop\'osito general donde la robustez es un criterio cr\'itico.
 
 \subsubsection{Reinicios expl\'icitos}
 
-Como se mencion\'o anteriormente, las implementaciones est\'andar del m\'etodo Arnoldi est\'an limitadas por sus altos requisitos de almacenamiento y computaci\'on a medida que $ m $ crece. Supongamos que estamos interesados en un solo autovalor / autovector de $ A $, llamado el autovalor de la parte real m\'as grande de $ A $. Entonces una manera de eludir la dificultad es reiniciar el algoritmo. Despu\'es de una corrida con vectores de $ m $ Arnoldi, calculamos el vector propio aproximado y lo usamos como vector inicial para la siguiente ejecuci\'on con el m\'etodo de Arnoldi. Este proceso, el m\'as simple de este tipo, es iterado a la convergencia para calcular un par propio. Para el c\'alculo de otros pares autovector autovalor, y para mejorar la eficiencia del proceso, se han desarrollado una serie de estrategias, que est\'an algo relacionadas. Estos incluyen \emph{procedimientos de deflaci\'on} brevemente discutidos en la siguiente Secci\'on, y la estrategia de reinicio expl\'icito descrita en Algoritmo \ref{alg:ERAM}
+Como se mencion\'o anteriormente, las implementaciones est\'andar del m\'etodo Arnoldi est\'an limitadas por sus altos requisitos de almacenamiento y computaci\'on a medida que $ m $ crece. Supongamos que estamos interesados en un s\'olo autovalor / autovector de $ A $, llamado el autovalor de la parte real m\'as grande de $ A $. Entonces una manera de eludir la dificultad es reiniciar el algoritmo. Despu\'es de una corrida con vectores de $ m $ Arnoldi, calculamos el vector propio aproximado y lo usamos como vector inicial para la siguiente ejecuci\'on con el m\'etodo de Arnoldi. Este proceso, el m\'as simple de este tipo, es iterado a la convergencia para calcular un par propio. Para el c\'alculo de otros pares autovector autovalor, y para mejorar la eficiencia del proceso, se han desarrollado una serie de estrategias, que est\'an algo relacionadas. Estos incluyen \emph{procedimientos de deflaci\'on} brevemente discutidos en la siguiente Secci\'on, y la estrategia de reinicio expl\'icito descrita en Algoritmo \ref{alg:ERAM}
 
 \begin{algorithm}
     \label{alg:ERAM}
@@ -388,13 +388,13 @@ Como se mencion\'o anteriormente, las implementaciones est\'andar del m\'etodo A
 
  \subsubsection{Deflaci\'on}
 
- Ahora consideramos la siguiente implementaci\'on que incorpora un proceso de deflaci\'on. Hasta ahora hemos descrito algoritmos que calculan s\'olo un autopar. En caso de que se busquen varias autopar, hay dos opciones posibles.
+ Ahora consideramos la siguiente implementaci\'on que incorpora un proceso de deflaci\'on. Hasta ahora hemos descrito algoritmos que calculan s\'olo un autopar. En caso de que se busquen varios autopares, hay dos opciones posibles.
 
 La primera es tomar $ v_1 $ como una combinaci\'on lineal de los vectores propios aproximados cuando reiniciamos. Por ejemplo, si necesitamos calcular los vectores propios $ p $ a la derecha, podemos tomar
 
 \begin{displaymath}\hat v_1 = \sum_{i=1}^p \rho_i \tilde u_i, \end{displaymath}
 
-Donde los autovalores est\'an numerados en orden decreciente de sus partes reales. El vector $ v_1 $ se obtiene luego de normalizar $ \hat v_1 $. La opci\'on m\'as simple para los coeficientes $ \rho_i $ es tomar $ \rho_i = 1, i = 1, \ldots, p $. Hay varios inconvenientes a este enfoque, el m\'as importante de los cuales es que no hay manera f\'acil de elegir los coeficientes $ \rho_i $ de una forma sistem\'atica. El resultado es que para los problemas dif\'iciles, la convergencia es dif\'icil de lograr.
+Donde los autovalores est\'an numerados en orden decreciente de sus partes reales. El vector $ v_1 $ se obtiene luego de normalizar $ \hat v_1 $. La opci\'on m\'as simple para los coeficientes $ \rho_i $ es tomar $ \rho_i = 1, i = 1, \ldots, p $. Hay varios inconvenientes a este enfoque, el m\'as importante de los cuales es que no hay manera f\'acil de elegir los coeficientes $ \rho_i $ de una forma sistem\'atica. El resultado es que para los problemas complejos, la convergencia es dif\'icil de lograr.
 Una alternativa m\'as confiable es computar un autopar a la vez y usar la deflaci\'on. La matriz $ A $ puede deflactarse expl\'icitamente construyendo progresivamente los primeros $ k $ vectores de Schur. Si ya se ha calculado una base ortogonal previa $ U_ {k-1} = [u_1, \ldots, u_ {k-1}] $ del subespacio invariante, entonces para computar el valor propio $ \lambda_{k} $, Puede trabajar con la matriz
 \begin{displaymath}
 \tilde A = A - U_{k-1} \Sigma U_{k-1}^{\ast}, 
@@ -410,8 +410,8 @@ En la que $\Sigma = diag(\sigma_i)$ es una matriz diagonal de desplazamientos. L
 
 Hay que tener en cuenta que si $ A U_{k-1} = U_ {k-1} R_ {k-1} $ es la descomposici\'on parcial de Schur asociada con los primeros $ k-1 $ valores de Ritz, entonces $ \tilde A = A - U_ {k-1} R_ {k-1} U_ {k-1} ^ {\ast} $. Los valores propios asociados con los vectores Schur $ u_1, \ldots, u_ {k-1} $ ahora se mover\'an a cero.
 
-Una mejor implementaci\'on de la deflaci\'on, que encaja bien con el procedimiento de Arnoldi, es trabajar con una sola base $ v_1, v_2, \ldots, v_m $ cuyos primeros vectores son los vectores de Schur que ya han convergido. Supongamos que $ k-1 $ tales vectores han convergido y llamamos $ v_1, v_2
-, \ldots, v_ {k-1} $. Luego empezamos por elegir un vector $ v_k $ que es ortogonal a $ v_1, \ldots, v_ {k-1} $ y de norma 1. Luego realizamos $ mk $ pasos de un procedimiento de Arnoldi en el que la ortogonalidad del vector $ V_j $ contra todos los $ v_i $ anteriores, incluyendo $ v_1, \ldots, v_ {k-1} $. Esto genera una base ortogonal del subespacio. 
+Una mejor implementaci\'on de la deflaci\'on, que encaja bien con el procedimiento de Arnoldi, es trabajar con una s\'ola base $ v_1, v_2, \ldots, v_m $ cuyos primeros vectores son los vectores de Schur que ya han convergido. Supongamos que $ k-1 $ tales vectores han convergido y llamamos $ v_1, v_2
+, \ldots, v_ {k-1} $. Luego empezamos por elegir un vector $ v_k $ que es ortogonal a $ v_1, \ldots, v_ {k-1} $ y de norma 1. Luego realizamos $ mk $ pasos de un procedimiento de Arnoldi en el que la ortogonalidad del vector $ V_j $ contra todos los $ v_i $ anteriores, incluyendo $ v_1, \ldots, v_ {k-1} $. \'Esto genera una base ortogonal del subespacio. 
 
 \begin{displaymath}
 \label{set:base}
@@ -482,7 +482,7 @@ Por lo tanto, estamos proyectando impl\'icitamente el subespacio invariante ya c
 
 \subsubsection{Reiniciado Impl\'icito del M\'etodo de Arnoldi}
 
-El metodo IRAM (por sus siglas en \'ingles Implicitly Restarted Arnoldi Method ) es quiz\'as el algoritmo num\'erico m\'as exitoso y mas completo para calcular los autovectores y autovalores de una matriz cuadrada general $ A $ es el algoritmo QR impl\'icitamente desplazado. Una de las claves para el \'exito de este m\'etodo es su relaci\'on con la descomposici\'on de Schur.
+El m\'etodo IRAM (por sus siglas en \'ingles Implicitly Restarted Arnoldi Method ) es quiz\'as el algoritmo num\'erico m\'as exitoso y m\'as completo para calcular los autovectores y autovalores de una matriz cuadrada general $ A $ es el algoritmo QR impl\'icitamente desplazado. Una de las claves para el \'exito de este m\'etodo es su relaci\'on con la descomposici\'on de Schur.
 
 \begin{equation}
 \label{eq:AUTU}
@@ -525,8 +525,8 @@ Y nos referimos a esto como una descomposici\'on parcial de Schur de $ A $. Dado
 
 En esta secci\'on explicaremos las estructuras de representaciones de matrices.
 
-A medida que este problema particular crece las matrices se vuelven mas grandes y al mismo tiempo el porcentaje de no-ceros de la matriz decrese.
-Un sistema linear grande de la forma $\mathcal{A}x = b$ puede ser mas eficientemente resuelto si los elementos que son ceros de $\mathcal{A}$ no son guardados. Los esquemas de almacenamiento dispersos asignan almacenamiento contiguo en memoria para los elementos distintos de cero de la matriz y tal vez un n\'umero limitado de ceros. Esto, por supuesto, requiere un esquema para saber d\'onde encajan los elementos en la matriz completa
+A medida que este problema particular crece las matrices se vuelven m\'as grandes y al mismo tiempo el porcentaje de no-ceros de la matriz decrese.
+Un sistema linear grande de la forma $\mathcal{A}x = b$ puede ser m\'as eficientemente resuelto si los elementos que son ceros de $\mathcal{A}$ no son guardados. Los esquemas de almacenamiento dispersos asignan almacenamiento contiguo en memoria para los elementos distintos de cero de la matriz y tal vez un n\'umero limitado de ceros. \'Esto, por supuesto, requiere un esquema para saber d\'onde encajan los elementos en la matriz completa
 
 Hay muchos m\'etodos para almacenar los datos (v\'ease por ejemplo Saad \cite{SPARSKIT} y Eijkhout \cite{LAPACK}). Aqu\'i discutiremos tres m\'etodos: \textit{almacenamiento de filas y columnas comprimidas}, \textit{almacenamiento de filas comprimidas en bloques}, \textit{almacenamiento en diagonal} y \textit{almacenamiento diagonal recortado}
 
@@ -541,7 +541,7 @@ El arreglo \textit{col\_ind} guarda a que columna pertenece cada elemento de del
 $$val_{k} = \mathcal{A}_{i,j} \implica col\_ind_{k} = j $$
 El arreglo \textit{row\_ptr} guarda la ubicaci\'on de \textit{val} donde empieza la fila. Esto es:
 $$val_{k} = \mathcal{A}_{i,j} \implica row\_ptr_{i} \leq k < row\_ptr_{i+1} $$
-Por convenci\'on definimos $row\_ptr_{n+1} = nnz + 1$. Donde $nnz$ es la cantidad de numeros no ceros de la matriz $\mathcal{A}$. La memoria necesaria para este enfoque es \orderof($nnz$ + $n$)
+Por convenci\'on definimos $row\_ptr_{n+1} = nnz + 1$. Donde $nnz$ es la cantidad de n\'umeros no ceros de la matriz $\mathcal{A}$. La memoria necesaria para este enfoque es \orderof($nnz$ + $n$)
 
 Ejemplo: considere la siguiente matriz:
 
@@ -565,7 +565,7 @@ Ejemplo: considere la siguiente matriz:
 \right)
 \end{equation}
 
-En formato CRS tendria esta forma
+En formato CRS tendr\'ia esta forma
 \begin{equation}
 val = 
 \left(
@@ -612,7 +612,7 @@ El formato CDS (sus siglas en \'ingles de Compressed Diagonal Storage) es \'util
 
 Decimos que la matriz $\mathcal{A}^{m,n}$ es $\emph{de banda}$ si hay enteros no negativos \textit{p},\textit{q} tal que 
 $\mathcal{A}_{i,j}$ $\neq$ 0 $\implica$ i{-}p $\leq$ j $\leq$ i{+}q. 
-En este caso podemos poner la matriz $\mathcal{A}$ en un arreglo \textit{val}(1:n, -p:q) (si no tenemos indices negativos se puede hacer un desplazamientos $p$ de indices) la declaraci\'on con dimensiones invertidas corresponde a \textit{LINPACK band format} \cite{LINPACK}
+En este caso podemos poner la matriz $\mathcal{A}$ en un arreglo \textit{val}(1:n, -p:q) (si no tenemos \'indices negativos se puede hacer un desplazamientos $p$ de \'indices) la declaraci\'on con dimensiones invertidas corresponde a \textit{LINPACK band format} \cite{LINPACK}
 
 Por lo general, los formatos de banda incluyen almacenar algunos ceros. El formato CDS puede incluso contener algunos elementos de matriz que no corresponden a elementos de matriz en absoluto. Consideremos la matriz no sim\'etrica definida por:
 
@@ -745,8 +745,8 @@ El n\'umero de diagonales irregulares es igual al n\'umero de no ceros en la pri
 El formato JDS para la matriz anterior en el uso de los arreglos lineales {$perm$, $jdiag$, $col\_ind$, $jd\_ptr$} se d\'a en los cuadros \ref{perm2}.
 
 
-\section{Concluciones}
+\section{Conclusiones}
 
-En este capitulo hemos visto estructuras de datos alternativas para modelar matrices con sus ventajas y desventajas, tambi\'en vimos algoritmos para calcular autovalores y autovectores de un sistema. Este conocimiento previo es necesario a la hora de elejir que estructura se utilizara, como manipularla, cuales seran sus beneficios y costos, y ademas que algoritmo de calculos de autovectores y autovalores.
-En este trabajo se decidio usar formato comprimido por columnas (CCS) y el metodo Reinicio Implicito del Metodo de M\'etodo de Arnoldi (IRAM) pues es el mas estable y el que a propositos generales, robusto y en terminos de requerimientos de sistema es razonable. Si bien el programa devuelve el sistema para que se pueda usar el modulo de resoluci\'on de autovalores que mas convenga, se opto por esta alternativa utilizando el modulo ARPACK++.
+En este cap\'itulo hemos visto estructuras de datos alternativas para modelar matrices con sus ventajas y desventajas, tambi\'en vimos algoritmos para calcular autovalores y autovectores de un sistema. Este conocimiento previo es necesario a la hora de decidir que estructura se utilizar\'a, c\'omo manipularla, cu\'ales ser\'an sus beneficios y costos, y adem\'as, qu\'e algoritmos de c\'alculos de autovectores y autovalores.
+En este trabajo se decidi\'o usar formato comprimido por columnas (CCS) y el m\'etodo Reinicio Implicito del M\'etodo de Arnoldi (IRAM) pues es el m\'as estable y el m\'as robusto  a propositos generales por lo que resulta razonable de elegir en t\'erminos de requerimientos de sistema. Si bien el programa retorna el sistema para que se pueda usar el m\'odulo de resoluci\'on de autovalores que m\'as convenga, se opt\'o por esta alternativa utilizando el m\'odulo ARPACK++.
 
