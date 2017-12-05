@@ -1,5 +1,4 @@
-\setcounter{chapter}{1}
-\chapter*{Introduccion}\label{Introduccion}
+\chapter{Introduccion}\label{Introduccion}
 \addcontentsline{toc}{chapter}{Introducci\'on} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 

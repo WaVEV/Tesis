@@ -1,6 +1,6 @@
 \def\HiLi{\leavevmode\rlap{\hbox to \hsize{\color{yellow}\leaders\hrule height .8\baselineskip depth .5ex\hfill}}}
 
-\chapter*{Optimizaci\'on}\label{Optimizacion}
+\chapter{Optimizaci\'on}\label{Optimizacion}
 \addcontentsline{toc}{chapter}{Optimizaci\'on} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 

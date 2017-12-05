@@ -1,5 +1,5 @@
 \newcommand*{\hham}{\hat{\mathcal{H}}}
-\chapter*{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}\label{methodimp}
+\chapter{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}\label{methodimp}
 \addcontentsline{toc}{chapter}{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}
 \markboth{}{} % encabezado
 En esta secci\'on explicaremos como es la primera implementaci\'on del m\'etodo para una y dos particulas, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en la secci\'on \ref{RRMETHOD}.

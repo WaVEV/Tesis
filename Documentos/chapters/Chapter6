@@ -1,4 +1,4 @@
-\chapter*{Conclusiones}\label{Conclusiones}
+\chapter{Conclusiones}\label{Conclusiones}
 \addcontentsline{toc}{chapter}{Conclusiones} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 

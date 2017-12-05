@@ -1,4 +1,4 @@
-\chapter*{Nociones preliminares}\label{Nociones preliminares}
+\chapter{Nociones preliminares}\label{Nociones preliminares}
 \addcontentsline{toc}{chapter}{Nociones preliminares} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 \section{M\'etodo variacional de Rayleigh-Ritz.}
