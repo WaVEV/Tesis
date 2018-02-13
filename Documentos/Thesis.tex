@@ -1,8 +1,9 @@
-\documentclass[a4paper,openright,12pt, oneside]{book}
+\documentclass[a4paper,openright, 12pt, oneside]{book}
 \usepackage[spanish]{babel} 
+\usepackage{float}
 %\usepackage[latin1]{inputenc}
 \usepackage{url}
-\usepackage{graphics,graphicx}
+\usepackage{graphics, graphicx}
 \usepackage{algpseudocode}
 \usepackage{colortbl}
 \usepackage{anysize} %Para los margeness
@@ -14,13 +15,14 @@
 \usepackage{amsmath} %para hacer la combinatoria
 \usepackage{listings}
 \usepackage{enumitem}
+
 \renewcommand{\lstlistingname}{C\'odigo}% Listing -> C\'odigo
 \renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings 
 \usepackage{mathtools}
-\usepackage{tabularx,ragged2e}
-\usepackage{titlesec}
+\usepackage{tabularx, ragged2e}
+% \usepackage{titlesec}
 \usepackage{algorithmicx}
-\usepackage[capposition=bottom]{floatrow}
+% \usepackage[capposition=bottom]{floatrow}
 \graphicspath{ {/home/emanuel/Tesis/Tesis/Documentos/img/} }
 \usepackage[linesnumbered, spanish]{algorithm2e}
 \lstset{ %
@@ -87,22 +89,30 @@ $\kern\wd\@ne\kern -\@tempdima\left\@firstoftwo#1%
 \SetKwRepeat{Do}{do}{while}
 \providecommand{\abs}[1]{\lvert#1\rvert}
 
+
+
 \bibliographystyle{plain}
 
-\setcounter{tocdepth}{5}
-\setcounter{secnumdepth}{5}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
 
 \begin{document}
 
 \begin{titlepage}
-
 \begin{center}
-\vspace*{-1in}
 
+\begin{figure}
+  \begin{center}
+    \leavevmode
 
-FACULTAD DE MATEM\'ATICA, ASTRONOM\'IA, F\'ISICA Y COMPUTACI\'ION\\
+    \includegraphics[width=0.6\linewidth]{UNCLOGO.eps}
+  \end{center}
+\end{figure}
+
+\vspace*{0.4in}
+UNIVERSIDAD NACIONAL DE C\'ORDOBA\\
 \vspace*{0.15in}
-DEPARTAMENTO DE COMPUTACI\'ON \\
+FACULTAD DE MATEM\'ATICA, ASTRONOMIA, F\'ISICA Y COMPUTACI\'ON.\\
 \vspace*{0.6in}
 \begin{large}
 \end{large}
@@ -140,7 +150,7 @@ cualquier logro de mi vida por formarme como persona, por el amor y el apoyo inc
 
 \item A mis directores Nicol\'as y Mariano por la calidez humana y la gran ayuda que siempre me prestaron a lo largo del proyecto.
 
-\item A mis amigos y compa\~neros Juan, Kevin, Fernando, Franco, Emiliano, Maxi, Eric, H\'ector, El\'ias, Pablo, Ezequiel, Agust\'in, Leandro, Emanuel, Joaqu\'in, Federico, Gonzalo, Alan, Joaco, Giovanni, Marco, Demetrio, Marcelo y tantos mas.
+\item A mis amigos y compa\~neros.
 
 \end{itemize}
 
@@ -163,29 +173,18 @@ Las ecuaciones diferenciales de segundo orden son complejas de resolver ya que n
 En este trabajo se recibi\'o una implementaci\'on del m\'etodo variacional de Rayleigh-Ritz, en el que se usaba el conjunto de funciones conocido como B-splines, el cual se optimiz\'o utilizando estructuras de datos y modificaciones algor\'itmicas m\'as eficientes.
 
 
-\tableofcontents % indice de contenidos
+\tableofcontents 
 
-%\setcounter{chapter}{-1}
 \input{chapters/Chapter1}
 
-%\stepcounter{chapter}
-\setcounter{section}{0}
 \input{chapters/Chapter2}
 
-%\stepcounter{chapter}
-\setcounter{section}{0}
 \input{chapters/Chapter3}
 
-%\stepcounter{chapter}
-\setcounter{section}{0}
 \input{chapters/Chapter4}
 
-%\stepcounter{chapter}
-\setcounter{section}{0}
 \input{chapters/Chapter5}
 
-%\stepcounter{chapter}
-\setcounter{section}{0}
 \input{chapters/Chapter6}
 
 
@@ -304,6 +303,10 @@ En este trabajo se recibi\'o una implementaci\'on del m\'etodo variacional de Ra
 \bibitem{latencia_grafico}
   Systems Performance: Enterprise and the Cloud
   \emph{http://www.brendangregg.com/sysperfbook.html}
+
+\bibitem{ATOMICSGPU}
+  Atomic Operation CUDA GPU
+  \emph{http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html\#atomic-functions}
 
 \end{thebibliography}
 

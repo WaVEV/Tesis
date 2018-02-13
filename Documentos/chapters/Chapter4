@@ -1,12 +1,12 @@
 \chapter{Modelos Computacional CPU y GPU}\label{ModeloComputacionalSIMD}
-\addcontentsline{toc}{chapter}{Modelo Computacional SIMD} % si queremos que aparezca en el 
+% \addcontentsline{toc}{chapter}{Modelo Computacional SIMD} % si queremos que aparezca en el 
 \markboth{}{} % encabezado
 
-En esta secci\'on explicaremos las nociones preliminares necesarias sobre las arquitecturas de la CPU y GPU que se utilizar\'on a la hora de la optimizaci\'on y relacionadas con computaci\'on de alto desempe\~no. No nos detendremos detallando caracteristicas que no son de vital importancia en este trabajo.
+En esta secci\'on explicaremos las nociones preliminares necesarias sobre las arquitecturas de la CPU y GPU, relacionadas con computaci\'on de alto desempe\~no. Veremos un pantallazo general sobre las mismas, nos detendremos detallando solo las caracter\'isticas relevantes para este trabajo.
 
 \section{CPU}
 
-Sobre la arquitectura de CPU explicaremos su jerarqu\'ia de memoria, sus tiempos de accesos en t\'erminos de ciclos.
+Sobre la arquitectura de CPU explicaremos su jerarqu\'ia de memoria y sus tiempos de accesos en t\'erminos de ciclos.
 
 La unidad central de procesamiento (o CPU por sus siglas en ingl\'es: central processing unit), es el hardware dentro de la computadora que realiza las operaciones b\'asicas aritm\'eticas, l\'ogicas y de entrada/salida.
 
@@ -19,7 +19,7 @@ La jerarqu\'ia de memoria es la organizaci\'on piramidal de la memoria en nivele
   \begin{center}
     \leavevmode
 
-    \includegraphics[width=0.4\linewidth]{CPUjerarquia.eps}
+    \includegraphics[width=0.7\linewidth]{CPUjerarquia.eps}
 
     \caption{Diagrama piramidal de la jerarqu\'ia de memoria}
     \label{img:memory_herarchy}
@@ -29,8 +29,8 @@ La jerarqu\'ia de memoria es la organizaci\'on piramidal de la memoria en nivele
 
 \subsubsection{Registros}
 
-Los registros est\'an en la cima de la jerarqu\'ia de memoria, y son la manera m\'as r\'apida que tiene el sistema de almacenar datos.
-Los registros son una memoria de alta velocidad y poca capacidad, esta integrada en el microprocesador y permite guardar y acceder a valores muy usados, por lo general en operaciones matem\'aticas.
+Los registros est\'an en la cima de la jerarqu\'ia de memoria y son la manera m\'as r\'apida que tiene el sistema de almacenar datos.
+Los registros son una memoria de alta velocidad y poca capacidad, est\'a integrada en el microprocesador y permite guardar y acceder a valores muy usados en operaciones matem\'aticas.
 Los registros se miden por lo general por el n\'umero de bits que almacena.
 Tipos de registros:
 
@@ -40,13 +40,13 @@ Tipos de registros:
     \item De prop\'osito general: pueden guardar tanto datos como direcciones. 
     \item De punto flotante: usados para guardar datos en formato de flotante.
     \item De prop\'osito espec\'ifico: guardan informaci\'on espec\'ifica del estado del sistema.
-    \item Constante: tiene valores creados por el hardware de solo lectura.
+    \item Constante: tiene valores creados por el hardware de s\'olo lectura.
 \end{enumerate}
 
 
 \subsubsection{Memoria Cach\'e}
 Es una memoria r\'apida y peque\~na, situada entre la memoria principal y el microprocesador, especialmente dise\~nada para contener informaci\'on que se utiliza con frecuencia en un proceso con el fin de evitar accesos a otras memorias, reduciendo considerablemente el tiempo de acceso al ser m\'as r\'apida que el resto de la memoria principal.
-
+ 
 \begin{figure}[!htbp]
   \begin{center}
     \leavevmode
@@ -54,21 +54,22 @@ Es una memoria r\'apida y peque\~na, situada entre la memoria principal y el mic
     \includegraphics[width=0.4\linewidth]{cache.eps}
 
     \caption{Mapeo de RAM a cach\'e}
-    \label{img:matstyle}
+    \label{img:cache}
   \end{center}
 \end{figure}
 
-La memoria cach\'e es una memoria en la que se almacena un serie de datos para su r\'apido acceso. La memoria cach\'e de un microprocesador es de tipo vol\'atil (del tipo RAM), pero de una gran velocidad.
-Su objetivo es almacenar una serie de instrucciones y datos a los que el microprocesador accede continuamente, con el fin de que estos accesos sean instant\'aneos. Estas instrucciones y datos son aquellas a las que el procesador necesita estar accediendo de forma continua, por lo que para el rendimiento del procesador es imprescindible que este acceso sea lo m\'as r\'apido y fluido posible.
 
-Cuando la CPU necesita una palabra de memoria, se revisa la cach\'e. Si se encuentra la palabra en cache, se lee de ah\'i mismo. Si la palabra direccionada de la CPU no se encuentra en cach\'e, se accede a la memoria principal para leer la palabra. Despu\'es, se transfiere un bloque de palabras que contiene la palabra que se buscaba, de la memoria principal a la memoria cach\'e. El tama\~no de bloque puede variar de una palabra a cerca de 16 palabras adyacentes a la que se accedi\'o. De esta manera, se trasfieren algunos datos la  cach\'e para que las futuras referencias a memoria encuentren la palabra requerida en la memoria cach\'e
+La memoria cach\'e es una memoria en la que se almacena un serie de datos para su r\'apido acceso. La memoria cach\'e de un microprocesador es de tipo vol\'atil (del tipo RAM), pero de una gran velocidad.
+Su objetivo es almacenar una serie de instrucciones y datos a los que el microprocesador accede continuamente, con el fin de que estos accesos sean instant\'aneos. 
+
+Cuando la CPU necesita una palabra de memoria, se revisa la cach\'e. Si se encuentra la palabra en cach\'e, se lee de ah\'i mismo. Si la palabra direccionada de la CPU no se encuentra en cach\'e, se accede a la memoria principal para leer la palabra. Despu\'es se transfiere un bloque de palabras que contiene la palabra que se buscab de la memoria principal a la memoria cach\'e. El tama\~no de bloque puede variar de una palabra a cerca de 16 palabras adyacentes a la que se accedi\'o. De esta manera se trasfieren algunos datos la  cach\'e para que las futuras referencias a memoria encuentren la palabra requerida en la memoria cach\'e.
 
 Hay tres tipos diferentes de memoria cach\'e para microprocesadores:
 
 \begin{enumerate}
     \item Cach\'e de primer nivel (L1): Integrada en el n\'ucleo del microprocesador, trabajando a la misma velocidad que este. La cantidad de memoria cach\'e L1 var\'ia de un microprocesador a otro. Esta memoria suele a su vez estar dividida en dos partes dedicadas, una para instrucciones y otra para datos.
-    \item Cach\'e de segundo nivel (L2): Integrada en el microprocesador, no directamente en el n\'ucleo, es algo m\'as lenta que la cach\'e L1. La cach\'e L2 suele ser mayor que la cach\'e L1. Utilizaci\'on est\'a m\'as encaminada a programas que al sistema.
-    \item Cach\'e de tercer nivel (L3): Es un tipo de memoria cach\'e m\'as lenta que la L2. En un principio esta cach\'e estaba incorporada a la placa base, no al microprocesador, y su velocidad de acceso era bastante m\'as lenta que una cach\'e de nivel 2 o 1, ya que si bien sigue siendo una memoria de una gran rapidez (muy superior a la RAM, y mucho m\'as en la \'epoca en la que se utilizaba), depende de la comunicaci\'on entre el microprocesador y la placa base.
+    \item Cach\'e de segundo nivel (L2): Integrada en el microprocesador, no directamente en el n\'ucleo. Es algo m\'as lenta que la cach\'e L1 y suele ser mayor que dicha cach\'e L1. Su utilizaci\'on est\'a m\'as encaminada a programas que al sistema.
+    \item Cach\'e de tercer nivel (L3): Es un tipo de memoria cach\'e m\'as lenta que la L2. En un principio esta cach\'e estaba incorporada a la placa base, no al microprocesador, y su velocidad de acceso era bastante m\'as lenta que una cach\'e de nivel 2 o 1. Si bien sigue siendo una memoria de una gran velocidad (muy superior a la RAM y mucho m\'as en la \'epoca en la que se utilizaba), depende de la comunicaci\'on entre el microprocesador y la placa base.
     
 \end{enumerate}
 
@@ -76,13 +77,13 @@ La memoria cach\'e est\'a estructurado por celdas, donde cada celda almacena un 
 
 \subsubsection{Memoria RAM}
 
-La memoria de acceso aleatorio, o memoria de acceso directo (Random Access Memory).
+La memoria de acceso aleatorio o memoria de acceso directo (Random Access Memory).
 Se compone de uno o m\'as chips y se utiliza como memoria de trabajo para programas y datos. Es un tipo de memoria temporal que pierde sus datos cuando se queda sin energ\'ia (al apagar la computadora), por lo cual es una memoria vol\'atil. Se trata de una memoria de semiconductor en la que se puede tanto leer como escribir informaci\'on. Se utiliza normalmente como memoria temporal para almacenar resultados intermedios y datos similares no permanentes.
 Se dicen {\it de acceso aleatorio} o {\it de acceso directo} porque los diferentes accesos son independientes entre s\'i.
 Las RAMs se dividen en:
 \begin{enumerate}
     \item Est\'aticas: mantiene su contenido inalterado mientras est\'e alimentada.
-    \item Din\'amica: la lectura es destructiva, es decir que la informaci\'on se pierde al leerla, para evitarlo hay que restaurar la informaci\'on contenida en sus celdas, operaci\'on denominada refresco.
+    \item Din\'amica: la lectura es destructiva, es decir que la informaci\'on se pierde al leerla. Para evitarlo hay que restaurar la informaci\'on contenida en sus celdas, operaci\'on denominada refresco.
 \end{enumerate}
 
 \subsubsection{Disco Duro}
@@ -90,9 +91,8 @@ Las RAMs se dividen en:
 El disco duro (hard disk) es una unidad de almacenamiento magn\'etico de la informaci\'on. Es un disco met\'alico (normalmente de aluminio) recubierto con una capa de material magnetizable por sus dos caras (usualmente n\'iquel).
 El disco duro magn\'etico est\'a dividido en pistas conc\'entricas. Cada pista se divide en igual n\'umero de bloques radiales denominados sectores. La capacidad de almacenamiento en bytes por cada pista es variable, dependiendo del tama\~no de la misma y de la densidad de grabaci\'on. En todas las pistas de un mismo disco (desde las exteriores hasta las interiores) cabe la misma cantidad de informaci\'on, lo que se consigue grabando con mayor densidad en las pistas interiores y menor densidad en las pistas exteriores.
 
-Otro tipo de disco aparte del magnetico y de uso masivo es la unidad de estado s\'olido, dispositivo de estado s\'olido o SSD (acr\'onimo ingl\'es de Solid-State Drive) es un tipo de dispositivo de almacenamiento de datos que utiliza memoria no vol\'atil, como la memoria flash, para almacenar datos, en lugar de los platos o discos magn\'eticos de las unidades de discos duros (HDD) convencionales.
-
-En comparaci\'on con los discos duros tradicionales, las unidades de estado s\'olido son menos sensibles a los golpes al no tener partes m\'oviles, son pr\'acticamente inaudibles, y poseen un menor tiempo de acceso y de latencia, lo que se traduce en una mejora del rendimiento exponencial en los tiempos de carga de los sistemas operativos. En contrapartida, su vida \'util es muy inferior, ya que tienen un n\'umero limitado de ciclos de escritura, pudiendo producirse la p\'erdida absoluta de los datos de forma inesperada e irrecuperable. Los SSD hacen uso de la misma interfaz SATA que los discos duros, por lo que son f\'acilmente intercambiables sin tener que recurrir a adaptadores o tarjetas de expansi\'on para compatibilizarlos con el equipo.
+Otro tipo de disco aparte del magn\'etico y de uso masivo es la unidad de estado s\'olido, dispositivo de estado s\'olido o SSD (acr\'onimo ingl\'es de Solid-State Drive). Es un tipo de dispositivo de almacenamiento de datos que utiliza memoria no vol\'atil, como la memoria flash, para almacenar datos en lugar de los platos o discos magn\'eticos de las unidades de discos duros (HDD) convencionales.
+En comparaci\'on con los discos duros tradicionales, las unidades de estado s\'olido son menos sensibles a los golpes al no tener partes m\'oviles, son pr\'acticamente inaudibles y poseen un menor tiempo de acceso y de latencia, lo que se traduce en una mejora del rendimiento exponencial en los tiempos de carga de los sistemas operativos. En contrapartida, su vida \'util es muy inferior ya que tienen un n\'umero limitado de ciclos de escritura, pudiendo producirse la p\'erdida absoluta de los datos de forma inesperada e irrecuperable. Los SSD hacen uso de la misma interfaz SATA que los discos duros por lo que son f\'acilmente intercambiables sin tener que recurrir a adaptadores o tarjetas de expansi\'on para compatibilizarlos con el equipo.
 
 \subsubsection{Memoria virtual}
 
@@ -108,37 +108,48 @@ Cuando se usa Memoria Virtual, o cuando una direcci\'on es le\'ida o escrita por
 \end{enumerate}
 
 La memoria virtual es una t\'ecnica para proporcionar la simulaci\'on de un espacio de memoria mucho mayor que la memoria f\'isica de una m\'aquina. Esta {\it ilusi\'on} permite que los programas se ejecuten sin tener en cuenta el tama\~no exacto de la memoria f\'isica.
-La ilusi\'on de la memoria virtual est\'a soportada por el mecanismo de traducci\'on de memoria, junto con una gran cantidad de almacenamiento r\'apido en disco duro. As\'i en cualquier momento el espacio de direcciones virtual hace un seguimiento de tal forma que una peque\~na parte de \'el, est\'a en memoria real y el resto almacenado en el disco, y puede ser referenciado f\'acilmente.
+La ilusi\'on de la memoria virtual est\'a soportada por el mecanismo de traducci\'on de memoria junto con una gran cantidad de almacenamiento r\'apido en disco duro. As\'i en cualquier momento el espacio de direcciones virtual hace un seguimiento de tal forma que una peque\~na parte de \'el est\'a en memoria real y el resto almacenado en el disco, pudiendo ser referenciado f\'acilmente.
 
 
-\subsection{Memorias RAM vs Cach\'es}
+\subsection{Memorias RAM vs Cach\'es}\label{RAMvsCACHE}
 
-A medida que la velocidad de los procesadores aumenta el acceso a memoria es relativamente lento (en cuanto a cantidad de ciclos de CPU para hacer entrada salida). La soluci\'on al problema, de tener memoria relativamente lenta, es a\~nadir almacenamiento en memoria cach\'e y {\it prefetching}, la memoria cach\'e  proporciona un acceso r\'apido a datos utilizados frecuentemente, y el {\it prefetching} precarga datos en cache si el patr\'on de acceso es predecible.
+A medida que la velocidad de los procesadores aumenta, el acceso a memoria es relativamente lento (en cuanto a cantidad de ciclos de CPU para hacer entrada salida). La soluci\'on al problema de tener memoria relativamente lenta es a\~nadir almacenamiento en memoria cach\'e y {\it prefetching}: la memoria cach\'e  proporciona un acceso r\'apido a datos utilizados frecuentemente y el {\it prefetching} precarga datos en cache si el patr\'on de acceso es predecible.
 
-Cargar de cache toma algunos ciclos (depende de la jerarqu\'ia) y cargar desde memoria RAM toma cerca de 400 ciclos como se puede ver en la tabla \ref{tabla_latencia}.
-Pero, si la CPU puede predecir los bloques de memoria que utilizar\'a ({\it prefeching}) entonces la perdida de ciclos por traer memoria desde RAM es mucho menor. Por lo tanto hacer c\'odigo amigable con la cach\'e es importante en las rutinas que son {\it CPU bound}.
+Cargar de cache toma algunos ciclos (depende de la jerarqu\'ia) y cargar desde memoria RAM toma cerca de 400 ciclos como se puede ver Cuadro \ref{tabla_latencia}.
+Si la CPU puede predecir los bloques de memoria que utilizar\'a ({\it prefeching}) entonces la perdida de ciclos por traer memoria desde RAM es mucho menor. Por lo tanto hacer c\'odigo amigable con la cach\'e es importante en las rutinas que son {\it CPU bound}.
 El uso de patrones de acceso a la memoria predecible y el funcionamiento en trozos de datos que son m\'as peque\~nos que la cach\'e de la CPU obtendr\'a la mayores beneficios de las cach\'es modernas.
 
-\begin{figure}[!htbp]
-  \begin{center}
-    \leavevmode
 
-    \includegraphics[width=0.4\linewidth]{tabla_latencia.eps}
-
-    \caption{Ejemplo de la Escala de tiempo de Latencias del Sistema \cite{latencia_grafico}}
-    \label{tabla_latencia}
-  \end{center}
-\end{figure}
+\begin{table}[h]
+\begin{center}
+\small
+\begin{tabular}{ |c|c|c| }
+  \hline
+  Evento & Latencia &   Escalado \\
+  \hline
+  1 Ciclo de CPU & 0.3 ns & 1 s \\
+  Nivel 1 acceso a cache & 0.9 ns & 3 s\\
+  Nivel 2 acceso a cache & 2.8 ns & 9 s\\
+  Nivel 3 acceso a cache & 12.9 ns & 43 s\\
+  Acceso a Memoria principal (DRAM, from CPU)& 120 ns & 6 min\\
+  Disco de Estado S\'olido I/O (flash memory)& 50-150 $\mu$s & 2-6 d\'ias\\
+  Disco Rotacional& 1-10 ms & 1 - 12 meses\\
+  \hline
+\end{tabular}
+\caption{Cuadro de latencias de los diferentes accesos a memoria}
+\label{tabla_latencia}
+\end{center}
+\end{table}
 
 
 \section{GPGPU}
 
-GPGPU es el t\'ermino que se utiliza para designar las tareas de prop\'osito general, t\'ipicamente pensadas para ser procesadas en una CPU, pero que se aprovechan del potencial de la GPU para ejecutarse en ella. Dado que los procesadores gr\'aficos son mucho m\'as eficientes en cierto tipo de operaciones, los resultados se obtendr\'an m\'as r\'apidamente.
+GPGPU es el t\'ermino que se utiliza para designar las tareas de prop\'osito general, t\'ipicamente pensadas para ser procesadas en una CPU, que aprovechan el potencial de la GPU para ejecutarse en ella. Dado que los procesadores gr\'aficos son mucho m\'as eficientes en cierto tipo de operaciones, los resultados se obtendr\'an m\'as r\'apidamente.
 
 El problema de la GPGPU es precisamente que no todas las tareas tienen que ser m\'as eficientes en una GPU. \'Estas est\'an especializadas en tareas altamente paralelizables cuyos algoritmos puedan subdividirse, procesarse por separado para luego unir los subresultados y tener el resultado final.
 
 
-\subsection{CUDA como modelos de programaci\'on escalable}
+\subsection{CUDA como modelo de programaci\'on escalable}
 
 Las arquitecturas de CPU de m\'ultiples n\'ucleos y GPU significaron que los chips 
 de procesadores convencionales fueran sistemas paralelos. M\'as a\'un, su paralelismo
@@ -151,22 +162,22 @@ El modelo de programaci\'on paralelo de CUDA est\'a dise\~nado para sobreponerse
 desaf\'io mientras facilita el aprendizaje con la utilizaci\'on del est\'andar de C.
 
 Su modelo proporciona tres tipos de abstracciones: una jerarqu\'ia de grupos de hilos (threads),
-memoria compartida y barreras de sincronizaci\'on. Estas son utilizadas por el programador
+memoria compartida y barreras de sincronizaci\'on. \'Estas son utilizadas por el programador
 a trav\'es de un n\'umero peque\~no extensiones del lenguaje C.
 
 Estas abstracciones proveen de paralelismo de datos de grano-fino y paralelismo de
 hilos, mezclado en medio de un paralelismo de datos de grano-grueso y paralelismo de tareas.
 Esto lleva al usuario a dividir el problema en subproblemas que puedan ser solucionados
-independientemente en paralelo por bloques de hilos, y cada problema en partes m\'as
+independientemente en paralelo por bloques de hilos y cada problema en partes m\'as
 peque\~nas que puedan ser resueltos de forma cooperativa en paralelo por todas los
 hilos de un mismo bloque.
 
-Esta descomposici\'on preserva la expresividad del lenguaje, permitiendo a los hilos
-cooperar cuando solucionan cada subproblema, y al mismo tiempo permite la escalabilidad
+Esta descomposici\'on preserva la expresividad del lenguaje permitiendo a los hilos
+cooperar cuando solucionan cada subproblema y, al mismo tiempo, permite la escalabilidad
 autom\'aticamente. De este modo, cada bloque de hilos puede ser asignado a cualquiera
-de los multiprocesadores disponibles en la GPU, en cualquier orden, de forma concurrente
+de los multiprocesadores disponibles en la GPU en cualquier orden y de forma concurrente
 o secuencial, permitiendo que el c\'odigo CUDA pueda ejecutarse en cualquier n\'umero
-de multiprocesadores y solo el sistema de planificaci\'on debe conocer la cantidad
+de multiprocesadores. \'Esto permite que \'olo el sistema de planificaci\'on deba conocer la cantidad
 f\'isica de multiprocesadores, como se ilustra en la Figura \ref{CUDA1}
 
 \begin{figure}[!htbp]
@@ -183,10 +194,10 @@ f\'isica de multiprocesadores, como se ilustra en la Figura \ref{CUDA1}
 
 \subsubsection{Modelo de programaci\'on}
 
-En esta Secci\'on presentaremos los conceptos principales el modelo de programaci\'on
+En esta Secci\'on presentaremos los conceptos principales del modelo de programaci\'on
 de CUDA C. CUDA C extiende el lenguaje est\'andar C, permitiendo al programador definir
-funciones, llamadas \textit{Kernels}, que cuando son llamadas se ejecutan $N$ veces
-en paralelo por $N$ hilos de CUDA, a diferencia de solo un hilo en una funci\'on regular
+funciones llamadas \textit{Kernels} que, cuando son llamadas, se ejecutan $N$ veces
+en paralelo por $N$ hilos de CUDA, a diferencia de s\'olo un hilo en una funci\'on regular
 de C. El programador es qui\'en decide el valor din\'amico o est\'atico del par\'ametro $N$
 en el momento de ejecutar el kernel. A cada hilo que ejecuta un kernel se le asigna
 un identificador \'unico el cual es accesible por el hilo dentro del kernel. Estos identificadores
@@ -195,10 +206,10 @@ siguen los lineamientos de la jerarqu\'ia de hilos analizada a continuaci\'on.
 \subsubsection*{Jerarqu\'ia de Hilos}
 
 Cada identificador de hilo puede ser visto como una 3-upla, por lo que cada hilo
-puede ser identificado utilizando un \'indice de una, dos o tres dimensiones. Formando as\'i
-un bloque de hilos de una dos o tres dimensiones. Esto provee una forma natural de
+puede ser identificado utilizando un \'indice de una, dos o tres dimensiones formando as\'i
+un bloque de hilos de una dos o tres dimensiones. \'Esto provee una forma natural de
 mapear los identificadores de hilos con el accesos a datos. Hay un l\'imite en el 
-n\'umero de hilos por bloques, ya que se espera que cada bloque de hilos resida en 
+n\'umero de hilos por bloques ya que se espera que cada bloque de hilos resida en 
 un mismo multiprocesador y debe compartir recursos de memoria limitados dentro
 del procesador. El n\'umero m\'aximo de hilos por bloques es de 1024 en la arquitectura
 utilizada en este trabajo.
@@ -220,9 +231,9 @@ en el sistema.
 \end{figure}
 
 Cada bloque dentro de una grilla puede ser identificado por un \'indice de una,
-dos o tres dimensiones seg\'un haya sido declarado y accesible dentro del kernel
-a trav\'es de una variable predefinida. Del mismo modo es accesible las dimensiones
-del bloque de hilos y de la grilla de bloques. 
+dos o tres dimensiones (seg\'un haya sido declarado) y accesible dentro del kernel
+a trav\'es de una variable predefinida. Del mismo se puede acceder a las dimensiones
+del bloque de hilos y a la grilla de bloques.
 
 Los hilos dentro de un bloque pueden cooperar entre ellos compartiendo datos
 a trav\'es de memoria compartida y sincronizando su ejecuci\'on para coordinar el accesos
@@ -236,7 +247,7 @@ se ilustra en la Figura \ref{CUDA3}. Cada hilo dispone de memoria local. Cada bl
 dispone de memoria compartida visible por todos los hilos de un mismo bloque. Todos
 los hilos tiene acceso a la misma memoria global.
 
-Hay adicionalmente dos memorias de solo lectura accesible por todos los hilos: memoria
+Hay adicionalmente dos memorias de s\'olo lectura accesible por todos los hilos: memoria
 constante y memoria de textura. La memoria global, memoria de textura y memoria
 constante est\'an optimizadas para diferentes usos. La memoria de textura ofrece un
 modo de acceso y filtrado de datos para formatos de memoria espec\'ificos. No cubriremos
@@ -257,14 +268,14 @@ este tipo de memoria ya que no es utilizada en el trabajo.
 \subsubsection*{Programaci\'on Heterog\'enea}
 
 El modelo de programaci\'on de CUDA asume que los hilos de CUDA ejecutan en un dispositivo
-f\'isicamente separado que opera como un coprocesador del \textit{host} que esta ejecutando
-la aplicaci\'on, por lo general y para el an\'alisis de nuestro trabajo esta aplicaci\'on 
+f\'isicamente separado que opera como un coprocesador del \textit{host} que est\'a ejecutando
+la aplicaci\'on. Por lo general (y para el an\'alisis de nuestro trabajo) esta aplicaci\'on 
 est\'a escrita en C/C++ utilizando el lenguaje CUDA. El c\'odigo kernel ser\'a ejecutado
 espec\'ificamente en la GPU y el resto del programa se ejecutar\'a en el procesador
 central o CPU.
 
 Adem\'as, el modelo computacional de CUDA asume que tanto el host como el dispositivo
-manejan distintos espacios de memoria, referidos como \textit{memoria de host}
+manejan distintos espacios de memoria referidos como \textit{memoria de host}
 y \textit{memoria de dispositivo} respectivamente. CUDA provee una API completa
 para manejar la memoria de dispositivo y poder ser alocada, escrita y le\'ida por 
 el host.
@@ -278,60 +289,60 @@ procesadores de flujo de m\'ultiples hilos o \textit{Streaming Multiprocessors (
 Cuando un programa CUDA est\'a ejecutando en host e invoca la ejecuci\'on de una grilla
 de kernels, los bloques de la grilla son numerados y distribuidos a los multiprocesadores
 disponibles para su ejecuci\'on. Los hilos de un bloque ejecutan concurrentemente en
-un mismo multiprocesador, y m\'ultiples bloques de hilos pueden ejecutar de forma
+un mismo multiprocesador y m\'ultiples bloques de hilos pueden ejecutar de forma
 concurrente en un mismo multiprocesador. A medida que los bloques de hilos terminan,
 nuevos bloques son asignados a los multiprocesadores vacantes.
 
 Los multiprocesadores est\'an dise\~nados para ejecutar cientos de hilos de forma concurrente. 
-Para manejar este n\'umero de hilos, estos utilizan una arquitectura llamada 
+Para manejar este n\'umero de hilos, \'estos utilizan una arquitectura llamada 
 \textit{SIMT (Single Instruction, Multiple Thread)}
 
 
 \subsubsection{Arquitectura SIMT}
 
-Los multiprocesadores crean, manejan, planifican y ejecutan en paralelo grupos de 32 hilos,
+Los multiprocesadores crean, manejan, planifican y ejecutan en paralelo grupos de 32 hilos
 llamados \textit{warps}. Cada hilo de un warp comienzan juntas en el mismo punto del
-programa, pero cada uno tiene su propio contador de instrucciones y registros de estados
+programa, pero cada uno tiene su propio contador de instrucciones, registros de estados
 y son libres de ejecutar independientemente.
 
-Cuando un multiprocesador posee uno o m\'as bloques de hilos para ejecutar, este
+Cuando un multiprocesador posee uno o m\'as bloques de hilos para ejecutar, \'este
 parte los bloques en warps y cada warp es planificado por un planificador de warps para ser ejecutada. 
-La forma en que los bloques son divididos en warps es siempre la misma; cada bloque contiene
+La forma en que los bloques son divididos en warps es siempre la misma: cada bloque contiene
 hilos con identificadores num\'ericos asignados de forma consecutiva. El primer warp contiene
 los hilos con identificadores 0 a 31, la segunda warp los hilos 32 a 63 y as\'i sucesivamente.
 
 Cada hilo dentro de un mismo warp ejecuta una misma instrucci\'on al mismo tiempo, por lo tanto el rendimiento
 \'optimo se consigue cuando los 32 hilos de un warp siguen el mismo camino de ejecuci\'on.
-Si los hilos de un warp divergen en el flujo de ejecuci\'on, las ejecuci\'on de los 
+Si los hilos de un warp divergen en el flujo de ejecuci\'on, la ejecuci\'on de los 
 hilos del warp son serializados, deshabilitando los hilos que no est\'an en el flujo
-de ejecuci\'on y cuando los posibles caminos convergen, todos los hilos vuelven
-al mismo punto del programa. Esto solo ocurre entre hilos de un mismo warp. Diferentes
+de ejecuci\'on. Cuando los posibles caminos convergen, todos los hilos vuelven
+al mismo punto del programa. \'Esto s\'olo ocurre entre hilos de un mismo warp. Diferentes
 warp ejecutan independientemente.
 
 Si analizamos la correcci\'on del programa, el programador puede esencialmente
 ignorar el comportamiento de la arquitectura SIMT. Sin embargo, se pueden conseguir
-sustanciales resultados de mejoramiento de rendimiento teniendo en cuenta la forma
-en que los hilos son agrupados y como es el comportamiento de ellos en los warps.
-En la pr\'actica, esto es an\'alogo a como se comporta la cache. El tama\~no de cache
+sustanciales mejoras de rendimiento teniendo en cuenta la forma
+en que los hilos son agrupados y c\'omo es el comportamiento de ellos en los warps.
+En la pr\'actica, esto es an\'alogo a c\'omo se comporta la cach\'e. El tama\~no de cach\'e
 puede ser ignorado en la correcci\'on del dise\~no, pero debe ser considerado en la
 estructura del c\'odigo para conseguir el rendimiento m\'aximo. La arquitectura SIMT,
 requiere de ciertos cuidados al acceder a la memoria y manejar la divergencia
-de los hilos, estos ser\'an analizados a m\'as adelante.
+de los hilos. \'Estos ser\'an analizados a m\'as adelante.
 
 \subsubsection{Caracter\'isticas del Hardware Multi-hilo}
 
 El contexto de ejecuci\'on de cada warp (contadores de programa, registros, etc.) es mantenido
-en la memoria interna de cada multiprocesador lo largo de la vida del warp. Esto implica que cambiar
-de un contexto de ejecuci\'on a otro no tiene costo. Esto es aprovechado para
+en la memoria interna de cada multiprocesador lo largo de la vida del warp. \'Esto implica que cambiar
+de un contexto de ejecuci\'on a otro no tiene costo, hecho que es aprovechado para
 que los multiprocesadores mantengan un conjunto de warps activas para la ejecuci\'on
-y el planificador de ejecuci\'on del multiprocesador elije cual es la
+y el planificador de ejecuci\'on del multiprocesador elija cu\'al es el
 siguiente warp a ejecutar. El modo de manejar la ejecuci\'on de las warps es una 
 gran ventaja en el dise\~no de la arquitectura, permitiendo ocultar de forma 
 \'optima la latencia de lectura y escritura a memoria, siempre y cuando el 
 multiprocesador tenga suficientes warps disponibles para la ejecuci\'on.
 
 En particular, cada multiprocesador contiene una conjunto de registros de 32-bits
-que son divididos a lo largo de los warps y una cache de datos y memoria compartida
+que son divididos a lo largo de los warps y una cach\'e de datos y memoria compartida
 que es dividida a lo largo de los bloques de hilos. El n\'umero de bloques y warps 
 que pueden residir y ser procesados al mismo tiempo dentro de un multiprocesador 
 para un programa dado, depende de la cantidad de
@@ -344,31 +355,31 @@ Para comprender este hecho, veremos un ejemplo concreto en la arquitectura
 espec\'ifica utilizada en el trabajo. Hablamos de la arquitectura Kepler de NVIDA.
 En esta arquitectura, el tama\~no de los warps es 32 y cada multiprocesador posee
 256 KB de memoria de registros y memoria compartida programable en 16, 32 o 48 KB.
-Suponemos que poseemos un kernel que utiliza 25 registros locales de 32 bit y 
+Supongamos que poseemos un kernel que utiliza 25 registros locales de 32 bit y 
 cada bloque lanzado es de 256 hilos. Cada bloque
-necesita de $256 \times 25 \times 4 = 25 KB$ lo cual nos indica que no puede haber
-m\'as de 10 bloques simult\'aneamente en el mismo SM, de haberlo el multiprocesador se
+necesita de $256 \times 25 \times 4 = 25 KB$ lo cu\'al nos indica que no puede haber
+m\'as de 10 bloques simult\'aneamente en el mismo SM. De haberlo, el multiprocesador se
 quedar\'ia sin memoria local. Recordemos que cada hilo necesita que sus valores locales
 persistan en memoria local a lo largo de su ejecuci\'on para permitir que el planificador
 los saque y ponga en ejecuci\'on r\'apidamente. Del mismo modo si los SM est\'an configurados
 para tener 48KB de memoria compartida y cada bloque utiliza 12KB de esta memoria,
-no puede haber mas de 4 bloques simult\'aneamente en el mismo SM. De estos dos
-par\'ametros analizados para determinar, en tiempo de compilaci\'on, cuantos bloques
-pueden residir el cada SM, el m\'inimo entre ambos ser\'a el valor final.
+no puede haber m\'as de 4 bloques simult\'aneamente en el mismo SM. De estos dos
+par\'ametros analizados, para determinar en tiempo de compilaci\'on cu\'antos bloques
+pueden residir en cada SM, se concluye que el m\'inimo entre ambos deberá ser el valor final.
 
 De lo analizado anteriormente se desprende un valor de utilizaci\'on de los multiprocesadores
-o \textit{occupancy} que es la porcentaje entre la cantidad de bloques de un kernel
+o \textit{occupancy} que es el porcentaje entre la cantidad de bloques de un kernel
 en particular que puede manejar cada cada multiprocesador y la cantidad m\'axima de
 bloques determinados por la arquitectura. En el caso de la arquitectura Kepler el n\'umero m\'aximo
 de bloques por SM es 16. As\'i, Occupancy es un valor entre 0 y 1. Mientras m\'as cerca de 1 se encuentre, no significar\'a
 que el c\'odigo ser\'a m\'as eficiente ya que esto depende de la combinaci\'on de muchos
-factores, pero determina cuan ocupado estar\'an los SM, permitiendo as\'i mejorar
+factores, pero determina cu\'an ocupado estar\'an los SM, permitiendo as\'i mejorar
 el ocultamiento de latencia de accesos a memoria entre otras cosas.
 
 
 \subsection{T\'ecnicas de Rendimiento}
 
-Para lograr conseguir el m\'aximo de rendimiento de la arquitectura GPU es necesario
+Para lograr conseguir el m\'aximo rendimiento de la arquitectura GPU es necesario
 adaptar el problema para seguir algunos lineamentos de la arquitectura. En nuestro
 problema trataremos de conseguir :
 
@@ -378,25 +389,25 @@ problema trataremos de conseguir :
 \end{enumerate}
 
 Para lograr la m\'axima utilizaci\'on debemos separar el problema en bloques lo m\'as
-independientes posibles para que estos puedan ser mapeados a diferentes componentes
+independientes posibles para que \'estos puedan ser mapeados a diferentes componentes
 del sistema y mantener estos componentes lo m\'as ocupados posible. A nivel multiprocesador,
 como ya explicamos, es importante que haya muchas warps activas
 dispuestas a ejecutar para poder ocultar la latencia de acceso a memoria. Adem\'as,
-es necesario que las threads de un mismo warp minimicen las bifurcaciones y las sincronizaci\'on
+es necesario que los threads de un mismo warp minimicen las bifurcaciones y las sincronizaci\'on
 como barreras o mutex de escritura de memoria.
 
 En cuanto a utilizaci\'on de memoria, el primer paso es tratar de maximizar el rendimiento
-en el accesos a memoria de bajo ancho de banda, es decir, memoria que reside en el dispositivo.
-Las t\'ecnicas m\'as utilizadas son dise\~nar el algoritmo para minimizar el acceso a memoria global
-y utilizar la memoria compartida como una cache intermedia entre la lectura - operaci\'on -
+en los accesos a memoria de bajo ancho de banda, es decir, memoria que reside en el dispositivo.
+Las t\'ecnica m\'as utilizada es dise\~nar el algoritmo para minimizar el acceso a memoria global
+y utilizar la memoria compartida como una cach\'e intermedia entre la lectura - operaci\'on -
 escritura. El esquema b\'asico ser\'ia :
 
 \begin{enumerate}
 \item Cargar los datos de memoria global a memoria local.
-\item Sincronizar todas las threads del bloque de tal modo que cada thread pueda
-acceder a la memoria cargada por otra thread de forma segura.
+\item Sincronizar todas los threads del bloque de tal modo que cada thread pueda
+acceder a la memoria cargada por otro thread de forma segura.
 \item Procesar los datos en memoria compartida.
-\item Sincronizar nuevamente, si es necesario, para asegurar que todas las thread
+\item Sincronizar nuevamente, si es necesario, para asegurar que todos las threads
 terminaron de procesar los datos.
 \item Escribir los resultados nuevamente a memoria global.
 \end{enumerate}
@@ -407,22 +418,22 @@ Cada memoria tiene sus propias caracter\'isticas.
 La memoria global reside en memoria del dispositivo, esta memoria es accedida
 a trav\'es de transacciones de 16, 32 y 64 bytes. Dichas transacciones est\'an
 alineadas. Cuando una warp ejecuta una instrucci\'on que accede a memoria global, 
-esta genera las cantidad de transacciones necesarias dependiendo del tama\~no de dato
+\'esta genera las cantidad de transacciones necesarias dependiendo del tama\~no de dato
 accedido de tal manera de poder satisfacer cada hilo y luego lo distribuye entre ellos.
 Por lo general, mientras m\'as transacciones sean necesarias, m\'as datos innecesarios
 son transferidos al warp y luego desechados, empeorando el rendimiento. Por ello
 es importante que las instrucciones de acceso a memoria global sean hechas de tal
 forma que los datos necesarios por los hilos est\'en los m\'as juntos posibles.
 
-El accesos a memoria local solo ocurren para algunas variables autom\'aticas las cuales
+Los accesos a memoria local s\'olo ocurren para algunas variables autom\'aticas las cuales
 son ubicadas en este espacio de memoria por el compilador. El espacio de memoria local
-reside en memoria de dispositivo, por lo tanto su accesos tiene alta latencia y bajo
-ancho de banda. Adem\'as est\'an sujetas a los mismo requerimientos de accesos que lo
+reside en memoria de dispositivo, por lo tanto sus accesos tiene alta latencia y bajo
+ancho de banda. Adem\'as est\'an sujetas a los mismos requerimientos de accesos que lo
 nombrado anteriormente en el acceso a memoria global. Ya que el acceso a esta memoria
-est\'a controlada por el compilador, este se encarga de generar los patrones de acceso
+est\'a controlada por el compilador, \'este se encarga de generar los patrones de acceso
 que maximicen el rendimiento.
 
-La memoria compartida reside en los multiprocesadores. Por ello el accesos a esta memoria
+La memoria compartida reside en los multiprocesadores. Por ello los accesos a esta memoria
 tiene m\'as baja latencia y m\'as alto ancho de banda que la memoria local y la memoria global.
 Para maximizar el ancho de banda, la memoria compartida es dividida en m\'odulos de
 igual tama\~no, llamados bancos, los cuales pueden ser accedidos simult\'aneamente. Cualquier

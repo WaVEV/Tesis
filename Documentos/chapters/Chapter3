@@ -1,13 +1,13 @@
 \newcommand*{\hham}{\hat{\mathcal{H}}}
 \chapter{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}\label{methodimp}
-\addcontentsline{toc}{chapter}{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}
+% \addcontentsline{toc}{chapter}{Implementaci\'on num\'erica del M\'etodo de Rayleigh-Ritz}
 \markboth{}{} % encabezado
-En esta secci\'on explicaremos como es la primera implementaci\'on del m\'etodo para una y dos particulas, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en la secci\'on \ref{RRMETHOD}.
+En esta secci\'on explicaremos c\'omo es la primera implementaci\'on del m\'etodo para una y dos particulas, se explicar\'an las funciones y variables y su relaci\'on con el modelo te\'orico explicado en la secci\'on \ref{RRMETHOD}.
 
 \section{Introduci\'on}
 \label{intro:numerica}
 En mec\'anica cu\'antica el estado de una part\'icula est\'a dado por una funcio\'on de onda,
-$|\Psi(\vec{r})\rangle$, la cual puede escribirse como combinaci\'on lineal de los autoestados del sistema
+$|\Psi(\vec{r})\rangle$, la cu\'al puede escribirse como combinaci\'on lineal de los autoestados del sistema
 $|\psi_n(\vec{r})\rangle$.
 Los autoestados son las soluciones de la ecuacio\'on de Schr\"odinger independiente del tiempo
 
@@ -16,7 +16,7 @@ Los autoestados son las soluciones de la ecuacio\'on de Schr\"odinger independie
 \end{equation}
 
 \noindent
-donde $\mathcal{H}$ es el Hamiltoniano del sistema y $E_n$ es la energ\'ia asociada al n-\'esimo 
+d\'onde $\mathcal{H}$ es el Hamiltoniano del sistema y $E_n$ es la energ\'ia asociada al n-\'esimo 
 autoestado. El operador Hamiltoiano, $\mathcal{H}$, en Ec. \ref{ec_schrodinger} es el operador 
 de la energ\'ia del sistema. En un sistema de tres dimensiones, el Hamiltoniano en coordenadas 
 esfer\'icas, $(r,\varphi,\theta)$, es
@@ -28,10 +28,10 @@ esfer\'icas, $(r,\varphi,\theta)$, es
 \end{align}
 
 \noindent
-donde $V(r)$ es potencial del sistema que solo depende de la coordenada radial, $l$ es el 
+d\'onde $V(r)$ es potencial del sistema que s\'olo depende de la coordenada radial, $l$ es el 
 momento angular de la part\'icula. Para obtener el Hamiltoniano en la Ec. \ref{hamiltoniano} 
-es necesario escribir el operador Laplaciano, $\nabla^2$, en coordenadas esfericas y luego, 
-haciendo separacion de variables se obtiene que la dependencia de las funciones $|\phi_n(\vec{r})\rangle$
+es necesario escribir el operador Laplaciano $\nabla^2$, en coordenadas esf\'ericas y luego, 
+haciendo separaci\'on de variables se obtiene que la dependencia de las funciones $|\phi_n(\vec{r})\rangle$
 con las variables $\varphi$ y $\theta$ est\'a dada por las funciones conocidas como 
 arm\'onicos esf\'ericos, $Y_{l,m}(\theta,\varphi)$. De esta forma s\'olo hay que 
 resolver una ecuaci\'on en la variable radial, $r$, dicha ecuaci\'on es
@@ -68,7 +68,7 @@ es natural expandir las soluciones en dicha base
 \end{equation}
 
 \noindent
-donde $\varphi_i(r)$ es el $i$-\'esimo B-spline de orden $k$. Armar la base requiere una secuencia de 
+d\'onde $\varphi_i(r)$ es el $i$-\'esimo B-spline de orden $k$. Armar la base requiere una secuencia de 
 knots que dependan de los siguientes par\'ametros: un conjunto de puntos de malla llamados 
 secuencia de breakpoints definidos en $[0,r_{max}]$, el orden $k$ de los polinomios y las condiciones 
 de continuidad en cada breakpoint. Todos estos par\'ametros se eligen a partir de las propiedades 
@@ -85,7 +85,7 @@ H_l \vec{\alpha} = E\,S\,\vec{\alpha}\,,
 \end{equation}
 
 \noindent 
-para $E$ y $\lbrace\alpha_i\rbrace_1^N$, donde
+para $E$ y $\lbrace\alpha_i\rbrace_1^N$, d\'onde
 
 \begin{align}\label{elemento_matriz}
 (H_l)_{ij} &= -\frac{1}{2} \int_0^{r_{max}} \varphi_i(r) \frac{d^2}{dr^2}\varphi_j(r) \,dr \nonumber
@@ -126,7 +126,7 @@ el operador es
 \mathcal{H}_{2p} = \mathcal{H}_{1p}^{(1)} + \mathcal{H}_{1p}^{(2)} + U(\vec{r}_1,\vec{r}_2)\,,
 \end{equation}
 
-\noindent donde $\mathcal{H}_{1p}^{(i)}$ es el operador Hamiltoniano que act\'ua sobre 
+\noindent d\'onde $\mathcal{H}_{1p}^{(i)}$ es el operador Hamiltoniano que act\'ua sobre 
 la part\'icula $i$ ($i = 1, 2$) dado en la ecuaci\'on \ref{hamiltoniano} y $U(\vec{r}_1,\vec{r}_2)$
 es el operador que representa la interacci\'on entre las part\'iculas y en general es una 
 funci\'on que depende del m\'odulo de la diferencia entre $\vec{r}_1$ y $\vec{r}_2$, en otras 
@@ -139,18 +139,18 @@ Para este sistema, la equaci\'on diferencial que se tiene que resolver es
 \mathcal{H}_{2p} \psi_n(\vec{r}_1,\vec{r}_2) = E_n^{2p} \psi_n(\vec{r}_1,\vec{r}_2)\,,
 \end{equation}
 
-\noindent donde $\psi_n(r_1,r_2)$ es la funci\'on de onda del sistema de dos part\'iculas. 
+\noindent d\'onde $\psi_n(r_1,r_2)$ es la funci\'on de onda del sistema de dos part\'iculas. 
 En particular, como las part\'iculas son cu\'anticas, la funci\'on de onda tiene que 
 satisfacer condiciones de simetr\'ia (adem\'as de las condiciones de contorno). Estas 
 condiciones de contorno pueden ser que la funci\'on de onda sea sim\'etrica al 
 intercambio de coordenada, $\psi(\vec{r}_2,\vec{r}_1) = \psi(\vec{r}_1,\vec{r}_2)$, o bien
 antisim\'etrica al intercambio de coordenadas, $\psi(\vec{r}_2,\vec{r}_1) = -\psi(\vec{r}_1,\vec{r}_2)$.
 
-Para el resolver el problema usando el m\'etodo variacional de Rayleigh-Ritz
+Para resolver el problema usando el m\'etodo variacional de Rayleigh-Ritz
 es necesario elegir una base de funciones para el c\'alculo de las matrices y pasar 
-de una ecuaci\'on diferencial a una ecuaci\'on de autovalores y autovectores, y es 
+de una ecuaci\'on diferencial a una ecuaci\'on de autovalores y autovectores. Es 
 recomendable que dicho conjunto de funciones cumpla con las condiciones de 
-simetr\'ia del problema, como estamos interesados en el caso de 
+simetr\'ia del problema. Como estamos interesados en el caso de 
 funciones de onda sim\'etricas elegimos como base una combinaci\'on de 
 B-splines que sean sim\'etricas
 
@@ -161,10 +161,10 @@ B-splines que sean sim\'etricas
                       \end{array} \right.\,,
 \end{equation}
 
-\noindent donde $\varphi_i(r)$ es el i-\'esimo B-spline de orden $k$.
+\noindent d\'onde $\varphi_i(r)$ es el i-\'esimo B-spline de orden $k$.
 Las funciones definidas en Ec. \ref{base-2p} cumple con la condici\'on de 
 simetr\'ia $\chi_{i,j}(r_2,r_1) = \chi_{i,j}(r_1,r_2)$ para todo par de valores $i,j$. 
-Para el c\'alculo de las matrices involucradas es mas simple, primero 
+Para el c\'alculo de las matrices involucradas es m\'as simple, primero 
 calcular dichas matrices usando la base 
 
 \begin{equation}\label{base-2p-2}
@@ -181,7 +181,7 @@ H_{i,i';j,j'} &= \langle \hat{\chi}_{i,j} |\mathcal{H}_{2p}|\hat{\chi}_{i',j'}\r
 \end{split}
 \end{equation}
 
-\noindent donde las matrices $(H_l)$ y $S$ estan dadas por las integrales en 
+\noindent d\'onde las matrices $(H_l)$ y $S$ est\'an dadas por las integrales en 
 la EC \ref{elemento_matriz}, mientras que la matriz de la interaci\'on entre 
 las part\'iculas est\'a dada por
 
@@ -207,7 +207,7 @@ g_{j,j'}(r_1) &= \int_{r_1}^{r_{max}} \varphi_j(r_2)\,U(r_1,r_2)\,\varphi_{j'}(r
 \end{split}
 \end{equation}
 
-\noindent las cuales son integrales de una sola variable y por lo tanto pueden ser 
+\noindent las cu\'ales son integrales de una s\'ola variable y por lo tanto pueden ser 
 calculadas aplicando el mismo m\'etodo que se usa para las dem\'as matrices. Luego, 
 para evaluar los elementos de matriz de $U(r_1,r_2)$ hay que calcular una nueva 
 integral, que es de la forma
@@ -218,7 +218,7 @@ U_{i,i';j,j'} = \int_0^{r_{max}} \varphi_i(r_1)\,f_{j,j'}(r_1)\,\varphi_{i'}(r_1
 \end{equation}
 
 \section{Implementaci\'on n\'umerica}
-Este m\'etodo, tanto para una part\'icula como para dos, tiene dos partes bien diferenciadas una es construir el sistema representado en las EC \ref{ec_auval} o \ref{eq:scho-2p} y la otra parte es resolver dicho sistema. Para la resoluci\'on del sistema se utilizaron bibliotecas de terceros \cite{LAPACK, ARPACK} y para armar el sistema hay que calcular las matrices involucradas, este c\'alculo est\'a expresado en las f\'ormulas \ref{elemento_matriz} y \ref{mat-hamiltoniano-2p} para para una y dos part\'iculas respectivamente, las itegrales relacionadas se aproximaron con el m\'etodo {\it Gauss Legendre}.
+Este m\'etodo, tanto para una part\'icula como para dos, tiene dos partes bien diferenciadas una es construir el sistema representado en las EC \ref{ec_auval} o \ref{eq:scho-2p} y la otra es resolver dicho sistema. Para la resoluci\'on del sistema se utilizaron bibliotecas de terceros \cite{LAPACK, ARPACK} y para armar el sistema hay que calcular las matrices involucradas. Este c\'alculo est\'a expresado en las f\'ormulas \ref{elemento_matriz} y \ref{mat-hamiltoniano-2p} para para una y dos part\'iculas respectivamente. Las itegrales relacionadas se aproximaron con el m\'etodo {\it Gauss Legendre}.
 
 Llamemos $v_0$ al tercer t\'ermino de la derecha la Ec. \ref{elemento_matriz} y $ke$ los dos primeros t\'erminos de \ref{elemento_matriz} y $s$ representa la matriz {\it S} en \ref{solapamiento}.
 Llamaremos $INT\_G$ el grado de cuadratura, $L\_INT$ la cantidad de intervalos, este par\'ametro define el tama\~no y por tanto la presici\'on del c\'alculo.
@@ -226,7 +226,7 @@ Llamaremos $INT\_G$ el grado de cuadratura, $L\_INT$ la cantidad de intervalos, 
 \subsection{Primera implementaci\'on para una part\'icula}\label{una_particula}
 Para el armado de las matrices se puden diferenciar dos procesos o {\it bloques} secuenciales, el primero realiza un c\'alculo auxiliar y el segundo calcula las matrices de la Ec. \ref{elemento_matriz} y \ref{solapamiento} con {\it Cuadratura Gaussiana}.
 
-En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots de los B-splines con una distribuci\'on uniforme (ver lineas \ref{knot_pesos:breakpoints:ini} hasta \ref{knot_pesos:breakpoints:fin}), las abscisas y pesos de la cuadratura de {\it Gauss-Legendre} para cada {\it punto de integraci\'on}, estos puntos son $L\_INT$ intervalos tomados uniformemente entre los l\'imites $r_{min}$ y $r_{max}$ de las integrales de la Ec. \ref{elemento_matriz} (ver lineas \ref{gaus:legendre_abs:ini} hasta \ref{gaus:legendre_abs:fin}).
+En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots de los B-splines con una distribuci\'on uniforme (ver lineas \ref{knot_pesos:breakpoints:ini} hasta \ref{knot_pesos:breakpoints:fin}), las abscisas y pesos de la cuadratura de {\it Gauss-Legendre} para cada {\it punto de integraci\'on}, estos puntos son $L\_INT$ intervalos tomados uniformemente entre los l\'imites $r_{min}$ y $r_{max}$ de las integrales de la Ec. \ref{elemento_matriz} (ver l\'ineas \ref{gaus:legendre_abs:ini} hasta \ref{gaus:legendre_abs:fin}).
 
 \begin{algorithm}[!htb]
  \label{alg:knot_pesos}
@@ -237,7 +237,7 @@ En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots d
  \For{$i$ $\in$ $[0, $L\_INT$)$}{ \label{gaus:legendre_abs:ini}
     $ri = r_{min} + i * dr$\\
     $rf$ = $ri + dr$\\
-    $x[i] = absisas\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [ri, rf]$\\
+    $x[i] = abscisas\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [ri, rf]$\\
     $w[i] = pesos\ del\ m\acute{e}todo\ de\ gauss-legendre\ en\ el\ intervalo\ [ri, rf]$\\
  }\label{gaus:legendre_abs:fin}
  $t[0] = r_{min}$\\ \label{knot_pesos:breakpoints:ini}
@@ -261,11 +261,11 @@ En el primer bloque (ver algoritmo \ref{alg:knot_pesos}) se calcula: los knots d
 \end{algorithm}
 
 En el segundo bloque (ver algoritmo \ref{alg:calculomatrices}) se calculan las matrices de solapamiento $s$, la matriz de potencial $v_e$ y la matriz de energ\'ia $ke$. Las integrales de cada punto de la matriz se 
-realizan con la cuadratura de {\it Gauss-Legendre} sobre B-splines, esto se puede ver en las lineas 
-\ref{calculomatrices:b-spline_integal:ini} hasta \ref{calculomatrices:b-spline_integal:fin}, notar que en la linea \ref{b-spline_eval} calculamos el valor de la funci\'on en ese punto (las dependencias del mismo se dan en el \'indice son $j$ e $i$) y luego realizamos la operaci\'on con los pesos correspondiente a cada parte de la matriz, cada valor de B-spline tiene un cierto peso dado por la cuadratura seg\'un la posici\'on de la matriz.
+realizan con la cuadratura de {\it Gauss-Legendre} sobre B-splines, esto se puede ver en las l\'ineas 
+\ref{calculomatrices:b-spline_integal:ini} hasta \ref{calculomatrices:b-spline_integal:fin}, notar que en la l\'inea \ref{b-spline_eval} calculamos el valor de la funci\'on en ese punto (las dependencias del mismo se dan en el \'indice son $j$ e $i$) y luego realizamos la operaci\'on con los pesos correspondiente a cada parte de la matriz. Cada valor de B-spline tiene un cierto peso dado por la cuadratura seg\'un la posici\'on de la matriz.
 
 Luego se integra de la misma manera con las dervidas de los B-splines (lineas \ref{calculomatrices:db-spline_integal:ini} hasta 
-\ref{calculomatrices:db-spline_integal:fin}) como esta escrito en la Ec. \ref{elemento_matriz}. Notar que la evaluaci\'on de los B-splines (o m\'as bien sus derivadas) son calculados dentro del ciclo que realiza la integracion por {\it Gauss-Legendre} por tanto esa funci\'on es evaluada m\'as de una vez, mas adelante veremos como optimizamos esto con una factorizaci\'on de c\'odigo.
+\ref{calculomatrices:db-spline_integal:fin}) como est\'a escrito en la Ec. \ref{elemento_matriz}. Notar que la evaluaci\'on de los B-splines (o m\'as bien sus derivadas) son calculados dentro del ciclo que realiza la integracion por {\it Gauss-Legendre} por tanto esa funci\'on es evaluada m\'as de una vez. M\'as adelante veremos c\'omo optimizamos esto con una factorizaci\'on de c\'odigo.
 
 \begin{algorithm}[!htb]
  \label{alg:calculomatrices}
@@ -320,10 +320,10 @@ Luego se integra de la misma manera con las dervidas de los B-splines (lineas \r
 \subsection{Primera implementaci\'on para dos part\'iculas}
 \label{imp2particulas}
 
-El armado de las matrices para dos part\'iculas se puede ver en tres partes ({\it o bloques}): la primera es calcular las matrices $(H_l)$ y $S$ del problema de una part\'icula como fu\'e descripto m\'as arriba, la segunda es calcular la interacci\'on $U_{i,i';j,j'}$ y luego armar las matrices en una base simetrica seg\'un Ec. \ref{base-2p}.
+El armado de las matrices para dos part\'iculas se puede ver en tres partes ({\it o bloques}): la primera es calcular las matrices $(H_l)$ y $S$ del problema de una part\'icula como fu\'e descripto m\'as arriba, la segunda es calcular la interacci\'on $U_{i,i';j,j'}$ y luego armar las matrices en una base sim\'etrica seg\'un Ec. \ref{base-2p}.
 
 La Interacci\'on ({\it segunda parte}) se describe en el algoritmo \ref{alg:interaccion}. 
-En esta rutina se realiza el c\'alculo del tensor de la Ec. \ref{matriz_interaccion}, integrando con {\it Gauss-Legendre}, el tensor $U_{i,i';j,j'}$ es calculado parcialmente en cada vuelta del ciclo de la linea \ref{ciclo_integracion_vef}, entonces s\'olo se le calculan las funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ del ciclo $i,i'$ (ver Ec. \ref{iteraccion_factoreo}), como estas funciones son computadas con el m\'etodo de {\it Gauss-Lengre} en las lineas \ref{calculo_U:ini} hasta \ref{calculo_U:fin} se realiza un efoque similar al explicado en la secci\'on \ref{una_particula} s\'olo hay que tener cuidado con los limites de integraci\'on. Luego se realiza el resto de la integraci\'on en las lineas \ref{seungda_integracion:ini} hasta \ref{seungda_integracion:fin} con el m\'etodo de {\it Gauss-Legendre} tomando como funci\'on $U_{i,i'} = \sqrt{s_{i,i} * s_{i',i'}}$.
+En esta rutina se realiza el c\'alculo del tensor de la Ec. \ref{matriz_interaccion}, integrando con {\it Gauss-Legendre}. El tensor $U_{i,i';j,j'}$ es calculado parcialmente en cada vuelta del ciclo de la l\'inea \ref{ciclo_integracion_vef}, entonces s\'olo se calculan las funciones $f^{i,i'}_{j,j'}$ y $g^{i,i'}_{j,j'}$ del ciclo $i,i'$ (ver Ec. \ref{iteraccion_factoreo}). Como estas funciones son computadas con el m\'etodo de {\it Gauss-Lengre} en las l\'ineas \ref{calculo_U:ini} hasta \ref{calculo_U:fin}, se realiza un efoque similar al explicado en la secci\'on \ref{una_particula} s\'olo hay que tener cuidado con los l\'imites de integraci\'on. Luego se realiza el resto de la integraci\'on en las l\'ineas \ref{seungda_integracion:ini} hasta \ref{seungda_integracion:fin} con el m\'etodo de {\it Gauss-Legendre} tomando como funci\'on $U_{i,i'} = \sqrt{s_{i,i} * s_{i',i'}}$.
 
 \begin{algorithm}[!htb]
  \label{alg:interaccion}
@@ -381,7 +381,7 @@ En esta rutina se realiza el c\'alculo del tensor de la Ec. \ref{matriz_interacc
  \caption{Interacci\'on}
 \end{algorithm}
 
-La tercera parte se trata de construir el {\it Hamiltoniano} y la matriz de {\it Solapamiento}, para esto se utiliza la una nueva base explicada en \ref{base-2p}. Entonces si ya se tienen calculado $U$ y $S$ (matriz de solapamiento para una p\'articula) luego resta realizar el c\'alculo descripto en \ref{mat-hamiltoniano-2p} variando los puntos $\eta$, este c\'alculo es descripto en el algoritmo \ref{alg:sener}. Las condicionales que est\'an en las lineas \ref{cond1}, \ref{cond2}, \ref{cond3} y \ref{cond4} indican como debe ser calculada la base que fue explicada en \ref{base-2p} seg\'un el caso.
+La tercera parte se trata de construir el {\it Hamiltoniano} y la matriz de {\it Solapamiento}. Para \'esto se utiliza la una nueva base explicada en \ref{base-2p}. Entonces si ya se tienen calculado $U$ y $S$ (matriz de solapamiento para una p\'articula) luego resta realizar el c\'alculo descripto en \ref{mat-hamiltoniano-2p} variando los puntos $\eta$. Este c\'alculo es descripto en el algoritmo \ref{alg:sener}. Las condicionales que est\'an en las l\'ineas \ref{cond1}, \ref{cond2}, \ref{cond3} y \ref{cond4} indican c\'omo debe ser calculada la base que fue explicada en \ref{base-2p} seg\'un el caso.
 
 
 \begin{algorithm}[!htb]
