@@ -9,7 +9,7 @@ En esta secci\'on explicaremos c\'omo es la primera implementaci\'on del m\'etod
 En mec\'anica cu\'antica el estado de una part\'icula est\'a dado por una funcio\'on de onda,
 $|\Psi(\vec{r})\rangle$, la cu\'al puede escribirse como combinaci\'on lineal de los autoestados del sistema
 $|\psi_n(\vec{r})\rangle$.
-Los autoestados son las soluciones de la ecuacio\'on de Schr\"odinger independiente del tiempo
+Los autoestados son las soluciones de la ecuaci\'on de Schr\"odinger independiente del tiempo
 
 \begin{equation}\label{ec_schrodinger}
 \mathcal{H} |\psi_n(\vec{r})\rangle = E_n |\psi_n(\vec{r})\rangle\,,
@@ -182,7 +182,7 @@ H_{i,i';j,j'} &= \langle \hat{\chi}_{i,j} |\mathcal{H}_{2p}|\hat{\chi}_{i',j'}\r
 \end{equation}
 
 \noindent d\'onde las matrices $(H_l)$ y $S$ est\'an dadas por las integrales en 
-la EC \ref{elemento_matriz}, mientras que la matriz de la interaci\'on entre 
+la EC \ref{elemento_matriz}, mientras que la matriz de la interacci\'on entre 
 las part\'iculas est\'a dada por
 
 \begin{equation}\label{matriz_interaccion}
