@@ -6,7 +6,7 @@ En esta secci\'on explicaremos c\'omo es la primera implementaci\'on del m\'etod
 
 \section{Introduci\'on}
 \label{intro:numerica}
-En mec\'anica cu\'antica el estado de una part\'icula est\'a dado por una funcio\'on de onda,
+En mec\'anica cu\'antica el estado de una part\'icula est\'a dado por una funci\'on de onda,
 $|\Psi(\vec{r})\rangle$, la cu\'al puede escribirse como combinaci\'on lineal de los autoestados del sistema
 $|\psi_n(\vec{r})\rangle$.
 Los autoestados son las soluciones de la ecuaci\'on de Schr\"odinger independiente del tiempo

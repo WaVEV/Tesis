@@ -4,6 +4,8 @@
 \usepackage{multicol} % indice en 2 columnas
 \usepackage{graphics, graphicx}
 \usepackage{listings}             % Incluye el paquete listings
+\usepackage{adjustbox}
+
 
 
 \usetheme{Warsaw}
@@ -29,8 +31,8 @@
 
 \frame{\titlepage}
 
-\section{Introducci\'on}
-\subsection{Ecuaci\'on de Sch\"odringer}
+
+
 
 \begin{frame}
   \frametitle{Introducci\'on}
@@ -67,9 +69,15 @@
   \end{displaymath} 
   con las condiciones de contorno $\phi_n(r=0)=\phi_n(\infty) = 0$.
   \begin{displaymath}\label{combinacion_lineal}
-      \phi_n(r) = \sum_{i=1}^{N} \alpha_i\,\varphi_i(r)\,,
+      \phi_n(r)=\sum_{i=1}^{N}\alpha_i\,\varphi_i(r) = \sum_{j=i-k+1}^{i}\alpha_j\varphi_j(r)\ para\ r\ \in\ [t_i, t_{i+1}]\,,
   \end{displaymath}
+
+  \begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{uniform-b-splines.eps}
+  \end{figure}
 \end{frame}
+
 
 \begin{frame}
     \begin{displaymath}\label{ec_auval}
@@ -128,20 +136,29 @@
     \item {Armar el sistema
       \begin{itemize}
         \item El c\'alculo de las abscisas y pesos de la Cuadratura de Gauss-Legendre.
-        \item C\'alculo de las matrices $H$ y $E$
+        \item C\'alculo de las matrices $H$ y $S$
         \item C\'alculo de la matriz U de interacci\'un. (En el sistema de 2 part\'iculas solamente)
-        \item C\'alculo del sistema de dos part\'iculas $H_{2p}$ y $E_2$. (En el sistema de 2 part\'iculas solamente)
+        \item C\'alculo del sistema de dos part\'iculas $H_{2p}$ y $S_{2p}$. (En el sistema de 2 part\'iculas solamente)
       \end{itemize}}
     \item {Resolver el sistema
   \begin{itemize}
-    \item Usar alg\'un resolvedor de autovalores y autovectores con $H$ y $E$.
+    \item Usar alg\'un resolvedor de autovalores y autovectores con $H$ y $S$.
   \end{itemize}
   }
   \end{itemize}
 \end{frame}
 
-\section{Optimizaci\'on}
-\subsection{Reducci\'on de la candidad de C\'alculos y Memoria}
+
+\begin{frame}
+  \frametitle{Matrices dispersas}
+  \begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=0.7\linewidth]{smat.eps}
+    \caption{Matriz S.}
+  \end{figure}
+\end{frame}
+
+
 
 \begin{frame}
   \frametitle{Matrices dispersas}
@@ -149,12 +166,12 @@
     \centering
     \begin{minipage}[b]{0.4\textwidth}
       \includegraphics[width=\textwidth]{hsim20.eps}
-      \caption{H L=20.}
+      \caption{$H_{2p}$ L=20.}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{hsim50.eps}
-        \caption{H L=50.}
+        \caption{$H_{2p}$ L=50.}
     \end{minipage}
   \end{figure}
 
@@ -176,14 +193,6 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Matrices dispersas}
-  \begin{figure}[!tbp]
-    \centering
-    \includegraphics[width=0.7\linewidth]{smat.eps}
-    \caption{Matriz S.}
-  \end{figure}
-\end{frame}
 
 \lstset{language=C, breaklines=true, basicstyle=\footnotesize}
 
@@ -242,12 +251,200 @@ for(unsigned int j = 0; j<INT_G; ++j) {
 \begin{frame}{Rec\'alculo de funciones simples}{}
   \begin{displaymath}
     T(i) = \left\lbrace \begin{array}{ccc}
-                        R_{min} & \mbox{si} & i < KORD \\
-                        R_{min} + dr * i  & \mbox{si} & KORD \leq i < KORD + L_{INT}\\
+                        R_{min} & \mbox{si} & i < KORD \\ \\
+                        R_{min} + dr * i  & \mbox{si} & KORD \leq i < KORD + L_{INT}\\ \\
                         R_{min} + dr *\\ (KORD + L_{INT} - 1) & \mbox{si} & KORD + L_{INT} \leq i
                         \end{array} \right.\,
   \end{displaymath}
 \end{frame}
 
+\begin{frame}{Escalado de Gauss Legendre}{}
+  \begin{block}{Cuadratura de Gauss Legendre}
+    \begin{displaymath}
+      \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n}w_if(x_i)
+    \end{displaymath}
+    \begin{displaymath}
+      \int_{a}^{b} f(x) dx = \frac{b-a}{2} \sum_{i=1}^{n}f(\frac{b-a}{2}x_i + \frac{a+b}{2})
+    \end{displaymath}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Optimizaci\'on GPU}{}
+  \begin{displaymath}
+  kernel_1 \left\lbrace \begin{array}{ccc}
+    f_{j,j'}(r_1) &=& \int_0^{r_1} \varphi_j(r_2)\,U(r_1,r_2)\,\varphi_{j'}(r_2)\,dr_2 \,, \\
+    g_{j,j'}(r_1) &=& \int_{r_1}^{r_{max}} \varphi_j(r_2)\,U(r_1,r_2)\,\varphi_{j'}(r_2)\,dr_2 \,,
+  \end{array} \right.\,
+  \end{displaymath}
+
+  \begin{displaymath}
+    U_{i,i';j,j'} = \int_0^{r_{max}} \varphi_i(r_1)\,f_{j,j'}(r_1)\,\varphi_{i'}(r_1)\,dr_1 + 
+                    \int_0^{r_{max}} \varphi_i(r_1)\,g_{j,j'}(r_1)\,\varphi_{i'}(r_1)\,dr_1\,.
+  \end{displaymath}
+
+  \begin{displaymath}
+    kernel_2 \left\lbrace \begin{array}{ccc}
+    U_{i,i';j,j'} &=& \int_0^{r_{max}} \varphi_i(r_1)\,(f_{j,j'}(r_1) + g_{j,j'}(r_1))\,\varphi_{i'}(r_1)\,dr_1
+    \end{array} \right.\,
+  \end{displaymath}
+
+\end{frame}
+
+\begin{frame}{Otras optimizaciones}{}
+  Como tenemos que $S_{ij} = S_{ji}$ solo se calcula la mitad superior
+  Alojar las matrices del sistema en el espacio de variables globales
+\end{frame}
+
+
+
+\begin{frame}{Resultados una part\'icula tiempo}{}
+  \begin{figure}[!tbp]
+    \includegraphics[width=1\linewidth]{unaparticula.eps}
+    \caption{Resultados Una particula en tiempo}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Resultados una part\'icula tiempo}{}
+\begin{table}[H]
+\begin{center}
+
+\small
+\begin{tabular}{ |c|c|c|c| }
+  \hline
+  $L_{INT}$ & Tiempo No Optimizado & Tiempo Optimizado & Speed Up \\
+  \hline
+  40 & 0.185 & 0.008 & 21.944\\
+  50 & 0.225 & 0.009 & 25.051\\
+  80 & 0.370 & 0.014 & 26.874\\
+  100 & 0.457 & 0.015 & 30.524\\
+  150 & 0.682 & 0.022 & 30.535\\
+  200 & 0.918 & 0.026 & 34.652\\
+  250 & 1.177 & 0.037 & 32.090\\
+  300 & 1.368 & 0.042 & 32.908\\
+  350 & 1.632 & 0.050 & 32.498\\
+  400 & 1.832 & 0.050 & 36.648\\
+  450 & 2.124 & 0.064 & 33.020\\
+  500 & 2.335 & 0.071 & 33.087\\
+  550 & 2.554 & 0.077 & 33.038\\
+  600 & 2.778 & 0.080 & 34.703\\
+  650 & 3.067 & 0.091 & 33.782\\
+  \hline
+\end{tabular}
+\caption{Speed Up No Optimizado vs Optimizado una part\'icula}
+\label{table:speedup1par}
+\end{center}
+\end{table}
+\end{frame}
+
+\begin{frame}{Resultados una part\'icula memoria}{}
+\begin{figure}[!tbp]
+    \includegraphics[width=1\linewidth]{memoria.eps}
+    \caption{Resultados Una particula en memoria}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Resultados dos part\'iculas}{}
+  \begin{figure}[h]
+  \renewcommand\figurename{Gr\'agico}
+  \begin{center}
+    \leavevmode
+
+    \includegraphics[width=0.9\linewidth]{optimizado2.eps}
+
+  \end{center}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Resultados dos part\'iculas}{}
+  \begin{table}[H]
+  \begin{center}
+
+  \begin{adjustbox}{max width=\textwidth}
+  \begin{tabular}{ |c|c|c|c|c|c|c| }
+    \hline
+    $L_{INT}$ & Interacci\'on  & Sener    & Interacci\'on & Speed Up & Sener      & Speed Up \\
+              &                &          & Optimizado    &          & Optimizado & \\
+    \hline
+    40  & 0.63    & 0.05    & 3.35    & 0.19  & 0.02  & 2.81 \\
+    50  & 18.41   & 0.14    & 5.26    & 3.50  & 0.03  & 4.58 \\
+    80  & 60.11   & 1.51    & 13.55   & 4.44  & 0.09  & 16.89 \\
+    100 & 112.81  & 3.80    & 21.20   & 5.32  & 0.16  & 23.35 \\
+    150 & 434.46  & 19.69   & 48.13   & 9.03  & 0.44  & 44.97 \\
+    200 & 1766.32 & 63.13   & 85.69   & 20.61 & 0.81  & 77.48 \\
+    \hline
+  \end{tabular}
+  \end{adjustbox}
+
+  \end{center}
+  \end{table}
+\end{frame}
+
+\begin{frame}{GPU}{}
+  \begin{figure}[h]
+    \renewcommand\figurename{Gr\'agico}
+    \begin{center}
+      \leavevmode
+   
+      \includegraphics[width=1\linewidth]{cpu_vs_gpu.eps}
+
+      \caption{Comparaci\'on entre CPU y GPU}
+
+      \label{graph:cpu_vs_gpu}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{GPU}{}
+  \begin{table}[H]
+\begin{center}
+
+\small
+\begin{tabular}{ |c|c|c|c| }
+  \hline
+  $L_{INT}$ & Tiempo No Optimizado & Tiempo Optimizado & Speed Up \\
+  \hline
+  40 & 0.185 & 0.008 & 21.944\\
+  50 & 0.225 & 0.009 & 25.051\\
+  80 & 0.370 & 0.014 & 26.874\\
+  100 & 0.457 & 0.015 & 30.524\\
+  150 & 0.682 & 0.022 & 30.535\\
+  200 & 0.918 & 0.026 & 34.652\\
+  250 & 1.177 & 0.037 & 32.090\\
+  300 & 1.368 & 0.042 & 32.908\\
+  350 & 1.632 & 0.050 & 32.498\\
+  400 & 1.832 & 0.050 & 36.648\\
+  450 & 2.124 & 0.064 & 33.020\\
+  500 & 2.335 & 0.071 & 33.087\\
+  550 & 2.554 & 0.077 & 33.038\\
+  600 & 2.778 & 0.080 & 34.703\\
+  650 & 3.067 & 0.091 & 33.782\\
+  \hline
+\end{tabular}
+\caption{Speed Up No Optimizado vs Optimizado una part\'icula}
+\label{table:speedup1par}
+\end{center}
+\end{table}
+\end{frame}
+
+\begin{frame}{Conclusiones}{}
+  \textit{Lista de prioridades a la hora de optimizar}
+  \begin{itemize}
+    \item Identificar que funciones son las mas pesadas.
+    \item Conocer el flujo u operaciones del programa.
+    \item Estudiar las estructuras de las variables involucradas.
+    \item Elejir las estructuras de datos m\'as adecuadas.
+    \item Optimizar el flujo u operaciones del programa.
+      \begin{itemize}
+        \item Adaptar el c\'odigo a las nuevas estructuras
+        \item Modificar el flujo del c\'odigo.
+        \item Vectorizar (si se da el caso)
+      \end{itemize}
+    \item Escalar horizontalmente.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{?`Preguntas?}{}
+\end{frame}
 
 \end{document}
