@@ -25,7 +25,7 @@
   Universidad Nacional de C\'ordoba\\
   FaMAF
 }
-\date{\today}
+\date{26 de Marzo de 2018}
 
 \begin{document}
 
@@ -59,27 +59,28 @@
 
 \begin{frame}
   \frametitle{Discretizaci\'on}
-    
+   
+  \begin{block}{Ec reducida}
   \begin{displaymath}
     \phi_n(r) = r\,R_n(r)\,,
   \end{displaymath} 
-
   \begin{displaymath}
     -\frac{1}{2} \frac{d^2 \phi_n}{dr^2} + \frac{l(l+1)}{2\,r^2} \phi_n(r) + V(r)\,\phi_n(r) = E_n\,\phi_n(r)\,,
   \end{displaymath} 
-  con las condiciones de contorno $\phi_n(r=0)=\phi_n(\infty) = 0$.
+  \end{block}
   \begin{displaymath}\label{combinacion_lineal}
       \phi_n(r)=\sum_{i=1}^{N}\alpha_i\,\varphi_i(r) = \sum_{j=i-k+1}^{i}\alpha_j\varphi_j(r)\ para\ r\ \in\ [t_i, t_{i+1}]\,,
   \end{displaymath}
 
   \begin{figure}[!tbp]
     \centering
-    \includegraphics[width=0.6\textwidth]{uniform-b-splines.eps}
+    \includegraphics[width=0.5\textwidth]{uniform-b-splines.eps}
   \end{figure}
 \end{frame}
 
 
 \begin{frame}
+    \frametitle{Ecuaciones Lineales}
     \begin{displaymath}\label{ec_auval}
     H_l \vec{\alpha} = E\,S\,\vec{\alpha}\,,
     \end{displaymath}
@@ -264,7 +265,7 @@ for(unsigned int j = 0; j<INT_G; ++j) {
       \int_{-1}^{1} f(x) dx \approx \sum_{i=1}^{n}w_if(x_i)
     \end{displaymath}
     \begin{displaymath}
-      \int_{a}^{b} f(x) dx = \frac{b-a}{2} \sum_{i=1}^{n}f(\frac{b-a}{2}x_i + \frac{a+b}{2})
+      \int_{a}^{b} f(x) dx = \frac{b-a}{2} \sum_{i=1}^{n}w_if(\frac{b-a}{2}x_i + \frac{a+b}{2})
     \end{displaymath}
   \end{block}
 \end{frame}
@@ -396,33 +397,32 @@ for(unsigned int j = 0; j<INT_G; ++j) {
 \end{frame}
 
 \begin{frame}{GPU}{}
-  \begin{table}[H]
+\begin{table}[h]
 \begin{center}
 
 \small
-\begin{tabular}{ |c|c|c|c| }
+\begin{tabular}{ |c|c|c|c|c|c| }
   \hline
-  $L_{INT}$ & Tiempo No Optimizado & Tiempo Optimizado & Speed Up \\
+  $L_{INT}$ & Tiempo CPU &   Tiempo   & Speed Up & Tiempo K40 & Speed Up \\
+               &            &   GTX980   &  GTX980  &            &    K40\\
   \hline
-  40 & 0.185 & 0.008 & 21.944\\
-  50 & 0.225 & 0.009 & 25.051\\
-  80 & 0.370 & 0.014 & 26.874\\
-  100 & 0.457 & 0.015 & 30.524\\
-  150 & 0.682 & 0.022 & 30.535\\
-  200 & 0.918 & 0.026 & 34.652\\
-  250 & 1.177 & 0.037 & 32.090\\
-  300 & 1.368 & 0.042 & 32.908\\
-  350 & 1.632 & 0.050 & 32.498\\
-  400 & 1.832 & 0.050 & 36.648\\
-  450 & 2.124 & 0.064 & 33.020\\
-  500 & 2.335 & 0.071 & 33.087\\
-  550 & 2.554 & 0.077 & 33.038\\
-  600 & 2.778 & 0.080 & 34.703\\
-  650 & 3.067 & 0.091 & 33.782\\
+  80 & 13.553 & 5.494 & 2.467 & 4.410 & 3.073\\
+  100 & 21.201 & 4.288 & 4.944 & 5.164 & 4.106\\
+  150 & 48.133 & 4.809 & 10.009 & 8.552 & 5.628\\
+  200 & 85.695 & 6.169 & 13.891 & 13.550 & 6.325\\
+  250 & 133.899 & 7.936 & 16.871 & 20.167 & 6.639\\
+  300 & 192.871 & 11.364 & 16.972 & 28.515 & 6.764\\
+  350 & 262.632 & 16.948 & 15.497 & 38.551 & 6.813\\
+  400 & 343.160 & 27.332 & 12.555 & 49.341 & 6.955\\
+  450 & 434.191 & 34.075 & 12.742 & 62.108 & 6.991\\
+  500 & 536.205 & 41.716 & 12.854 & 76.332 & 7.025\\
+  550 & 648.931 & 50.266 & 12.910 & 92.064 & 7.049\\
+  600 & 772.392 & 59.990 & 12.875 & 108.469 & 7.121\\
+  650 & 906.392 & 70.547 & 12.848 & 126.974 & 7.138\\
   \hline
 \end{tabular}
-\caption{Speed Up No Optimizado vs Optimizado una part\'icula}
-\label{table:speedup1par}
+\caption{Speed Up No Optimizado vs Optimizado dos part\'iculas}
+\label{table:speedupgpu}
 \end{center}
 \end{table}
 \end{frame}
